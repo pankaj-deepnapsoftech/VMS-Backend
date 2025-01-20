@@ -1,6 +1,10 @@
 import express, { json, urlencoded } from 'express';
 import cors from 'cors';
+// local imports
 import { config } from './config/env.config.js';
+import { Health } from './controller/health.controller.js';
+import MainRoutes from './routes/index.js';
+import { CustomError, NotFoundError } from './utils/customError.js';
 
 const app = express();
 
@@ -13,5 +17,18 @@ app.use(
     credentials: true,
   }),
 );
+
+app.get('/health', Health);
+app.use('/api/v1', MainRoutes);
+app.all('*', (_req, _res, next) => {
+  next(new NotFoundError('Path Not Found ', 'server.js '));
+});
+
+app.use((error, _req, res, next) => {
+  if (error instanceof CustomError) {
+    res.status(error.statusCode).json(error.serializeErrors());
+  }
+  next();
+});
 
 export { app };

@@ -1,10 +1,7 @@
 {
-    "extends": [
-      "eslint:recommended",
-      "plugin:react/recommended"
-    ],
-    "plugins": ["node"],
-    "rules": {
-      "no-console": "warn"
-    }
+  "extends": ["eslint:recommended", "plugin:react/recommended"],
+  "plugins": ["node"],
+  "rules": {
+    "no-console": "warn"
   }
+}
