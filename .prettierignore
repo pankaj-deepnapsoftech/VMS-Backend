@@ -1,0 +1,19 @@
+# Ignore node_modules and build directories
+node_modules/
+dist/
+
+# Ignore all JavaScript configuration files
+*.config.js
+*.config.json
+
+# Ignore test folder
+test/
+
+# Ignore minified JS files
+*.min.js
+
+# Ignore HTML files in a specific folder
+public/**/*.html
+
+package-lock.json
+.env
