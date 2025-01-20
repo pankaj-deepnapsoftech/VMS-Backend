@@ -17,10 +17,12 @@
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
     "express": "^4.21.2",
     "http-status-codes": "^2.3.0",
     "mongoose": "^8.9.5",
     "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.16",
     "yup": "^1.6.1"
   },
   "devDependencies": {

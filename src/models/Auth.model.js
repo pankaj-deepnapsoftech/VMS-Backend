@@ -19,8 +19,8 @@ const AuthSchema = new Schema({
 
 AuthSchema.pre("save",async function (next) {
     if(!this.isModified("password")) next();
-    const hash = await hash(this.password,12)
-    this.password = hash
+    const hashPass = await hash(this.password,12)
+    this.password = hashPass
 })
 
 

@@ -8,7 +8,6 @@ export class CustomError extends Error {
     this.status = 'error';
     this.comingFrom = comingFrom;
 
-    // Capture the stack trace
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, CustomError);
     }
@@ -39,7 +38,7 @@ export class NotAuthenticated extends CustomError {
   }
 }
 
-export class FileTooLarge extends CustomError {
+export class FileTooLargeError extends CustomError {
   statusCode = StatusCodes.REQUEST_TOO_LONG;
   constructor(message, comingFrom) {
     super(message, comingFrom);
@@ -52,3 +51,5 @@ export class NotFoundError extends CustomError {
     super(message, comingFrom);
   }
 }
+
+
