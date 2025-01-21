@@ -9,3 +9,8 @@ export const RegisterValidation = object({
     .oneOf(['Customer', 'Employee', 'Admin'])
     .required('Role is Required'),
 });
+
+export const LoginValidation = object({
+  email:string().email().required("E-mail is required"),
+  password: string().min(4).max(12).required('Password is Required'),
+})
