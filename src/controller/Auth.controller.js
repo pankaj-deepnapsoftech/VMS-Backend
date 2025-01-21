@@ -129,4 +129,29 @@ const ResetPassword = AsyncHandler(async (req,res)=>{
   
 })
 
-export { RegisterUser, LoginUser, VerifyOTP, VerifyEmail,ResetPassword };
+const LogoutUser = AsyncHandler(async (req,res)=>{
+  await AuthModel.findByIdAndUpdate(req?.currentUser._id,{Login_verification:false,otp:null,otp_expire:null})
+  return res.status(StatusCodes.OK).json({
+    message:"Logout Successful"
+  })
+})
+
+const getlogedInUser = AsyncHandler(async (req,res)=> {
+  const data = await AuthModel.findById(req?.currentUser._id)
+  .select("_id full_name email phone role Allowed_path");
+
+   return res.status(StatusCodes.OK).json({
+    message:"user Data",
+    data
+  })
+})
+
+const UpdateUserPath = AsyncHandler(async (req,res)=>{
+  const data = req.body;
+  await AuthModel.findByIdAndUpdate(req?.currentUser._id,{Allowed_path:data})
+  return res.status(StatusCodes.OK).json({
+    message:"Paths added Successful",
+  })
+})
+
+export { RegisterUser, LoginUser, VerifyOTP, VerifyEmail,ResetPassword,LogoutUser,getlogedInUser,UpdateUserPath };
