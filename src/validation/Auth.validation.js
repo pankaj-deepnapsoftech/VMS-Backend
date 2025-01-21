@@ -14,3 +14,11 @@ export const LoginValidation = object({
   email: string().email().required('E-mail is required'),
   password: string().min(4).max(12).required('Password is Required'),
 });
+
+export const VerifyEmailValidation = object({
+  email: string().email().required('E-mail is required'),
+})
+
+export const ResetPasswordValidation = object ({
+  password: string().min(4).max(12).required('Password is Required'),
+})

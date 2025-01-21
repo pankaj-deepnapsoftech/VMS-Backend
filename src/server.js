@@ -1,11 +1,13 @@
 import express, { json, urlencoded } from 'express';
 import cors from 'cors';
+import { StatusCodes } from 'http-status-codes';
+import cron from 'node-cron';
 // local imports
 import { config } from './config/env.config.js';
 import { Health } from './controller/health.controller.js';
 import MainRoutes from './routes/index.js';
 import { CustomError, NotFoundError } from './utils/customError.js';
-import { StatusCodes } from 'http-status-codes';
+import { AuthModel } from './models/Auth.model.js';
 
 const app = express();
 
@@ -26,16 +28,36 @@ app.all('*', (_req, _res, next) => {
 });
 
 app.use((error, _req, res, next) => {
+  console.log(error);
   if (error.name === 'JsonWebTokenError') {
     res
       .status(StatusCodes.BAD_GATEWAY)
       .json({ message: 'Invalid Token', status: 'error' });
-    return;
-  }
-  if (error instanceof CustomError) {
+  } else if (error.name === 'TokenExpiredError') {
+    res
+      .status(StatusCodes.BAD_GATEWAY)
+      .json({ message: 'Token Expired', status: 'error' });
+  } else if (error instanceof CustomError) {
     res.status(error.statusCode).json(error.serializeErrors());
+  } else {
+    res
+      .status(StatusCodes.BAD_GATEWAY)
+      .json({
+        message: error.message || 'somthing went Wrong',
+        status: 'error',
+        error: error.name,
+      });
   }
   next();
+});
+
+cron.schedule('0 0 * * *', async () => {
+  try {
+    await AuthModel.updateMany({}, { Login_verification: false });
+    console.log('app user logout');
+  } catch (error) {
+    console.error('Error calling the API:', error.message);
+  }
 });
 
 export { app };

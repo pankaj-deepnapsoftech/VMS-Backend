@@ -24,4 +24,17 @@ AuthSchema.pre('save', async function (next) {
   this.password = hashPass;
 });
 
+AuthSchema.pre('findOneAndUpdate', async function (next) {
+  if (!this._update.password) {
+    return next();
+  }
+  try {
+    const hashedPass = await hash(this._update.password, 12);
+    this._update.password = hashedPass;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 export const AuthModel = model('User', AuthSchema);
