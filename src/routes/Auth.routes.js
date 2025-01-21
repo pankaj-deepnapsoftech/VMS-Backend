@@ -4,6 +4,6 @@ import { RegisterUser } from '../controller/Auth.controller.js';
 
 const routes = Router();
 
-routes.route("/create").post(RegistrationValidate,RegisterUser)
+routes.route('/create').post(RegistrationValidate, RegisterUser);
 
 export default routes;

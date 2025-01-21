@@ -51,5 +51,3 @@ export class NotFoundError extends CustomError {
     super(message, comingFrom);
   }
 }
-
-
