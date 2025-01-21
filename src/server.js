@@ -5,6 +5,7 @@ import { config } from './config/env.config.js';
 import { Health } from './controller/health.controller.js';
 import MainRoutes from './routes/index.js';
 import { CustomError, NotFoundError } from './utils/customError.js';
+import { StatusCodes } from 'http-status-codes';
 
 const app = express();
 
@@ -25,6 +26,12 @@ app.all('*', (_req, _res, next) => {
 });
 
 app.use((error, _req, res, next) => {
+  if (error.name === 'JsonWebTokenError') {
+    res
+      .status(StatusCodes.BAD_GATEWAY)
+      .json({ message: 'Invalid Token', status: 'error' });
+    return;
+  }
   if (error instanceof CustomError) {
     res.status(error.statusCode).json(error.serializeErrors());
   }

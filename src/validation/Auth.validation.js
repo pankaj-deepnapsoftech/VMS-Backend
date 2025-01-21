@@ -11,6 +11,6 @@ export const RegisterValidation = object({
 });
 
 export const LoginValidation = object({
-  email:string().email().required("E-mail is required"),
+  email: string().email().required('E-mail is required'),
   password: string().min(4).max(12).required('Password is Required'),
-})
+});

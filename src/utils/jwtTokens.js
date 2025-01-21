@@ -1,4 +1,4 @@
-import jwt  from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { config } from '../config/env.config.js';
 
 export const SignToken = (payload) => {
@@ -6,5 +6,6 @@ export const SignToken = (payload) => {
 };
 
 export const VerifyToken = (token) => {
-  return jwt.verify(token, config.JWT_SECRET);
+  const data = jwt.verify(token, config.JWT_SECRET);
+  return data || null;
 };
