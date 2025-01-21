@@ -22,3 +22,8 @@ export const VerifyEmailValidation = object({
 export const ResetPasswordValidation = object ({
   password: string().min(4).max(12).required('Password is Required'),
 })
+
+export const ChnagePasswordValidation = object({
+  newPassword: string().min(4).max(12).required('Password is Required'),
+  oldPassword: string().min(4).max(12).required('Password is Required'),
+})

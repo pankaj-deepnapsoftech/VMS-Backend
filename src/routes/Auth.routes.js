@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { LoginValidate, RegistrationValidate, ResetPasswordValidate, VerifyEmailValidate } from '../helper/helper.js';
+import { ChnagePasswordValidate, LoginValidate, RegistrationValidate, ResetPasswordValidate, VerifyEmailValidate } from '../helper/helper.js';
 import {
   RegisterUser,
   LoginUser,
@@ -9,6 +9,7 @@ import {
   LogoutUser,
   getlogedInUser,
   UpdateUserPath,
+  ChnagePassword,
 } from '../controller/Auth.controller.js';
 import { Authentication } from '../middleware/Authentication.js';
 
@@ -22,5 +23,6 @@ routes.route('/reset-password/:token').post(ResetPasswordValidate, ResetPassword
 routes.route('/logout').get(Authentication, LogoutUser);
 routes.route('/logedin-user').get(Authentication, getlogedInUser);
 routes.route('/update-paths').put(Authentication, UpdateUserPath);
+routes.route('/change-password').put(Authentication,ChnagePasswordValidate, ChnagePassword);
 
 export default routes;

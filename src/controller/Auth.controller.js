@@ -3,7 +3,11 @@ import { AuthModel } from '../models/Auth.model.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { BadRequestError, NotFoundError } from '../utils/customError.js';
 import { generateOTP } from '../utils/otpGenerater.js';
-import { PasswordSignToken, SignToken, VerifyToken } from '../utils/jwtTokens.js';
+import {
+  PasswordSignToken,
+  SignToken,
+  VerifyToken,
+} from '../utils/jwtTokens.js';
 import { SendMail } from '../utils/SendMain.js';
 import { compare } from 'bcrypt';
 
@@ -78,8 +82,8 @@ const LoginUser = AsyncHandler(async (req, res) => {
 
 const VerifyOTP = AsyncHandler(async (req, res) => {
   const { otp } = req.body;
-  if(!otp){
-    throw new BadRequestError("OTP Is Required","VerifyOTP method")
+  if (!otp) {
+    throw new BadRequestError('OTP Is Required', 'VerifyOTP method');
   }
   const date = Date.now();
   if (date > req?.currentUser.otp_expire) {
@@ -97,61 +101,98 @@ const VerifyOTP = AsyncHandler(async (req, res) => {
   });
 });
 
-const VerifyEmail = AsyncHandler(async (req,res) => {
-  const {email} = req.body;
-  
-  const user = await AuthModel.findOne({email})
-  if(!user){
-    throw new NotFoundError("User not exist","VerifyEmail method")
+const VerifyEmail = AsyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  const user = await AuthModel.findOne({ email });
+  if (!user) {
+    throw new NotFoundError('User not exist', 'VerifyEmail method');
   }
-  const token = PasswordSignToken({email});
+  const token = PasswordSignToken({ email });
 
-  const resetLink = `http://localhost:5173/reset-password?token=${token}&verification=true&testing=true`
-  await SendMail("ResetPassword.ejs",{resetLink,userEmail:email},{ email:email, subject: 'Reset Password Link' })
+  const resetLink = `http://localhost:5173/reset-password?token=${token}&verification=true&testing=true`;
+  await SendMail(
+    'ResetPassword.ejs',
+    { resetLink, userEmail: email },
+    { email: email, subject: 'Reset Password Link' },
+  );
   return res.status(StatusCodes.OK).json({
-    message:"Password reset link send Successful"
-  })
+    message: 'Password reset link send Successful',
+  });
+});
 
-})
-
-const ResetPassword = AsyncHandler(async (req,res)=>{
-  const {token} = req.params;
-  if(!token){
-    throw new NotFoundError("Token Is Required","ResetPassword method")
+const ResetPassword = AsyncHandler(async (req, res) => {
+  const { token } = req.params;
+  if (!token) {
+    throw new NotFoundError('Token Is Required', 'ResetPassword method');
   }
- console.log(token)
-  const {password} = req.body;
-  const {email} = VerifyToken(token)
-  await AuthModel.findOneAndUpdate({email},{password})
+  console.log(token);
+  const { password } = req.body;
+  const { email } = VerifyToken(token);
+  await AuthModel.findOneAndUpdate({ email }, { password });
   return res.status(StatusCodes.OK).json({
-    message:"Password reset successful"
-  })
-  
-})
+    message: 'Password reset successful',
+  });
+});
 
-const LogoutUser = AsyncHandler(async (req,res)=>{
-  await AuthModel.findByIdAndUpdate(req?.currentUser._id,{Login_verification:false,otp:null,otp_expire:null})
+const LogoutUser = AsyncHandler(async (req, res) => {
+  await AuthModel.findByIdAndUpdate(req?.currentUser._id, {
+    Login_verification: false,
+    otp: null,
+    otp_expire: null,
+  });
   return res.status(StatusCodes.OK).json({
-    message:"Logout Successful"
-  })
-})
+    message: 'Logout Successful',
+  });
+});
 
-const getlogedInUser = AsyncHandler(async (req,res)=> {
-  const data = await AuthModel.findById(req?.currentUser._id)
-  .select("_id full_name email phone role Allowed_path");
+const getlogedInUser = AsyncHandler(async (req, res) => {
+  const data = await AuthModel.findById(req?.currentUser._id).select(
+    '_id full_name email phone role Allowed_path',
+  );
 
-   return res.status(StatusCodes.OK).json({
-    message:"user Data",
-    data
-  })
-})
+  return res.status(StatusCodes.OK).json({
+    message: 'user Data',
+    data,
+  });
+});
 
-const UpdateUserPath = AsyncHandler(async (req,res)=>{
+const UpdateUserPath = AsyncHandler(async (req, res) => {
   const data = req.body;
-  await AuthModel.findByIdAndUpdate(req?.currentUser._id,{Allowed_path:data})
+  await AuthModel.findByIdAndUpdate(req?.currentUser._id, {
+    Allowed_path: data,
+  });
   return res.status(StatusCodes.OK).json({
-    message:"Paths added Successful",
-  })
-})
+    message: 'Paths added Successful',
+  });
+});
 
-export { RegisterUser, LoginUser, VerifyOTP, VerifyEmail,ResetPassword,LogoutUser,getlogedInUser,UpdateUserPath };
+const ChnagePassword = AsyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  const user = await AuthModel.findById(req?.currentUser._id);
+
+  const isPasswordCurrect = await compare(oldPassword, user.password);
+  if (!isPasswordCurrect) {
+    throw new BadRequestError(
+      'Wrong Password Try Again...',
+      'ChnagePassword method',
+    );
+  }
+  await AuthModel.findByIdAndUpdate(user._id, { password: newPassword });
+  return res.status(StatusCodes.OK).json({
+    message: 'New password created Successful',
+  });
+});
+
+export {
+  RegisterUser,
+  LoginUser,
+  VerifyOTP,
+  VerifyEmail,
+  ResetPassword,
+  LogoutUser,
+  getlogedInUser,
+  UpdateUserPath,
+  ChnagePassword,
+};
