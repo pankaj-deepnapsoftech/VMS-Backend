@@ -8,9 +8,9 @@ import {
 } from '../validation/Auth.validation.js';
 import { Validater } from './checkValidation.js';
 
-// auth validaters 
+// auth validaters
 export const RegistrationValidate = Validater(RegisterValidation);
 export const LoginValidate = Validater(LoginValidation);
-export const VerifyEmailValidate = Validater(VerifyEmailValidation)
-export const ResetPasswordValidate = Validater(ResetPasswordValidation)
-export const ChnagePasswordValidate = Validater(ChnagePasswordValidation)
+export const VerifyEmailValidate = Validater(VerifyEmailValidation);
+export const ResetPasswordValidate = Validater(ResetPasswordValidation);
+export const ChnagePasswordValidate = Validater(ChnagePasswordValidation);

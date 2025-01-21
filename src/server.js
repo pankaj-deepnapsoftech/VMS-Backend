@@ -28,7 +28,6 @@ app.all('*', (_req, _res, next) => {
 });
 
 app.use((error, _req, res, next) => {
-  console.log(error);
   if (error.name === 'JsonWebTokenError') {
     res
       .status(StatusCodes.BAD_GATEWAY)
@@ -40,13 +39,11 @@ app.use((error, _req, res, next) => {
   } else if (error instanceof CustomError) {
     res.status(error.statusCode).json(error.serializeErrors());
   } else {
-    res
-      .status(StatusCodes.BAD_GATEWAY)
-      .json({
-        message: error.message || 'somthing went Wrong',
-        status: 'error',
-        error: error.name,
-      });
+    res.status(StatusCodes.BAD_GATEWAY).json({
+      message: error.message || 'somthing went Wrong',
+      status: 'error',
+      error: error.name,
+    });
   }
   next();
 });

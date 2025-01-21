@@ -11,5 +11,5 @@ export const VerifyToken = (token) => {
 };
 
 export const PasswordSignToken = (payload) => {
-  return jwt.sign(payload, config.JWT_SECRET, { expiresIn: '10min' })
-}
+  return jwt.sign(payload, config.JWT_SECRET, { expiresIn: '10min' });
+};

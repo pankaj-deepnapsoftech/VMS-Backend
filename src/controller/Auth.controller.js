@@ -126,7 +126,7 @@ const ResetPassword = AsyncHandler(async (req, res) => {
   if (!token) {
     throw new NotFoundError('Token Is Required', 'ResetPassword method');
   }
-  console.log(token);
+
   const { password } = req.body;
   const { email } = VerifyToken(token);
   await AuthModel.findOneAndUpdate({ email }, { password });
