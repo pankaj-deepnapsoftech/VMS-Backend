@@ -5,6 +5,7 @@ import { BadRequestError } from '../utils/customError.js';
 import { generateOTP } from '../utils/otpGenerater.js';
 import { SignToken } from '../utils/jwtTokens.js';
 import { SendMail } from '../utils/SendMain.js';
+import { compare } from 'bcrypt';
 
 const RegisterUser = AsyncHandler(async (req, res) => {
   const data = req.body;
@@ -23,6 +24,7 @@ const RegisterUser = AsyncHandler(async (req, res) => {
     login_expire: expiresAt,
   });
   result.password = null;
+  result.otp = null
   const token = SignToken({ email: result.email, id: result._id });
   SendMail(
     'EmailVerification.ejs',
@@ -36,8 +38,51 @@ const RegisterUser = AsyncHandler(async (req, res) => {
   });
 });
 
-const LoginUser = AsyncHandler(async (req,res) => {
-  const data = req.body;
-})
+const LoginUser = AsyncHandler(async (req, res) => {
+  const { email, password } = req.body;
 
-export { RegisterUser,LoginUser };
+  const user = await AuthModel.findOne({ email });
+  if (!user) {
+    throw new NotFoundError('User not exist', 'LoginUser method');
+  }
+
+  const isPasswordCurrect = await compare(password, user.password);
+  if (!isPasswordCurrect) {
+    throw new BadRequestError(
+      'Wrong Password Try Again...',
+      'LoginUser method',
+    );
+  }
+
+  const { otp, expiresAt } = generateOTP();
+
+  if (user.email_verification) {
+    await AuthModel.findByIdAndUpdate(user._id, {
+      otp,
+      login_expire: expiresAt,
+    });
+  } else {
+    await AuthModel.findByIdAndUpdate(user._id, {
+      otp,
+      email_expire: expiresAt,
+      login_expire: expiresAt,
+    });
+  }
+
+  const token = SignToken({ email: user.email, id: user._id });
+  SendMail(
+    'EmailVerification.ejs',
+    { userName: user.full_name, otpCode: otp },
+    { email: user.email, subject: 'Email Verification' },
+  );
+  user.password = null;
+  user.otp = null;
+
+  return res.status(StatusCodes.OK).json({
+    message:"Login Successful",
+    user,
+    token
+  })
+});
+
+export { RegisterUser, LoginUser };
