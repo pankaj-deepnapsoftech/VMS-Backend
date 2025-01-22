@@ -7,6 +7,12 @@ const options = {
         title: 'VMS Backend Apis',
         version: '1.0.0',
       },
+      servers: [
+        {
+          url: 'http://localhost:4000/api/v1', // Specify your base URL here
+          description: 'Local development server', // Optional description
+        },
+      ],
     },
     apis: ['./src/routes/index.js'], 
   };
