@@ -49,6 +49,10 @@ const LoginUser = AsyncHandler(async (req, res) => {
     throw new NotFoundError('User not exist', 'LoginUser method');
   }
 
+  if(!user.employee_approve){
+    throw new BadRequestError("You are not verify By Admin","LoginUser method")
+  }
+
   const isPasswordCurrect = await compare(password, user.password);
   if (!isPasswordCurrect) {
     throw new BadRequestError(
@@ -185,6 +189,26 @@ const ChnagePassword = AsyncHandler(async (req, res) => {
   });
 });
 
+const ResendOtp = AsyncHandler(async (req,res)=>{
+  const { otp, expiresAt } = generateOTP();
+
+  const result = await AuthModel.findById(req?.currentUser._id)
+  if(!result){
+    throw new NotFoundError("user not found","ResendOtp method")
+  }
+
+  await AuthModel.findByIdAndUpdate(req?.currentUser._id,{otp,otp_expire: expiresAt,})
+
+  await SendMail(
+    'EmailVerification.ejs',
+    { userName: result.full_name, otpCode: otp },
+    { email: result.email, subject: 'Email Verification' },)
+
+    return res.status(StatusCodes.OK).json({
+      message:"OTP send again Your E-mail"
+    })
+})
+
 export {
   RegisterUser,
   LoginUser,
@@ -195,4 +219,5 @@ export {
   getlogedInUser,
   UpdateUserPath,
   ChnagePassword,
+  ResendOtp
 };

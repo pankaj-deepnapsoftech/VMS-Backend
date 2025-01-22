@@ -16,6 +16,7 @@ import {
   getlogedInUser,
   UpdateUserPath,
   ChnagePassword,
+  ResendOtp,
 } from '../controller/Auth.controller.js';
 import { Authentication } from '../middleware/Authentication.js';
 
@@ -31,6 +32,7 @@ routes
 routes.route('/logout').get(Authentication, LogoutUser);
 routes.route('/logedin-user').get(Authentication, getlogedInUser);
 routes.route('/update-paths').put(Authentication, UpdateUserPath);
+routes.route('/resend-otp').put(Authentication, ResendOtp);
 routes
   .route('/change-password')
   .put(Authentication, ChnagePasswordValidate, ChnagePassword);

@@ -12,6 +12,7 @@ const AuthSchema = new Schema({
     enum: ['Customer', 'Employee', 'Admin'],
   },
   otp: { type: Number },
+  employee_approve:{type: Boolean, required: true, default: false },
   otp_expire: { type: Number },
   Allowed_path: { type: [String] },
   email_verification: { type: Boolean, required: true, default: false },
