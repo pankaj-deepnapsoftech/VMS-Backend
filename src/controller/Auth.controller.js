@@ -49,7 +49,7 @@ const LoginUser = AsyncHandler(async (req, res) => {
     throw new NotFoundError('User not exist', 'LoginUser method');
   }
 
-  if (!user.employee_approve && role === "Employee") {
+  if (!user.employee_approve && user.role === "Employee") {
     throw new BadRequestError(
       'You are not verify By Admin',
       'LoginUser method',
