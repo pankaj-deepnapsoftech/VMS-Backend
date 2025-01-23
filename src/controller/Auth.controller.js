@@ -10,6 +10,7 @@ import {
 } from '../utils/jwtTokens.js';
 import { SendMail } from '../utils/SendMain.js';
 import { compare } from 'bcrypt';
+import { message } from 'antd';
 
 const RegisterUser = AsyncHandler(async (req, res) => {
   const data = req.body;
@@ -216,6 +217,26 @@ const ResendOtp = AsyncHandler(async (req, res) => {
   });
 });
 
+const GetAllUser = AsyncHandler(async (_req,res) => {
+  const users = await AuthModel.find({role:"Customer"})
+  return res.status(StatusCodes.OK).json({
+    message:"all customer",
+    users
+  })
+})
+
+const employeeVerification = AsyncHandler(async (req,res) => {
+  const {id} = req.params;
+  const user = await AuthModel.findById(id);
+  if(!user){
+    throw new BadRequestError("User not found","employeeVerification method")
+  }
+  await AuthModel.findByIdAndUpdate(id,{employee_approve:true})
+  return res.status(StatusCodes.OK).json({
+    message:"Employee Approve Successful"
+  })
+})
+
 export {
   RegisterUser,
   LoginUser,
@@ -227,4 +248,6 @@ export {
   UpdateUserPath,
   ChnagePassword,
   ResendOtp,
+  GetAllUser,
+  employeeVerification
 };

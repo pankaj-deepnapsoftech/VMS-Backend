@@ -36,5 +36,6 @@ routes.route('/resend-otp').put(Authentication, ResendOtp);
 routes
   .route('/change-password')
   .put(Authentication, ChnagePasswordValidate, ChnagePassword);
+routes.route("/verify-employee").patch(Authentication,employeeVerification)
 
 export default routes;
