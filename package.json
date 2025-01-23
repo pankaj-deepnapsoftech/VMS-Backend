@@ -8,7 +8,7 @@
     "start": "node  src/index.js",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "swagger" : "node src/swagger.js"
+    "swagger": "node src/swagger.js"
   },
   "keywords": [],
   "author": "nitin",

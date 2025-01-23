@@ -7,9 +7,7 @@
   },
   "host": "localhost:4000",
   "basePath": "/api/v1",
-  "schemes": [
-    "http"
-  ],
+  "schemes": ["http"],
   "paths": {
     "/auth/create": {
       "post": {
@@ -329,7 +327,5 @@
       }
     }
   },
-  "apis": [
-    "./src/routes/index.js"
-  ]
+  "apis": ["./src/routes/index.js"]
 }

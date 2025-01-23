@@ -8,8 +8,8 @@ import { Health } from './controller/health.controller.js';
 import MainRoutes from './routes/index.js';
 import { CustomError, NotFoundError } from './utils/customError.js';
 import { AuthModel } from './models/Auth.model.js';
-import swaggerUi from "swagger-ui-express"
-import swaggerDocument from "./swagger.json" assert { type: 'json' };
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocument from './swagger.json' assert { type: 'json' };
 
 const app = express();
 
@@ -50,7 +50,6 @@ app.use((error, _req, res, next) => {
   }
   next();
 });
-
 
 cron.schedule('0 0 * * *', async () => {
   try {

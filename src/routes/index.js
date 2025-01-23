@@ -1,7 +1,7 @@
 import { Router } from 'express';
 // local imports
 import AuthRoutes from './Auth.routes.js';
-import DataRoutes from "./data.routes.js";
+import DataRoutes from './data.routes.js';
 
 const routes = Router();
 

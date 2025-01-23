@@ -78,10 +78,10 @@ const updateOneData = AsyncHandler(async (req, res) => {
   if (!data) {
     throw new NotFoundError('data not Found', 'DeleteOneData method');
   }
-  await DataModel.findByIdAndUpdate(id,update).exec();
+  await DataModel.findByIdAndUpdate(id, update).exec();
   return res.status(StatusCodes.OK).json({
     message: 'data updated Successful',
   });
 });
 
-export { CreateData, getAllData, getOneData,DeteleOneData,updateOneData };
+export { CreateData, getAllData, getOneData, DeteleOneData, updateOneData };

@@ -1,4 +1,4 @@
-import xlsx from "xlsx";
+import xlsx from 'xlsx';
 
 export function convertExcelToJson(filePath) {
   const workbook = xlsx.readFile(filePath);
