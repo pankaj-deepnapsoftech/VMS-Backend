@@ -32,13 +32,9 @@ app.all('*', (_req, _res, next) => {
 
 app.use((error, _req, res, next) => {
   if (error.name === 'JsonWebTokenError') {
-    res
-      .status(StatusCodes.BAD_GATEWAY)
-      .json({ message: 'Invalid Token', status: 'error' });
+    res.status(StatusCodes.BAD_GATEWAY).json({ message: 'Invalid Token', status: 'error' });
   } else if (error.name === 'TokenExpiredError') {
-    res
-      .status(StatusCodes.BAD_GATEWAY)
-      .json({ message: 'Token Expired', status: 'error' });
+    res.status(StatusCodes.BAD_GATEWAY).json({ message: 'Token Expired', status: 'error' });
   } else if (error instanceof CustomError) {
     res.status(error.statusCode).json(error.serializeErrors());
   } else {

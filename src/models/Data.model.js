@@ -1,5 +1,4 @@
 import { Schema, model } from 'mongoose';
-import { number } from 'yup';
 
 const DataSchema = new Schema(
   {
@@ -13,8 +12,8 @@ const DataSchema = new Schema(
     Severity: { type: String },
     Priority: { type: String },
     Status: { type: String },
-    Remediated_Date:{type:Number},
-    Ageing:{type:String},
+    Remediated_Date: { type: Number },
+    Ageing: { type: String },
     Remediate_Upcoming_Time_Line: { type: String },
   },
   { timestamps: true },

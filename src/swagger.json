@@ -304,6 +304,16 @@
           }
         }
       }
+    },
+    "/data/VulnerableRiskRating": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "definitions": {

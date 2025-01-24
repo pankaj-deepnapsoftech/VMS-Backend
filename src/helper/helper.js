@@ -1,11 +1,5 @@
 // local imports
-import {
-  RegisterValidation,
-  LoginValidation,
-  VerifyEmailValidation,
-  ResetPasswordValidation,
-  ChnagePasswordValidation,
-} from '../validation/Auth.validation.js';
+import { RegisterValidation, LoginValidation, VerifyEmailValidation, ResetPasswordValidation, ChnagePasswordValidation } from '../validation/Auth.validation.js';
 import { Validater } from './checkValidation.js';
 
 // auth validaters

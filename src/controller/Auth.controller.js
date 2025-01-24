@@ -3,11 +3,7 @@ import { AuthModel } from '../models/Auth.model.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { BadRequestError, NotFoundError } from '../utils/customError.js';
 import { generateOTP } from '../utils/otpGenerater.js';
-import {
-  PasswordSignToken,
-  SignToken,
-  VerifyToken,
-} from '../utils/jwtTokens.js';
+import { PasswordSignToken, SignToken, VerifyToken } from '../utils/jwtTokens.js';
 import { SendMail } from '../utils/SendMain.js';
 import { compare } from 'bcrypt';
 
@@ -29,11 +25,7 @@ const RegisterUser = AsyncHandler(async (req, res) => {
   result.password = null;
   result.otp = null;
   const token = SignToken({ email: result.email, id: result._id });
-  SendMail(
-    'EmailVerification.ejs',
-    { userName: result.full_name, otpCode: otp },
-    { email: result.email, subject: 'Email Verification' },
-  );
+  SendMail('EmailVerification.ejs', { userName: result.full_name, otpCode: otp }, { email: result.email, subject: 'Email Verification' });
   return res.status(StatusCodes.OK).json({
     message: 'User created Successful',
     result,
@@ -49,19 +41,13 @@ const LoginUser = AsyncHandler(async (req, res) => {
     throw new NotFoundError('User not exist', 'LoginUser method');
   }
 
-  if (!user.employee_approve && user.role === "Employee") {
-    throw new BadRequestError(
-      'You are not verify By Admin',
-      'LoginUser method',
-    );
+  if (!user.employee_approve && user.role === 'Employee') {
+    throw new BadRequestError('You are not verify By Admin', 'LoginUser method');
   }
 
   const isPasswordCurrect = await compare(password, user.password);
   if (!isPasswordCurrect) {
-    throw new BadRequestError(
-      'Wrong Password Try Again...',
-      'LoginUser method',
-    );
+    throw new BadRequestError('Wrong Password Try Again...', 'LoginUser method');
   }
 
   const { otp, expiresAt } = generateOTP();
@@ -72,11 +58,7 @@ const LoginUser = AsyncHandler(async (req, res) => {
   });
 
   const token = SignToken({ email: user.email, id: user._id });
-  SendMail(
-    'EmailVerification.ejs',
-    { userName: user.full_name, otpCode: otp },
-    { email: user.email, subject: 'Email Verification' },
-  );
+  SendMail('EmailVerification.ejs', { userName: user.full_name, otpCode: otp }, { email: user.email, subject: 'Email Verification' });
   user.password = null;
   user.otp = null;
 
@@ -118,11 +100,7 @@ const VerifyEmail = AsyncHandler(async (req, res) => {
   const token = PasswordSignToken({ email });
 
   const resetLink = `http://localhost:5173/reset-password?token=${token}&verification=true&testing=true`;
-  await SendMail(
-    'ResetPassword.ejs',
-    { resetLink, userEmail: email },
-    { email: email, subject: 'Reset Password Link' },
-  );
+  await SendMail('ResetPassword.ejs', { resetLink, userEmail: email }, { email: email, subject: 'Reset Password Link' });
   return res.status(StatusCodes.OK).json({
     message: 'Password reset link send Successful',
   });
@@ -154,9 +132,7 @@ const LogoutUser = AsyncHandler(async (req, res) => {
 });
 
 const getlogedInUser = AsyncHandler(async (req, res) => {
-  const data = await AuthModel.findById(req?.currentUser._id).select(
-    '_id full_name email phone role Allowed_path email_verification Login_verification',
-  );
+  const data = await AuthModel.findById(req?.currentUser._id).select('_id full_name email phone role Allowed_path email_verification Login_verification');
 
   return res.status(StatusCodes.OK).json({
     message: 'user Data',
@@ -181,10 +157,7 @@ const ChnagePassword = AsyncHandler(async (req, res) => {
 
   const isPasswordCurrect = await compare(oldPassword, user.password);
   if (!isPasswordCurrect) {
-    throw new BadRequestError(
-      'Wrong Password Try Again...',
-      'ChnagePassword method',
-    );
+    throw new BadRequestError('Wrong Password Try Again...', 'ChnagePassword method');
   }
   await AuthModel.findByIdAndUpdate(user._id, { password: newPassword });
   return res.status(StatusCodes.OK).json({
@@ -205,48 +178,31 @@ const ResendOtp = AsyncHandler(async (req, res) => {
     otp_expire: expiresAt,
   });
 
-  await SendMail(
-    'EmailVerification.ejs',
-    { userName: result.full_name, otpCode: otp },
-    { email: result.email, subject: 'Email Verification' },
-  );
+  await SendMail('EmailVerification.ejs', { userName: result.full_name, otpCode: otp }, { email: result.email, subject: 'Email Verification' });
 
   return res.status(StatusCodes.OK).json({
     message: 'OTP send again Your E-mail',
   });
 });
 
-const GetAllUser = AsyncHandler(async (_req,res) => {
-  const users = await AuthModel.find({role:"Customer"})
+const GetAllUser = AsyncHandler(async (_req, res) => {
+  const users = await AuthModel.find({ role: 'Customer' });
   return res.status(StatusCodes.OK).json({
-    message:"all customer",
-    users
-  })
-})
+    message: 'all customer',
+    users,
+  });
+});
 
-const employeeVerification = AsyncHandler(async (req,res) => {
-  const {id} = req.params;
+const employeeVerification = AsyncHandler(async (req, res) => {
+  const { id } = req.params;
   const user = await AuthModel.findById(id);
-  if(!user){
-    throw new BadRequestError("User not found","employeeVerification method")
+  if (!user) {
+    throw new BadRequestError('User not found', 'employeeVerification method');
   }
-  await AuthModel.findByIdAndUpdate(id,{employee_approve:true})
+  await AuthModel.findByIdAndUpdate(id, { employee_approve: true });
   return res.status(StatusCodes.OK).json({
-    message:"Employee Approve Successful"
-  })
-})
+    message: 'Employee Approve Successful',
+  });
+});
 
-export {
-  RegisterUser,
-  LoginUser,
-  VerifyOTP,
-  VerifyEmail,
-  ResetPassword,
-  LogoutUser,
-  getlogedInUser,
-  UpdateUserPath,
-  ChnagePassword,
-  ResendOtp,
-  GetAllUser,
-  employeeVerification
-};
+export { RegisterUser, LoginUser, VerifyOTP, VerifyEmail, ResetPassword, LogoutUser, getlogedInUser, UpdateUserPath, ChnagePassword, ResendOtp, GetAllUser, employeeVerification };

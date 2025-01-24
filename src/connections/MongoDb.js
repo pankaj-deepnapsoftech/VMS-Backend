@@ -5,9 +5,7 @@ export const DbConnection = async (uri) => {
   while (!isConnected) {
     try {
       const connect = await mongoose.connect(uri, { dbName: 'VMS' });
-      console.log(
-        `database connected Successful and Host is : ${connect.connection.host}`,
-      );
+      console.log(`database connected Successful and Host is : ${connect.connection.host}`);
       isConnected = true;
     } catch (error) {
       console.log('mongodb database not connect', error);
