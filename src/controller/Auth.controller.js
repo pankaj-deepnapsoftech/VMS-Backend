@@ -10,7 +10,6 @@ import {
 } from '../utils/jwtTokens.js';
 import { SendMail } from '../utils/SendMain.js';
 import { compare } from 'bcrypt';
-import { message } from 'antd';
 
 const RegisterUser = AsyncHandler(async (req, res) => {
   const data = req.body;

@@ -7,7 +7,9 @@
   },
   "host": "localhost:4000",
   "basePath": "/api/v1",
-  "schemes": ["http"],
+  "schemes": [
+    "http"
+  ],
   "paths": {
     "/auth/create": {
       "post": {
@@ -205,6 +207,16 @@
         }
       }
     },
+    "/auth/verify-employee": {
+      "patch": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/data/create": {
       "post": {
         "description": "",
@@ -227,24 +239,6 @@
           {
             "name": "limit",
             "in": "query",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/data/get-one/{id}": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
             "type": "string"
           }
         ],
@@ -290,6 +284,26 @@
           }
         }
       }
+    },
+    "/data/total-data-count": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/data/vulnerableItems": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -327,5 +341,7 @@
       }
     }
   },
-  "apis": ["./src/routes/index.js"]
+  "apis": [
+    "./src/routes/index.js"
+  ]
 }

@@ -50,15 +50,6 @@ const getAllData = AsyncHandler(async (req, res) => {
   });
 });
 
-const getOneData = AsyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const data = await DataModel.findById(id).exec();
-  return res.status(StatusCodes.OK).json({
-    message: 'data Found',
-    data,
-  });
-});
-
 const DeteleOneData = AsyncHandler(async (req, res) => {
   const { id } = req.params;
   const data = await DataModel.findById(id).exec();
@@ -84,4 +75,30 @@ const updateOneData = AsyncHandler(async (req, res) => {
   });
 });
 
-export { CreateData, getAllData, getOneData, DeteleOneData, updateOneData };
+const DataCounsts = AsyncHandler(async (_req,res) => {
+  const data = await DataModel.find({}).exec();
+  const totalData = data.length;
+  const inProgress = data.filter((item)=>item.Status.toLocaleLowerCase().includes("open" || 'reopen')).length;
+  const open = data.filter((item)=>item.Status.toLocaleLowerCase().includes("open")).length;
+  const reopen = data.filter((item)=>item.Status.toLocaleLowerCase().includes("reopen")).length;
+  const closed = data.filter((item)=>item.Status.toLocaleLowerCase().includes("closed")).length;
+  return res.status(StatusCodes.OK).json({
+    totalData,
+    inProgress,
+    open,
+    reopen,
+    closed,
+  })
+})
+
+const vulnerableItems = AsyncHandler(async (_req,res)=>{
+  const data = await DataModel.find({});
+  
+
+  return res.status(StatusCodes.OK).json({
+    data
+  })
+  
+})
+
+export { CreateData, getAllData, DeteleOneData, updateOneData,DataCounsts,vulnerableItems };

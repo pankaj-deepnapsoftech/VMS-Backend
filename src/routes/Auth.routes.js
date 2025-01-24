@@ -17,6 +17,7 @@ import {
   UpdateUserPath,
   ChnagePassword,
   ResendOtp,
+  employeeVerification,
 } from '../controller/Auth.controller.js';
 import { Authentication } from '../middleware/Authentication.js';
 
