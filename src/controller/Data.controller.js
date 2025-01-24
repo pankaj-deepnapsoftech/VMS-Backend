@@ -79,7 +79,7 @@ const DataCounsts = AsyncHandler(async (_req,res) => {
   const data = await DataModel.find({}).exec();
   const totalData = data.length;
   const inProgress = data.filter((item)=>item.Status.toLocaleLowerCase().includes("open" || 'reopen')).length;
-  const open = data.filter((item)=>item.Status.toLocaleLowerCase().includes("open")).length;
+  const open = data.filter((item)=>item.Status.toLocaleLowerCase() === "open").length;
   const reopen = data.filter((item)=>item.Status.toLocaleLowerCase().includes("reopen")).length;
   const closed = data.filter((item)=>item.Status.toLocaleLowerCase().includes("closed")).length;
   return res.status(StatusCodes.OK).json({
