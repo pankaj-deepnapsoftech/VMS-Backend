@@ -82,12 +82,14 @@ const DataCounsts = AsyncHandler(async (_req,res) => {
   const open = data.filter((item)=>item.Status.toLocaleLowerCase() === "open").length;
   const reopen = data.filter((item)=>item.Status.toLocaleLowerCase().includes("reopen")).length;
   const closed = data.filter((item)=>item.Status.toLocaleLowerCase().includes("closed")).length;
+  const onHold = data.filter((item)=>item.Status.toLocaleLowerCase().includes("on hold")).length;
   return res.status(StatusCodes.OK).json({
     totalData,
     inProgress,
     open,
     reopen,
     closed,
+    onHold
   })
 })
 
