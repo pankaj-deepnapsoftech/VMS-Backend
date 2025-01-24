@@ -99,10 +99,22 @@ const vulnerableItems = AsyncHandler(async (_req,res)=>{
       $group:{_id:{ $month:"$createdAt"},name:{$push :"$Severity"}}
     }
   ]);
-  
+
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const newData = data.map((item)=>({
+    month:months[item._id -1],
+    high: item.name.filter((ite)=>ite.toLocaleLowerCase().includes("high")).length,
+    low:item.name.filter((ite)=>ite.toLocaleLowerCase().includes("low")).length,
+    informational:item.name.filter((ite)=>ite.toLocaleLowerCase().includes("informational")).length,
+    medium:item.name.filter((ite)=>ite.toLocaleLowerCase().includes("medium")).length,
+  }))  
 
   return res.status(StatusCodes.OK).json({
-    data
+    newData
   })
   
 })
