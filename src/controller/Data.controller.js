@@ -111,6 +111,7 @@ const vulnerableItems = AsyncHandler(async (_req,res)=>{
     low:item.name.filter((ite)=>ite.toLocaleLowerCase().includes("low")).length,
     informational:item.name.filter((ite)=>ite.toLocaleLowerCase().includes("informational")).length,
     medium:item.name.filter((ite)=>ite.toLocaleLowerCase().includes("medium")).length,
+    critical:item.name.filter((ite)=>ite.toLocaleLowerCase().includes("critical")).length,
   }))  
 
   return res.status(StatusCodes.OK).json({
