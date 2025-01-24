@@ -92,7 +92,11 @@ const DataCounsts = AsyncHandler(async (_req,res) => {
 })
 
 const vulnerableItems = AsyncHandler(async (_req,res)=>{
-  const data = await DataModel.find({});
+  const data = await DataModel.aggregate([
+    {
+      $group:{_id:{ $month:"$createdAt"},name:{$push :"$Severity"}}
+    }
+  ]);
   
 
   return res.status(StatusCodes.OK).json({
