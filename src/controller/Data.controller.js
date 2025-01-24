@@ -120,4 +120,73 @@ const vulnerableItems = AsyncHandler(async (_req,res)=>{
   
 })
 
-export { CreateData, getAllData, DeteleOneData, updateOneData,DataCounsts,vulnerableItems };
+const VulnerableRiskRating = AsyncHandler(async (_req,res) => {
+  const data = await DataModel.aggregate([
+    {
+      $group:{_id:{ $month:"$createdAt"},name:{$push :"$Severity"}}
+    }
+  ]);
+
+  const Critical = data.reduce((acc, item) => {
+  acc["name"] = "Critical"
+  acc["0-30 Days"] += item._id === 1 ? item.name.filter(n => n.toLocaleLowerCase().includes("critical")).length : 0;
+  acc["31-60 Days"] += item._id === 2 ? item.name.filter(n => n.toLocaleLowerCase().includes("critical")).length : 0;
+  acc["61-90 Days"] += item._id === 3 ? item.name.filter(n => n.toLocaleLowerCase().includes("critical")).length : 0;
+  acc["90+ Days"] += item._id > 3 ? item.name.filter(n => n.toLocaleLowerCase().includes("critical")).length : 0;
+  return acc;
+}, { "0-30 Days": 0, "31-60 Days": 0, "61-90 Days": 0, "90+ Days": 0 });
+
+const High = data.reduce((acc, item) => {
+  acc["name"] = "High"
+acc["0-30 Days"] += item._id === 1 ? item.name.filter(n => n.toLocaleLowerCase().includes("high")).length : 0;
+acc["31-60 Days"] += item._id === 2 ? item.name.filter(n => n.toLocaleLowerCase().includes("high")).length : 0;
+acc["61-90 Days"] += item._id === 3 ? item.name.filter(n => n.toLocaleLowerCase().includes("high")).length : 0;
+acc["90+ Days"] += item._id > 3 ? item.name.filter(n => n.toLocaleLowerCase().includes("high")).length : 0;
+return acc;
+}, { "0-30 Days": 0, "31-60 Days": 0, "61-90 Days": 0, "90+ Days": 0 });
+
+const Medium = data.reduce((acc, item) => {
+  acc["name"] = "Medium"
+acc["0-30 Days"] += item._id === 1 ? item.name.filter(n => n.toLocaleLowerCase().includes("medium")).length : 0;
+acc["31-60 Days"] += item._id === 2 ? item.name.filter(n => n.toLocaleLowerCase().includes("medium")).length : 0;
+acc["61-90 Days"] += item._id === 3 ? item.name.filter(n => n.toLocaleLowerCase().includes("medium")).length : 0;
+acc["90+ Days"] += item._id > 3 ? item.name.filter(n => n.toLocaleLowerCase().includes("medium")).length : 0;
+return acc;
+}, { "0-30 Days": 0, "31-60 Days": 0, "61-90 Days": 0, "90+ Days": 0 });
+
+const Low = data.reduce((acc, item) => {
+  acc["name"] = "Low"
+acc["0-30 Days"] += item._id === 1 ? item.name.filter(n => n.toLocaleLowerCase().includes("low")).length : 0;
+acc["31-60 Days"] += item._id === 2 ? item.name.filter(n => n.toLocaleLowerCase().includes("low")).length : 0;
+acc["61-90 Days"] += item._id === 3 ? item.name.filter(n => n.toLocaleLowerCase().includes("low")).length : 0;
+acc["90+ Days"] += item._id > 3 ? item.name.filter(n => n.toLocaleLowerCase().includes("low")).length : 0;
+return acc;
+}, { "0-30 Days": 0, "31-60 Days": 0, "61-90 Days": 0, "90+ Days": 0 });
+
+const info = data.reduce((acc, item) => {
+  acc["name"] = "info"
+acc["0-30 Days"] += item._id === 1 ? item.name.filter(n => n.toLocaleLowerCase().includes("informational")).length : 0;
+acc["31-60 Days"] += item._id === 2 ? item.name.filter(n => n.toLocaleLowerCase().includes("informational")).length : 0;
+acc["61-90 Days"] += item._id === 3 ? item.name.filter(n => n.toLocaleLowerCase().includes("informational")).length : 0;
+acc["90+ Days"] += item._id > 3 ? item.name.filter(n => n.toLocaleLowerCase().includes("informational")).length : 0;
+return acc;
+}, { "0-30 Days": 0, "31-60 Days": 0, "61-90 Days": 0, "90+ Days": 0 });
+
+  return res.status(StatusCodes.OK).json({
+    Critical,
+    High,
+    Medium,
+    Low,
+    info
+  })
+})
+
+export { 
+  CreateData, 
+  getAllData, 
+  DeteleOneData, 
+  updateOneData,
+  DataCounsts,
+  vulnerableItems,
+  VulnerableRiskRating 
+};
