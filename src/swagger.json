@@ -268,7 +268,7 @@
       }
     },
     "/data/update/{id}": {
-      "get": {
+      "patch": {
         "description": "",
         "parameters": [
           {
@@ -326,6 +326,16 @@
       }
     },
     "/data/ClosevulnerableItems": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/data/vulnerableTargets": {
       "get": {
         "description": "",
         "responses": {

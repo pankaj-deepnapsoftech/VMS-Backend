@@ -5,6 +5,7 @@ import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { convertExcelToJson } from '../utils/ExcelToJson.js';
 import { DataModel } from '../models/Data.model.js';
 import { NotFoundError } from '../utils/customError.js';
+import { excelSerialToDate } from '../utils/excelSerialToDate.js';
 
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -228,6 +229,55 @@ const ClosevulnerableItems = AsyncHandler(async(_req,res) => {
   })
 })
 
+const vulnerableTargets = AsyncHandler(async (_req, res) => {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth(); 
+
+  
+  const data = await DataModel.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: new Date(currentYear, currentMonth, 1), // Start of current month
+          $lt: new Date(currentYear, currentMonth + 1, 0) // End of current month
+        }
+      }
+    },
+    {
+      $group: {
+        _id: { $month: "$createdAt" }, // Group by month
+        name: { $push: { target: "$Status", time: "$Remediated_Date", createdAt: "$createdAt" } }
+      }
+    }
+  ]);
+
+  
+  const newData = data.map((item) => ({
+    data: item.name.filter((ite) => ite.target.toLocaleLowerCase().includes("closed"))
+  }))[0];
+
+  const count = newData.data.reduce((r, i) => {
+    const remediatedDate = excelSerialToDate(i.time); 
+    const createdAtDate = new Date(i.createdAt);
+    
+    const differenceInDays = (remediatedDate - createdAtDate) / (24 * 60 * 60 * 1000); 
+    r["totalData"] += differenceInDays; 
+    
+    return r;
+  }, { totalData: 0 });
+
+  
+  const newCount = newData.data.length ? count.totalData / newData.data.length : 0; 
+
+  return res.status(StatusCodes.OK).json({
+    averageDifferenceInDays: newCount.toFixed() 
+  });
+});
+
+
+
+
 
 export { 
   CreateData, 
@@ -238,5 +288,6 @@ export {
   vulnerableItems, 
   VulnerableRiskRating,
   NewAndCloseVulnerable,
-  ClosevulnerableItems 
+  ClosevulnerableItems ,
+  vulnerableTargets
 };
