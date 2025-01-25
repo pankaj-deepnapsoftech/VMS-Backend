@@ -275,6 +275,13 @@ const vulnerableTargets = AsyncHandler(async (_req, res) => {
   });
 });
 
+const CriticalVulnerable = AsyncHandler(async(_req,res) => {
+  const data = await DataModel.find({Severity:"Critical",Status:"Closed"})
+  return res.status(StatusCodes.OK).json({
+    data
+  })
+});
+
 
 
 
@@ -289,5 +296,6 @@ export {
   VulnerableRiskRating,
   NewAndCloseVulnerable,
   ClosevulnerableItems ,
-  vulnerableTargets
+  vulnerableTargets,
+  CriticalVulnerable
 };

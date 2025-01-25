@@ -344,6 +344,16 @@
           }
         }
       }
+    },
+    "/data/CriticalVulnerable": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "definitions": {
