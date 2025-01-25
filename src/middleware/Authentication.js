@@ -3,8 +3,8 @@ import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { BadRequestError, NotAuthenticated } from '../utils/customError.js';
 import { VerifyToken } from '../utils/jwtTokens.js';
 
-export const Authentication = AsyncHandler(async (req, res, next) => {
-  const token = req.headers?.authorization.split(' ')[1];
+export const Authentication = AsyncHandler(async (req, _res, next) => {
+  const token = req.headers?.authorization?.split(' ')[1];
   if (!token) {
     throw new NotAuthenticated('User not Authenticated', 'Authentication method');
   }
@@ -18,3 +18,5 @@ export const Authentication = AsyncHandler(async (req, res, next) => {
   req.currentUser = user;
   next();
 });
+
+

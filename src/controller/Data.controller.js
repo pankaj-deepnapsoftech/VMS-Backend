@@ -6,6 +6,8 @@ import { convertExcelToJson } from '../utils/ExcelToJson.js';
 import { DataModel } from '../models/Data.model.js';
 import { NotFoundError } from '../utils/customError.js';
 
+const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
 function convertKeysToUnderscore(obj) {
   const newObj = {};
 
@@ -100,8 +102,6 @@ const vulnerableItems = AsyncHandler(async (_req, res) => {
     },
   ]);
 
-  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
   const newData = data.map((item) => ({
     month: months[item._id - 1],
     high: item.name.filter((ite) => ite.toLocaleLowerCase().includes('high')).length,
@@ -192,4 +192,51 @@ const VulnerableRiskRating = AsyncHandler(async (_req, res) => {
   });
 });
 
-export { CreateData, getAllData, DeteleOneData, updateOneData, DataCounsts, vulnerableItems, VulnerableRiskRating };
+const NewAndCloseVulnerable = AsyncHandler(async (_req,res)=>{
+  const data = await DataModel.aggregate([
+    {
+      $group: { _id: { $month: '$createdAt' }, name: { $push: '$Status' } },
+    },
+  ]);
+
+  const newData = data.map((item) =>({
+    month:months[item._id - 1],
+    New:item.name.filter((ite)=> ite.toLocaleLowerCase().includes("new")).length,
+    Closed:item.name.filter((ite)=> ite.toLocaleLowerCase().includes("closed")).length
+  }))
+  
+  
+  return res.status(StatusCodes.OK).json({
+    newData
+  })
+})
+
+const ClosevulnerableItems = AsyncHandler(async(_req,res) => {
+  const data = await DataModel.aggregate([
+    {
+      $group:{_id : {$month:"$createdAt"} , name:{$push:{target:"$Status",time:"$Remediated_Date"}}}
+    }
+  ])
+  const newData = data.map((item)=>({
+    month:months[item._id -1],
+    TargetMissed:item.name.filter((ite)=> ite.target.toLocaleLowerCase().includes('reopen')).length,
+    TargetMet:item.name.filter((ite)=> ite.target.toLocaleLowerCase().includes('closed')).length,
+    NoTarget:item.name.filter((ite)=> ite.target.toLocaleLowerCase().includes('open')).length,
+  }))
+  return res.status(StatusCodes.OK).json({
+    newData,
+  })
+})
+
+
+export { 
+  CreateData, 
+  getAllData, 
+  DeteleOneData, 
+  updateOneData, 
+  DataCounsts, 
+  vulnerableItems, 
+  VulnerableRiskRating,
+  NewAndCloseVulnerable,
+  ClosevulnerableItems 
+};

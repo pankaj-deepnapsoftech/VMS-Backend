@@ -314,6 +314,26 @@
           }
         }
       }
+    },
+    "/data/NewAndCloseVulnerable": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/data/ClosevulnerableItems": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "definitions": {
