@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-const DataSchema = new Schema(
+const DataSchema = new Schema( 
   {
     Work_Item_Type: { type: String },
     Organization: { type: String },
