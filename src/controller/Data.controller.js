@@ -282,6 +282,10 @@ const CriticalVulnerable = AsyncHandler(async(_req,res) => {
   })
 });
 
+const AssignedTask = AsyncHandler(async (req,res) => {
+
+})
+
 
 
 
@@ -297,5 +301,6 @@ export {
   NewAndCloseVulnerable,
   ClosevulnerableItems ,
   vulnerableTargets,
-  CriticalVulnerable
+  CriticalVulnerable,
+  AssignedTask
 };
