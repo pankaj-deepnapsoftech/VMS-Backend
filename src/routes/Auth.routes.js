@@ -29,7 +29,7 @@ routes.route('/logedin-user').get(Authentication, getlogedInUser);
 routes.route('/update-paths').put(Authentication, UpdateUserPath);
 routes.route('/resend-otp').put(Authentication, ResendOtp);
 routes.route('/change-password').put(Authentication, ChnagePasswordValidate, ChnagePassword);
-routes.route('/verify-employee').patch(Authentication, employeeVerification);
+routes.route('/verify-employee/:id').patch(Authentication, employeeVerification);
 routes.route('/all-users').get(Authentication, GetAllUser);
 routes.route('/all-employee').get(Authentication, GetAllEmployee);
 
