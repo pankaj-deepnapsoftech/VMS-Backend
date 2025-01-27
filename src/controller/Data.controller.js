@@ -193,114 +193,161 @@ const VulnerableRiskRating = AsyncHandler(async (_req, res) => {
   });
 });
 
-const NewAndCloseVulnerable = AsyncHandler(async (_req,res)=>{
+const NewAndCloseVulnerable = AsyncHandler(async (_req, res) => {
   const data = await DataModel.aggregate([
     {
       $group: { _id: { $month: '$createdAt' }, name: { $push: '$Status' } },
     },
   ]);
 
-  const newData = data.map((item) =>({
-    month:months[item._id - 1],
-    New:item.name.filter((ite)=> ite.toLocaleLowerCase().includes("new")).length,
-    Closed:item.name.filter((ite)=> ite.toLocaleLowerCase().includes("closed")).length
-  }))
-  
-  
-  return res.status(StatusCodes.OK).json({
-    newData
-  })
-})
+  const newData = data.map((item) => ({
+    month: months[item._id - 1],
+    Open: item.name.filter((ite) => ite.toLocaleLowerCase().includes('open')).length,
+    Closed: item.name.filter((ite) => ite.toLocaleLowerCase().includes('closed')).length,
+  }));
 
-const ClosevulnerableItems = AsyncHandler(async(_req,res) => {
-  const data = await DataModel.aggregate([
-    {
-      $group:{_id : {$month:"$createdAt"} , name:{$push:{target:"$Status",time:"$Remediated_Date"}}}
-    }
-  ])
-  const newData = data.map((item)=>({
-    month:months[item._id -1],
-    TargetMissed:item.name.filter((ite)=> ite.target.toLocaleLowerCase().includes('reopen')).length,
-    TargetMet:item.name.filter((ite)=> ite.target.toLocaleLowerCase().includes('closed')).length,
-    NoTarget:item.name.filter((ite)=> ite.target.toLocaleLowerCase().includes('open')).length,
-  }))
   return res.status(StatusCodes.OK).json({
     newData,
-  })
-})
+  });
+});
+
+const ClosevulnerableItems = AsyncHandler(async (_req, res) => {
+  var today = new Date();
+  today.setHours(0, 0, 0, 0); // Set today's date to midnight
+  
+  const futureDate = new Date(today);
+  futureDate.setDate(today.getDate() + 7); // Add 7 days for the "approaching target" window
+
+  // Fetch data from the database
+  const data = await DataModel.find({});
+
+  // Initialize counters
+  let TargetMet = 0;
+  let TargetMissed = 0;
+  let NoTarget = 0;
+  let ApproachingTarget = 0;
+  let InFlight = 0;
+
+  
+  for (const item of data) {
+    const remediatedDate = item.Remediated_Date ? excelSerialToDate(item.Remediated_Date) : null;
+    const statusLower = item.Status.toLocaleLowerCase();
+    
+    
+    if (statusLower.includes('closed')) {
+      TargetMet++;
+    }
+
+    
+    if (remediatedDate && statusLower.includes('open')) {
+      TargetMissed++;
+    }
+
+    
+    if (!remediatedDate) {
+      NoTarget++;
+    }
+
+   
+    if (remediatedDate && (remediatedDate > today.toDateString && remediatedDate < futureDate)) {
+      ApproachingTarget++;
+    }
+
+    if(remediatedDate && remediatedDate > futureDate){
+      InFlight++
+    }
+  }
+
+
+
+  return res.status(StatusCodes.OK).json({
+    
+      TargetMet,
+      TargetMissed,
+      NoTarget,
+      ApproachingTarget,
+      InFlight
+   
+  });
+});
 
 const vulnerableTargets = AsyncHandler(async (_req, res) => {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.getMonth(); 
+  const currentMonth = currentDate.getMonth();
 
-  
   const data = await DataModel.aggregate([
     {
       $match: {
         createdAt: {
           $gte: new Date(currentYear, currentMonth, 1), // Start of current month
-          $lt: new Date(currentYear, currentMonth + 1, 0) // End of current month
-        }
-      }
+          $lt: new Date(currentYear, currentMonth + 1, 0), // End of current month
+        },
+      },
     },
     {
       $group: {
-        _id: { $month: "$createdAt" }, // Group by month
-        name: { $push: { target: "$Status", time: "$Remediated_Date", createdAt: "$createdAt" } }
-      }
-    }
+        _id: { $month: '$createdAt' }, // Group by month
+        name: { $push: { target: '$Status', time: '$Remediated_Date', createdAt: '$createdAt' } },
+      },
+    },
   ]);
 
-  
   const newData = data.map((item) => ({
-    data: item.name.filter((ite) => ite.target.toLocaleLowerCase().includes("closed"))
+    data: item.name.filter((ite) => ite.target.toLocaleLowerCase().includes('closed')),
   }))[0];
 
-  const count = newData.data.reduce((r, i) => {
-    const remediatedDate = excelSerialToDate(i.time); 
-    const createdAtDate = new Date(i.createdAt);
-    
-    const differenceInDays = (remediatedDate - createdAtDate) / (24 * 60 * 60 * 1000); 
-    r["totalData"] += differenceInDays; 
-    
-    return r;
-  }, { totalData: 0 });
+  const count = newData.data.reduce(
+    (r, i) => {
+      const remediatedDate = excelSerialToDate(i.time);
+      const createdAtDate = new Date(i.createdAt);
 
-  
-  const newCount = newData.data.length ? count.totalData / newData.data.length : 0; 
+      const differenceInDays = (remediatedDate - createdAtDate) / (24 * 60 * 60 * 1000);
+      r['totalData'] += differenceInDays;
+
+      return r;
+    },
+    { totalData: 0 },
+  );
+
+  const newCount = newData.data.length ? count.totalData / newData.data.length : 0;
 
   return res.status(StatusCodes.OK).json({
-    averageDifferenceInDays: newCount.toFixed() 
+    averageDifferenceInDays: newCount.toFixed(),
   });
 });
 
-const CriticalVulnerable = AsyncHandler(async(_req,res) => {
-  const data = await DataModel.find({Severity:"Critical",Status:"Closed"})
+const CriticalVulnerable = AsyncHandler(async (_req, res) => {
+  const data = await DataModel.find({ Severity: 'Critical', Status: 'Closed' });
   return res.status(StatusCodes.OK).json({
-    data
-  })
+    data,
+  });
 });
 
-const AssignedTask = AsyncHandler(async (req,res) => {
+const AssignedTask = AsyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { Assigned_To } = req.body;
+  const find = await DataModel.findById(id).exec();
+  if (!find) {
+    throw new NotFoundError('Data not found', 'AssignedTask method');
+  }
+  await DataModel.findByIdAndUpdate(id, { Assigned_To });
+  return res.status(StatusCodes.OK).json({
+    message: 'Task Assigned Successful',
+  });
+});
 
-})
-
-
-
-
-
-export { 
-  CreateData, 
-  getAllData, 
-  DeteleOneData, 
-  updateOneData, 
-  DataCounsts, 
-  vulnerableItems, 
+export {
+  CreateData,
+  getAllData,
+  DeteleOneData,
+  updateOneData,
+  DataCounsts,
+  vulnerableItems,
   VulnerableRiskRating,
   NewAndCloseVulnerable,
-  ClosevulnerableItems ,
+  ClosevulnerableItems,
   vulnerableTargets,
   CriticalVulnerable,
-  AssignedTask
+  AssignedTask,
 };

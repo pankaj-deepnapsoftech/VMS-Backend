@@ -14,7 +14,7 @@ routes.route('/total-data-count').get(Authentication, DataCounsts);
 routes.route('/vulnerableItems').get(Authentication, vulnerableItems);
 routes.route('/VulnerableRiskRating').get(Authentication, VulnerableRiskRating);
 routes.route('/NewAndCloseVulnerable').get(Authentication, NewAndCloseVulnerable);
-routes.route('/ClosevulnerableItems').get(Authentication, ClosevulnerableItems);
+routes.route('/ClosevulnerableItems').get(Authentication,ClosevulnerableItems);
 routes.route('/vulnerableTargets').get(Authentication,vulnerableTargets);
 routes.route('/CriticalVulnerable').get(Authentication,CriticalVulnerable);
 
