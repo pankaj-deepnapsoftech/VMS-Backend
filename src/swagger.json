@@ -217,6 +217,26 @@
         }
       }
     },
+    "/auth/all-users": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/auth/all-employee": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/data/create": {
       "post": {
         "description": "",
