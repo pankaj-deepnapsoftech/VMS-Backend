@@ -213,15 +213,13 @@ const NewAndCloseVulnerable = AsyncHandler(async (_req, res) => {
 
 const ClosevulnerableItems = AsyncHandler(async (_req, res) => {
   var today = new Date();
-  today.setHours(0, 0, 0, 0); // Set today's date to midnight
+  today.setHours(0, 0, 0, 0); 
   
   const futureDate = new Date(today);
-  futureDate.setDate(today.getDate() + 7); // Add 7 days for the "approaching target" window
+  futureDate.setDate(today.getDate() + 7); 
 
-  // Fetch data from the database
   const data = await DataModel.find({});
 
-  // Initialize counters
   let TargetMet = 0;
   let TargetMissed = 0;
   let NoTarget = 0;
@@ -337,6 +335,50 @@ const AssignedTask = AsyncHandler(async (req, res) => {
   });
 });
 
+const CriticalHighVulnerable = AsyncHandler(async (_req,res) => {
+  const today = new Date();
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the current month
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const data = await DataModel.find({createdAt:{ $gte: startOfMonth, $lte: endOfMonth },$or:[{Severity:"High"},{Severity:"Critical"}]})
+
+  let application_vulnerability = 0;
+  let infrastructure_vulnerability = 0;
+
+  for (let item of data ){
+    if(item.Scan_Type.toLocaleLowerCase().includes("web application")){
+      application_vulnerability++
+    }
+  }
+
+  return res.status(StatusCodes.OK).json({
+    application_vulnerability,
+    infrastructure_vulnerability,
+  })
+})
+
+const CriticalHighVulnerableOverdue = AsyncHandler(async (req,res) => {
+  const today = new Date();
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the current month
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const data = await DataModel.find({createdAt:{ $gte: startOfMonth, $lte: endOfMonth },$or:[{Severity:"High"},{Severity:"Critical"}]})
+
+  let application_vulnerability = 0;
+  let infrastructure_vulnerability = 0;
+  let todaya = new Date();
+  today.setHours(0, 0, 0, 0); 
+
+  for (let item of data ){
+    if(item.Remediated_Date && item.Scan_Type.toLocaleLowerCase().includes("web application") && item.Remediated_Date > todaya){
+      application_vulnerability++
+    }
+  }
+
+  return res.status(StatusCodes.OK).json({
+    application_vulnerability,
+    infrastructure_vulnerability,
+  })
+})
+
 export {
   CreateData,
   getAllData,
@@ -350,4 +392,6 @@ export {
   vulnerableTargets,
   CriticalVulnerable,
   AssignedTask,
+  CriticalHighVulnerable,
+  CriticalHighVulnerableOverdue
 };
