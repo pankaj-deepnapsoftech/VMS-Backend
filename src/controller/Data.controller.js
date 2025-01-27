@@ -247,7 +247,7 @@ const ClosevulnerableItems = AsyncHandler(async (_req, res) => {
     }
 
    
-    if (remediatedDate && (remediatedDate > today.toDateString && remediatedDate < futureDate)) {
+    if (remediatedDate && (remediatedDate > today && remediatedDate < futureDate)) {
       ApproachingTarget++;
     }
 
@@ -335,24 +335,34 @@ const AssignedTask = AsyncHandler(async (req, res) => {
   });
 });
 
-const CriticalHighVulnerable = AsyncHandler(async (_req,res) => {
+const CriticalHighVulnerable = AsyncHandler(async (req,res) => {
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the current month
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
   const data = await DataModel.find({createdAt:{ $gte: startOfMonth, $lte: endOfMonth },$or:[{Severity:"High"},{Severity:"Critical"}]})
 
-  let application_vulnerability = 0;
-  let infrastructure_vulnerability = 0;
+  let webApplication = 0;
+  let mobileApplication = 0;
+  let ApiServer = 0;
 
   for (let item of data ){
-    if(item.Scan_Type.toLocaleLowerCase().includes("web application")){
-      application_vulnerability++
+    if(item.Scan_Type.toLowerCase().includes('web application')){
+      webApplication++
+    }
+
+    if(item.Scan_Type.toLowerCase().includes('mobile application')){
+      mobileApplication++
+    }
+
+    if(item.Scan_Type.toLowerCase().includes('api Server')){
+      ApiServer++
     }
   }
 
   return res.status(StatusCodes.OK).json({
-    application_vulnerability,
-    infrastructure_vulnerability,
+    webApplication,
+    mobileApplication,
+    ApiServer
   })
 })
 
@@ -362,20 +372,31 @@ const CriticalHighVulnerableOverdue = AsyncHandler(async (req,res) => {
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
   const data = await DataModel.find({createdAt:{ $gte: startOfMonth, $lte: endOfMonth },$or:[{Severity:"High"},{Severity:"Critical"}]})
 
-  let application_vulnerability = 0;
-  let infrastructure_vulnerability = 0;
-  let todaya = new Date();
-  today.setHours(0, 0, 0, 0); 
+  let webApplication = 0;
+  let mobileApplication = 0;
+  let ApiServer = 0;
+
+  var todays = new Date();
+  todays.setHours(0, 0, 0, 0); 
 
   for (let item of data ){
-    if(item.Remediated_Date && item.Scan_Type.toLocaleLowerCase().includes("web application") && item.Remediated_Date > todaya){
-      application_vulnerability++
+    if(item.Remediated_Date && item.Scan_Type.toLowerCase().includes('web application') && excelSerialToDate(item.Remediated_Date) > todays){
+      webApplication++
+    }
+
+    if(item.Remediated_Date && item.Scan_Type.toLowerCase().includes('mobile application')  && excelSerialToDate(item.Remediated_Date) > todays){
+      mobileApplication++
+    }
+
+    if(item.Remediated_Date && item.Scan_Type.toLowerCase().includes('api Server')  && excelSerialToDate(item.Remediated_Date) > todays){
+      ApiServer++
     }
   }
 
   return res.status(StatusCodes.OK).json({
-    application_vulnerability,
-    infrastructure_vulnerability,
+    webApplication,
+    mobileApplication,
+    ApiServer
   })
 })
 
