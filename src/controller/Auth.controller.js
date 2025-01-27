@@ -196,7 +196,7 @@ const ResendOtp = AsyncHandler(async (req, res) => {
 
 
 const GetAllUser = AsyncHandler(async (_req, res) => {
-  const users = await AuthModel.find({ role: 'Customer' });
+  const users = await AuthModel.find({ role: 'Customer' }).select("full_name email phone role Allowed_path");
   return res.status(StatusCodes.OK).json({
     message: 'all customer',
     users,
@@ -205,7 +205,7 @@ const GetAllUser = AsyncHandler(async (_req, res) => {
 
 
 const GetAllEmployee = AsyncHandler(async (_req, res) => {
-  const users = await AuthModel.find({ role: 'Employee' });
+  const users = await AuthModel.find({ role: 'Employee' }).select("full_name email phone role Allowed_path");
   return res.status(StatusCodes.OK).json({
     message: 'all customer',
     users,
