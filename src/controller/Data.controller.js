@@ -39,6 +39,24 @@ const CreateData = AsyncHandler(async (req, res) => {
   });
 });
 
+const AddNewData = AsyncHandler(async (req,res) => {
+  const data = req.body;
+  for (let item in data){
+    if(!data[item]){
+      throw new NotFoundError("all fileld is required","AddNewData method")
+    }
+  }
+  await DataModel.create(data);
+
+  return res.status(StatusCodes.OK).json({
+    message:"data created"
+  })
+});
+
+const AssinedTask = AsyncHandler(async (req,res) => {
+
+})
+
 const getAllData = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
 
@@ -335,7 +353,7 @@ const AssignedTask = AsyncHandler(async (req, res) => {
   });
 });
 
-const CriticalHighVulnerable = AsyncHandler(async (req,res) => {
+const CriticalHighVulnerable = AsyncHandler(async (_req,res) => {
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the current month
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -366,7 +384,7 @@ const CriticalHighVulnerable = AsyncHandler(async (req,res) => {
   })
 })
 
-const CriticalHighVulnerableOverdue = AsyncHandler(async (req,res) => {
+const CriticalHighVulnerableOverdue = AsyncHandler(async (_req,res) => {
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the current month
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -400,6 +418,7 @@ const CriticalHighVulnerableOverdue = AsyncHandler(async (req,res) => {
   })
 })
 
+
 export {
   CreateData,
   getAllData,
@@ -414,5 +433,6 @@ export {
   CriticalVulnerable,
   AssignedTask,
   CriticalHighVulnerable,
-  CriticalHighVulnerableOverdue
+  CriticalHighVulnerableOverdue,
+  AddNewData,
 };
