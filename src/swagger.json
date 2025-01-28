@@ -5,8 +5,8 @@
     "title": "REST API",
     "description": ""
   },
-  "host": "localhost:4000",
-  "basePath": "/api/v1",
+  "host": "localhost:3000",
+  "basePath": "/",
   "schemes": [
     "http"
   ],
@@ -207,9 +207,17 @@
         }
       }
     },
-    "/auth/verify-employee": {
+    "/auth/verify-employee/{id}": {
       "patch": {
         "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -247,18 +255,34 @@
         }
       }
     },
+    "/data/add-new": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/data/get": {
       "get": {
         "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/data/assign/{id}": {
+      "patch": {
+        "description": "",
         "parameters": [
           {
-            "name": "page",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "limit",
-            "in": "query",
+            "name": "id",
+            "in": "path",
+            "required": true,
             "type": "string"
           }
         ],
@@ -366,6 +390,26 @@
       }
     },
     "/data/CriticalVulnerable": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/data/CriticalHighVulnerable": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/data/CriticalHighVulnerableOverdue": {
       "get": {
         "description": "",
         "responses": {
