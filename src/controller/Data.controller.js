@@ -244,27 +244,23 @@ const ClosevulnerableItems = AsyncHandler(async (_req, res) => {
   let ApproachingTarget = 0;
   let InFlight = 0;
 
-  
   for (const item of data) {
     const remediatedDate = item.Remediated_Date ? excelSerialToDate(item.Remediated_Date) : null;
     const statusLower = item.Status?.toLocaleLowerCase();
     
     
-    if (statusLower.includes('closed')) {
+    if (statusLower?.includes('closed')) {
       TargetMet++;
     }
 
-    
-    if (remediatedDate && statusLower.includes('open')) {
+    if (remediatedDate && statusLower?.includes('open')) {
       TargetMissed++;
     }
 
-    
     if (!remediatedDate) {
       NoTarget++;
     }
 
-   
     if (remediatedDate && (remediatedDate > today && remediatedDate < futureDate)) {
       ApproachingTarget++;
     }
@@ -382,7 +378,7 @@ const CriticalHighVulnerable = AsyncHandler(async (_req,res) => {
     mobileApplication,
     ApiServer
   })
-})
+});
 
 const CriticalHighVulnerableOverdue = AsyncHandler(async (_req,res) => {
   const today = new Date();
@@ -416,7 +412,9 @@ const CriticalHighVulnerableOverdue = AsyncHandler(async (_req,res) => {
     mobileApplication,
     ApiServer
   })
-})
+});
+
+// const 
 
 
 export {
