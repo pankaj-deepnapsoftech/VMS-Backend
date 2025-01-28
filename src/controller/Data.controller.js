@@ -99,11 +99,11 @@ const updateOneData = AsyncHandler(async (req, res) => {
 const DataCounsts = AsyncHandler(async (_req, res) => {
   const data = await DataModel.find({}).exec();
   const totalData = data.length;
-  const inProgress = data.filter((item) => item.Status.toLocaleLowerCase().includes('open')).length;
-  const open = data.filter((item) => item.Status.toLocaleLowerCase() === 'open').length;
-  const reopen = data.filter((item) => item.Status.toLocaleLowerCase().includes('reopen')).length;
-  const closed = data.filter((item) => item.Status.toLocaleLowerCase().includes('closed')).length;
-  const onHold = data.filter((item) => item.Status.toLocaleLowerCase().includes('on hold')).length;
+  const inProgress = data.filter((item) => item.Status?.toLocaleLowerCase().includes('open')).length;
+  const open = data.filter((item) => item.Status?.toLocaleLowerCase() === 'open').length;
+  const reopen = data.filter((item) => item.Status?.toLocaleLowerCase().includes('reopen')).length;
+  const closed = data.filter((item) => item.Status?.toLocaleLowerCase().includes('closed')).length;
+  const onHold = data.filter((item) => item.Status?.toLocaleLowerCase().includes('on hold')).length;
   return res.status(StatusCodes.OK).json({
     totalData,
     inProgress,
@@ -123,11 +123,11 @@ const vulnerableItems = AsyncHandler(async (_req, res) => {
 
   const newData = data.map((item) => ({
     month: months[item._id - 1],
-    high: item.name.filter((ite) => ite.toLocaleLowerCase().includes('high')).length,
-    low: item.name.filter((ite) => ite.toLocaleLowerCase().includes('low')).length,
-    informational: item.name.filter((ite) => ite.toLocaleLowerCase().includes('informational')).length,
-    medium: item.name.filter((ite) => ite.toLocaleLowerCase().includes('medium')).length,
-    critical: item.name.filter((ite) => ite.toLocaleLowerCase().includes('critical')).length,
+    high: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('high')).length,
+    low: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('low')).length,
+    informational: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('informational')).length,
+    medium: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('medium')).length,
+    critical: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('critical')).length,
   }));
 
   return res.status(StatusCodes.OK).json({
@@ -145,10 +145,10 @@ const VulnerableRiskRating = AsyncHandler(async (_req, res) => {
   const Critical = data.reduce(
     (acc, item) => {
       acc['name'] = 'Critical';
-      acc['0-30 Days'] += item._id === 1 ? item.name.filter((n) => n.toLocaleLowerCase().includes('critical')).length : 0;
-      acc['31-60 Days'] += item._id === 2 ? item.name.filter((n) => n.toLocaleLowerCase().includes('critical')).length : 0;
-      acc['61-90 Days'] += item._id === 3 ? item.name.filter((n) => n.toLocaleLowerCase().includes('critical')).length : 0;
-      acc['90+ Days'] += item._id > 3 ? item.name.filter((n) => n.toLocaleLowerCase().includes('critical')).length : 0;
+      acc['0-30 Days'] += item._id === 1 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('critical')).length : 0;
+      acc['31-60 Days'] += item._id === 2 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('critical')).length : 0;
+      acc['61-90 Days'] += item._id === 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('critical')).length : 0;
+      acc['90+ Days'] += item._id > 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('critical')).length : 0;
       return acc;
     },
     { '0-30 Days': 0, '31-60 Days': 0, '61-90 Days': 0, '90+ Days': 0 },
@@ -157,10 +157,10 @@ const VulnerableRiskRating = AsyncHandler(async (_req, res) => {
   const High = data.reduce(
     (acc, item) => {
       acc['name'] = 'High';
-      acc['0-30 Days'] += item._id === 1 ? item.name.filter((n) => n.toLocaleLowerCase().includes('high')).length : 0;
-      acc['31-60 Days'] += item._id === 2 ? item.name.filter((n) => n.toLocaleLowerCase().includes('high')).length : 0;
-      acc['61-90 Days'] += item._id === 3 ? item.name.filter((n) => n.toLocaleLowerCase().includes('high')).length : 0;
-      acc['90+ Days'] += item._id > 3 ? item.name.filter((n) => n.toLocaleLowerCase().includes('high')).length : 0;
+      acc['0-30 Days'] += item._id === 1 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('high')).length : 0;
+      acc['31-60 Days'] += item._id === 2 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('high')).length : 0;
+      acc['61-90 Days'] += item._id === 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('high')).length : 0;
+      acc['90+ Days'] += item._id > 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('high')).length : 0;
       return acc;
     },
     { '0-30 Days': 0, '31-60 Days': 0, '61-90 Days': 0, '90+ Days': 0 },
@@ -169,10 +169,10 @@ const VulnerableRiskRating = AsyncHandler(async (_req, res) => {
   const Medium = data.reduce(
     (acc, item) => {
       acc['name'] = 'Medium';
-      acc['0-30 Days'] += item._id === 1 ? item.name.filter((n) => n.toLocaleLowerCase().includes('medium')).length : 0;
-      acc['31-60 Days'] += item._id === 2 ? item.name.filter((n) => n.toLocaleLowerCase().includes('medium')).length : 0;
-      acc['61-90 Days'] += item._id === 3 ? item.name.filter((n) => n.toLocaleLowerCase().includes('medium')).length : 0;
-      acc['90+ Days'] += item._id > 3 ? item.name.filter((n) => n.toLocaleLowerCase().includes('medium')).length : 0;
+      acc['0-30 Days'] += item._id === 1 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('medium')).length : 0;
+      acc['31-60 Days'] += item._id === 2 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('medium')).length : 0;
+      acc['61-90 Days'] += item._id === 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('medium')).length : 0;
+      acc['90+ Days'] += item._id > 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('medium')).length : 0;
       return acc;
     },
     { '0-30 Days': 0, '31-60 Days': 0, '61-90 Days': 0, '90+ Days': 0 },
@@ -181,10 +181,10 @@ const VulnerableRiskRating = AsyncHandler(async (_req, res) => {
   const Low = data.reduce(
     (acc, item) => {
       acc['name'] = 'Low';
-      acc['0-30 Days'] += item._id === 1 ? item.name.filter((n) => n.toLocaleLowerCase().includes('low')).length : 0;
-      acc['31-60 Days'] += item._id === 2 ? item.name.filter((n) => n.toLocaleLowerCase().includes('low')).length : 0;
-      acc['61-90 Days'] += item._id === 3 ? item.name.filter((n) => n.toLocaleLowerCase().includes('low')).length : 0;
-      acc['90+ Days'] += item._id > 3 ? item.name.filter((n) => n.toLocaleLowerCase().includes('low')).length : 0;
+      acc['0-30 Days'] += item._id === 1 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('low')).length : 0;
+      acc['31-60 Days'] += item._id === 2 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('low')).length : 0;
+      acc['61-90 Days'] += item._id === 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('low')).length : 0;
+      acc['90+ Days'] += item._id > 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('low')).length : 0;
       return acc;
     },
     { '0-30 Days': 0, '31-60 Days': 0, '61-90 Days': 0, '90+ Days': 0 },
@@ -193,10 +193,10 @@ const VulnerableRiskRating = AsyncHandler(async (_req, res) => {
   const info = data.reduce(
     (acc, item) => {
       acc['name'] = 'info';
-      acc['0-30 Days'] += item._id === 1 ? item.name.filter((n) => n.toLocaleLowerCase().includes('informational')).length : 0;
-      acc['31-60 Days'] += item._id === 2 ? item.name.filter((n) => n.toLocaleLowerCase().includes('informational')).length : 0;
-      acc['61-90 Days'] += item._id === 3 ? item.name.filter((n) => n.toLocaleLowerCase().includes('informational')).length : 0;
-      acc['90+ Days'] += item._id > 3 ? item.name.filter((n) => n.toLocaleLowerCase().includes('informational')).length : 0;
+      acc['0-30 Days'] += item._id === 1 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('informational')).length : 0;
+      acc['31-60 Days'] += item._id === 2 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('informational')).length : 0;
+      acc['61-90 Days'] += item._id === 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('informational')).length : 0;
+      acc['90+ Days'] += item._id > 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('informational')).length : 0;
       return acc;
     },
     { '0-30 Days': 0, '31-60 Days': 0, '61-90 Days': 0, '90+ Days': 0 },
@@ -220,8 +220,8 @@ const NewAndCloseVulnerable = AsyncHandler(async (_req, res) => {
 
   const newData = data.map((item) => ({
     month: months[item._id - 1],
-    Open: item.name.filter((ite) => ite.toLocaleLowerCase().includes('open')).length,
-    Closed: item.name.filter((ite) => ite.toLocaleLowerCase().includes('closed')).length,
+    Open: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('open')).length,
+    Closed: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('closed')).length,
   }));
 
   return res.status(StatusCodes.OK).json({
@@ -247,7 +247,7 @@ const ClosevulnerableItems = AsyncHandler(async (_req, res) => {
   
   for (const item of data) {
     const remediatedDate = item.Remediated_Date ? excelSerialToDate(item.Remediated_Date) : null;
-    const statusLower = item.Status.toLocaleLowerCase();
+    const statusLower = item.Status?.toLocaleLowerCase();
     
     
     if (statusLower.includes('closed')) {
@@ -310,7 +310,7 @@ const vulnerableTargets = AsyncHandler(async (_req, res) => {
   ]);
 
   const newData = data.map((item) => ({
-    data: item.name.filter((ite) => ite.target.toLocaleLowerCase().includes('closed')),
+    data: item.name.filter((ite) => ite.target?.toLocaleLowerCase().includes('closed')),
   }))[0];
 
   const count = newData.data.reduce(
