@@ -39,23 +39,21 @@ const CreateData = AsyncHandler(async (req, res) => {
   });
 });
 
-const AddNewData = AsyncHandler(async (req,res) => {
+const AddNewData = AsyncHandler(async (req, res) => {
   const data = req.body;
-  for (let item in data){
-    if(!data[item]){
-      throw new NotFoundError("all fileld is required","AddNewData method")
+  for (let item in data) {
+    if (!data[item]) {
+      throw new NotFoundError('all fileld is required', 'AddNewData method');
     }
   }
   await DataModel.create(data);
 
   return res.status(StatusCodes.OK).json({
-    message:"data created"
-  })
+    message: 'data created',
+  });
 });
 
-const AssinedTask = AsyncHandler(async (req,res) => {
-
-})
+const AssinedTask = AsyncHandler(async (req, res) => {});
 
 const getAllData = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
@@ -231,10 +229,10 @@ const NewAndCloseVulnerable = AsyncHandler(async (_req, res) => {
 
 const ClosevulnerableItems = AsyncHandler(async (_req, res) => {
   var today = new Date();
-  today.setHours(0, 0, 0, 0); 
-  
+  today.setHours(0, 0, 0, 0);
+
   const futureDate = new Date(today);
-  futureDate.setDate(today.getDate() + 7); 
+  futureDate.setDate(today.getDate() + 7);
 
   const data = await DataModel.find({});
 
@@ -247,8 +245,7 @@ const ClosevulnerableItems = AsyncHandler(async (_req, res) => {
   for (const item of data) {
     const remediatedDate = item.Remediated_Date ? excelSerialToDate(item.Remediated_Date) : null;
     const statusLower = item.Status?.toLocaleLowerCase();
-    
-    
+
     if (statusLower?.includes('closed')) {
       TargetMet++;
     }
@@ -261,25 +258,21 @@ const ClosevulnerableItems = AsyncHandler(async (_req, res) => {
       NoTarget++;
     }
 
-    if (remediatedDate && (remediatedDate > today && remediatedDate < futureDate)) {
+    if (remediatedDate && remediatedDate > today && remediatedDate < futureDate) {
       ApproachingTarget++;
     }
 
-    if(remediatedDate && remediatedDate > futureDate){
-      InFlight++
+    if (remediatedDate && remediatedDate > futureDate) {
+      InFlight++;
     }
   }
 
-
-
   return res.status(StatusCodes.OK).json({
-    
-      TargetMet,
-      TargetMissed,
-      NoTarget,
-      ApproachingTarget,
-      InFlight
-   
+    TargetMet,
+    TargetMissed,
+    NoTarget,
+    ApproachingTarget,
+    InFlight,
   });
 });
 
@@ -349,73 +342,72 @@ const AssignedTask = AsyncHandler(async (req, res) => {
   });
 });
 
-const CriticalHighVulnerable = AsyncHandler(async (_req,res) => {
+const CriticalHighVulnerable = AsyncHandler(async (_req, res) => {
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the current month
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  const data = await DataModel.find({createdAt:{ $gte: startOfMonth, $lte: endOfMonth },$or:[{Severity:"High"},{Severity:"Critical"}]})
+  const data = await DataModel.find({ createdAt: { $gte: startOfMonth, $lte: endOfMonth }, $or: [{ Severity: 'High' }, { Severity: 'Critical' }] });
 
   let webApplication = 0;
   let mobileApplication = 0;
   let ApiServer = 0;
 
-  for (let item of data ){
-    if(item.Scan_Type.toLowerCase().includes('web application')){
-      webApplication++
+  for (let item of data) {
+    if (item.Scan_Type.toLowerCase().includes('web application')) {
+      webApplication++;
     }
 
-    if(item.Scan_Type.toLowerCase().includes('mobile application')){
-      mobileApplication++
+    if (item.Scan_Type.toLowerCase().includes('mobile application')) {
+      mobileApplication++;
     }
 
-    if(item.Scan_Type.toLowerCase().includes('api Server')){
-      ApiServer++
+    if (item.Scan_Type.toLowerCase().includes('api Server')) {
+      ApiServer++;
     }
   }
 
   return res.status(StatusCodes.OK).json({
     webApplication,
     mobileApplication,
-    ApiServer
-  })
+    ApiServer,
+  });
 });
 
-const CriticalHighVulnerableOverdue = AsyncHandler(async (_req,res) => {
+const CriticalHighVulnerableOverdue = AsyncHandler(async (_req, res) => {
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the current month
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  const data = await DataModel.find({createdAt:{ $gte: startOfMonth, $lte: endOfMonth },$or:[{Severity:"High"},{Severity:"Critical"}]})
+  const data = await DataModel.find({ createdAt: { $gte: startOfMonth, $lte: endOfMonth }, $or: [{ Severity: 'High' }, { Severity: 'Critical' }] });
 
   let webApplication = 0;
   let mobileApplication = 0;
   let ApiServer = 0;
 
   var todays = new Date();
-  todays.setHours(0, 0, 0, 0); 
+  todays.setHours(0, 0, 0, 0);
 
-  for (let item of data ){
-    if(item.Remediated_Date && item.Scan_Type.toLowerCase().includes('web application') && excelSerialToDate(item.Remediated_Date) > todays){
-      webApplication++
+  for (let item of data) {
+    if (item.Remediated_Date && item.Scan_Type.toLowerCase().includes('web application') && excelSerialToDate(item.Remediated_Date) > todays) {
+      webApplication++;
     }
 
-    if(item.Remediated_Date && item.Scan_Type.toLowerCase().includes('mobile application')  && excelSerialToDate(item.Remediated_Date) > todays){
-      mobileApplication++
+    if (item.Remediated_Date && item.Scan_Type.toLowerCase().includes('mobile application') && excelSerialToDate(item.Remediated_Date) > todays) {
+      mobileApplication++;
     }
 
-    if(item.Remediated_Date && item.Scan_Type.toLowerCase().includes('api Server')  && excelSerialToDate(item.Remediated_Date) > todays){
-      ApiServer++
+    if (item.Remediated_Date && item.Scan_Type.toLowerCase().includes('api Server') && excelSerialToDate(item.Remediated_Date) > todays) {
+      ApiServer++;
     }
   }
 
   return res.status(StatusCodes.OK).json({
     webApplication,
     mobileApplication,
-    ApiServer
-  })
+    ApiServer,
+  });
 });
 
-// const 
-
+// const
 
 export {
   CreateData,
