@@ -53,8 +53,6 @@ const AddNewData = AsyncHandler(async (req, res) => {
   });
 });
 
-const AssinedTask = AsyncHandler(async (req, res) => {});
-
 const getAllData = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
 
