@@ -6,7 +6,7 @@ const DataSchema = new Schema(
     Application_Name: { type: String },
     Title: { type: String },
     Vulnerability_Classification: { type: String },
-    Assigned_To: { type: Schema.Types.ObjectId,ref:"User" },
+    Assigned_To: { type:String },
     Scan_Type: { type: String },
     Severity: { type: String },
     Priority: { type: String },
