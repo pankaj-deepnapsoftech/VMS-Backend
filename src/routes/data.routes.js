@@ -21,6 +21,11 @@ routes.route('/vulnerableTargets').get(Authentication,vulnerableTargets);
 routes.route('/CriticalVulnerable').get(Authentication,CriticalVulnerable);
 routes.route('/CriticalHighVulnerable').get(Authentication, CriticalHighVulnerable);
 routes.route('/CriticalHighVulnerableOverdue').get(Authentication,CriticalHighVulnerableOverdue);
-routes.route('/CriticalHighVulnerableItems').get(Authentication,CriticalHighVulnerableItems);
+routes.route('/CriticalHighVulnerableItems').get(CriticalHighVulnerableItems);
 
 export default routes;
+
+
+
+
+

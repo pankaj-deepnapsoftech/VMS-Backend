@@ -407,7 +407,6 @@ const CriticalHighVulnerableOverdue = AsyncHandler(async (_req, res) => {
 });
 
 const CriticalHighVulnerableItems = AsyncHandler(async (_req, res) => {
-  const dataset = ['Pluxee Cardreload', 'Pluxee Pro', 'Pluxee Addresses', 'Pluxee Opt-in Portal', 'SWOS'];
   const currentDate = moment();
   const twoMonthsAgo = moment().subtract(2, 'months');
 
@@ -415,6 +414,7 @@ const CriticalHighVulnerableItems = AsyncHandler(async (_req, res) => {
   const startDate = twoMonthsAgo.startOf('month').toDate();
   const endDate = currentDate.endOf('month').toDate();
 
+  // Fetch data from the database
   const data = await DataModel.aggregate([
     {
       $match: {
@@ -436,20 +436,53 @@ const CriticalHighVulnerableItems = AsyncHandler(async (_req, res) => {
     },
   ]);
 
-  const newData = data.map((item) => ({
-    year: item._id.year,
-    id: months[item._id.month - 1],
-    [dataset[0]]: item.data.filter((ite) => ite.Application_Name.includes(dataset[0])).length,
-    [dataset[1]]: item.data.filter((ite) => ite.Application_Name.includes(dataset[1])).length,
-    [dataset[2]]: item.data.filter((ite) => ite.Application_Name.includes(dataset[2])).length,
-    [dataset[3]]: item.data.filter((ite) => ite.Application_Name.includes(dataset[3])).length,
-    [dataset[4]]: item.data.filter((ite) => ite.Application_Name.includes(dataset[4])).length,
-  }));
+  // Helper function to get month name from month number
+  const getMonthName = (month) => {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return months[month - 1] || '';
+  };
 
-  
+  // Initialize a map to store counts for each application
+  const appCounts = {};
 
-  
-  res.status(StatusCodes.OK).json({newData });
+  // Determine the year range dynamically
+  const years = new Set();
+  data.forEach(entry => years.add(entry._id.year));
+  const yearRange = Array.from(years).sort().join('-');
+
+  // Iterate through the data and populate the map
+  data.forEach((entry) => {
+    const month = entry._id.month;
+    const monthName = getMonthName(month);
+
+    entry.data.forEach((appData) => {
+      const appName = appData.Application_Name;
+
+      // Initialize the application entry if it doesn't exist
+      if (!appCounts[appName]) {
+        appCounts[appName] = {
+          year: yearRange, // Dynamic year range
+          name: appName,
+        };
+      }
+
+      // Initialize the month count if it doesn't exist
+      if (!appCounts[appName][monthName]) {
+        appCounts[appName][monthName] = 0;
+      }
+
+      // Increment the count for the corresponding month
+      appCounts[appName][monthName]++;
+    });
+  });
+
+  // Convert the map to an array of results
+  const results = Object.values(appCounts);
+
+  res.status(StatusCodes.OK).json({ results });
 });
 
 export {
