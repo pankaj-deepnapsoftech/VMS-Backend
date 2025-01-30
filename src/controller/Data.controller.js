@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { StatusCodes } from 'http-status-codes';
+import moment from 'moment';
 // local imports
 import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { convertExcelToJson } from '../utils/ExcelToJson.js';
@@ -405,7 +406,51 @@ const CriticalHighVulnerableOverdue = AsyncHandler(async (_req, res) => {
   });
 });
 
-// const
+const CriticalHighVulnerableItems = AsyncHandler(async (_req, res) => {
+  const dataset = ['Pluxee Cardreload', 'Pluxee Pro', 'Pluxee Addresses', 'Pluxee Opt-in Portal', 'SWOS'];
+  const currentDate = moment();
+  const twoMonthsAgo = moment().subtract(2, 'months');
+
+  // Get the start of the period (two months ago) and the end of the period (current date)
+  const startDate = twoMonthsAgo.startOf('month').toDate();
+  const endDate = currentDate.endOf('month').toDate();
+
+  const data = await DataModel.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: startDate, $lte: endDate }, // Filter documents between two months ago and now
+        Severity: { $in: ['High', 'Critical'] }, // Only select those with 'High' or 'Critical' severity
+      },
+    },
+    {
+      $addFields: {
+        month: { $month: '$createdAt' },
+        year: { $year: '$createdAt' },
+      },
+    },
+    {
+      $group: {
+        _id: { month: '$month', year: '$year' },
+        data: { $push: { Application_Name: '$Application_Name', Severity: '$Severity' } },
+      },
+    },
+  ]);
+
+  const newData = data.map((item) => ({
+    year: item._id.year,
+    id: months[item._id.month - 1],
+    [dataset[0]]: item.data.filter((ite) => ite.Application_Name.includes(dataset[0])).length,
+    [dataset[1]]: item.data.filter((ite) => ite.Application_Name.includes(dataset[1])).length,
+    [dataset[2]]: item.data.filter((ite) => ite.Application_Name.includes(dataset[2])).length,
+    [dataset[3]]: item.data.filter((ite) => ite.Application_Name.includes(dataset[3])).length,
+    [dataset[4]]: item.data.filter((ite) => ite.Application_Name.includes(dataset[4])).length,
+  }));
+
+  
+
+  
+  res.status(StatusCodes.OK).json({newData });
+});
 
 export {
   CreateData,
@@ -423,4 +468,5 @@ export {
   CriticalHighVulnerable,
   CriticalHighVulnerableOverdue,
   AddNewData,
+  CriticalHighVulnerableItems,
 };

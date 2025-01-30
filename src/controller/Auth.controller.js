@@ -51,15 +51,7 @@ const LoginUser = AsyncHandler(async (req, res) => {
     throw new BadRequestError('Wrong Password Try Again...', 'LoginUser method');
   }
 
-  const { otp, expiresAt } = generateOTP();
-
-  await AuthModel.findByIdAndUpdate(user._id, {
-    otp,
-    otp_expire: expiresAt,
-  });
-
   const token = SignToken({ email: user.email, id: user._id });
-  SendMail('EmailVerification.ejs', { userName: user.full_name, otpCode: otp }, { email: user.email, subject: 'Email Verification' });
   user.password = null;
   user.otp = null;
 
