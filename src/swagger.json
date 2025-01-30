@@ -439,6 +439,26 @@
         }
       }
     },
+    "/data/CriticalHighVulnerableItemsOverdue": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/data/LowMediumVulnerableItemsOverdue": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/jira/issues": {
       "get": {
         "description": "",

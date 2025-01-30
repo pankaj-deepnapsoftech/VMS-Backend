@@ -438,10 +438,6 @@ const CriticalHighVulnerableItems = AsyncHandler(async (_req, res) => {
 
   // Helper function to get month name from month number
   const getMonthName = (month) => {
-    const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
     return months[month - 1] || '';
   };
 
@@ -450,7 +446,7 @@ const CriticalHighVulnerableItems = AsyncHandler(async (_req, res) => {
 
   // Determine the year range dynamically
   const years = new Set();
-  data.forEach(entry => years.add(entry._id.year));
+  data.forEach((entry) => years.add(entry._id.year));
   const yearRange = Array.from(years).sort().join('-');
 
   // Iterate through the data and populate the map
@@ -472,7 +468,7 @@ const CriticalHighVulnerableItems = AsyncHandler(async (_req, res) => {
       }
 
       // Find or create the scan type entry
-      let scanEntry = appCounts[appName].scans.find(scan => scan.scanType === scanType);
+      let scanEntry = appCounts[appName].scans.find((scan) => scan.scanType === scanType);
       if (!scanEntry) {
         scanEntry = { scanType, counts: {} };
         appCounts[appName].scans.push(scanEntry);
@@ -524,21 +520,15 @@ const LowMediumVulnerableItems = AsyncHandler(async (_req, res) => {
     },
   ]);
 
-  // Helper function to get month name from month number
+  
   const getMonthName = (month) => {
-    const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
     return months[month - 1] || '';
   };
 
-  // Initialize a map to store counts for each application and scan type
   const appCounts = {};
 
-  // Determine the year range dynamically
   const years = new Set();
-  data.forEach(entry => years.add(entry._id.year));
+  data.forEach((entry) => years.add(entry._id.year));
   const yearRange = Array.from(years).sort().join('-');
 
   // Iterate through the data and populate the map
@@ -560,7 +550,7 @@ const LowMediumVulnerableItems = AsyncHandler(async (_req, res) => {
       }
 
       // Find or create the scan type entry
-      let scanEntry = appCounts[appName].scans.find(scan => scan.scanType === scanType);
+      let scanEntry = appCounts[appName].scans.find((scan) => scan.scanType === scanType);
       if (!scanEntry) {
         scanEntry = { scanType, counts: {} };
         appCounts[appName].scans.push(scanEntry);
@@ -582,6 +572,196 @@ const LowMediumVulnerableItems = AsyncHandler(async (_req, res) => {
   res.status(StatusCodes.OK).json({ results });
 });
 
+const CriticalHighVulnerableItemsOverdue = AsyncHandler(async (_req, res) => {
+  const currentDate = moment();
+  const twoMonthsAgo = moment().subtract(2, 'months');
+
+  const startDate = twoMonthsAgo.startOf('month').toDate();
+  const endDate = currentDate.endOf('month').toDate();
+
+  const data = await DataModel.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: startDate, $lte: endDate }, // Filter documents between two months ago and now
+        Severity: { $in: ['High', 'Critical'] }, // Only select those with 'High' or 'Critical' severity
+        Remediated_Date: { $exists: true, $ne: null }, // Ensure Remediated_Date exists and is not null
+      },
+    },
+    {
+      $addFields: {
+        month: { $month: '$createdAt' }, // Extract month from createdAt
+        year: { $year: '$createdAt' }, // Extract year from createdAt
+      },
+    },
+    {
+      $group: {
+        _id: { month: '$month', year: '$year' },
+        data: {
+          $push: {
+            Application_Name: '$Application_Name',
+            Severity: '$Severity',
+            Scan_Type: '$Scan_Type',
+            Remediated_Date: '$Remediated_Date',
+            createdAt: '$createdAt',
+          },
+        },
+      },
+    },
+  ]);
+
+  const newdata = data.map((item) => ({
+    _id: item._id,
+    data: item.data.filter((ite) => moment(ite.Remediated_Date).isBefore(currentDate)),
+  }));
+
+  const getMonthName = (month) => {
+    return months[month - 1] || '';
+  };
+
+  const appCounts = {};
+
+  const years = new Set();
+  newdata.forEach((entry) => years.add(entry._id.year));
+  const yearRange = Array.from(years).sort().join('-');
+
+  // Iterate through the data and populate the map
+  data.forEach((entry) => {
+    const month = entry._id.month;
+    const monthName = getMonthName(month);
+
+    entry.data.forEach((appData) => {
+      const appName = appData.Application_Name;
+      const scanType = appData.Scan_Type;
+
+      // Initialize the application entry if it doesn't exist
+      if (!appCounts[appName]) {
+        appCounts[appName] = {
+          year: yearRange, // Dynamic year range
+          name: appName,
+          scans: [], // Array to store scan types and their counts
+        };
+      }
+
+      // Find or create the scan type entry
+      let scanEntry = appCounts[appName].scans.find((scan) => scan.scanType === scanType);
+      if (!scanEntry) {
+        scanEntry = { scanType, counts: {} };
+        appCounts[appName].scans.push(scanEntry);
+      }
+
+      // Initialize the month count if it doesn't exist
+      if (!scanEntry.counts[monthName]) {
+        scanEntry.counts[monthName] = 0;
+      }
+
+      // Increment the count for the corresponding month and scan type
+      scanEntry.counts[monthName]++;
+    });
+  });
+
+  // Convert the map to an array of results
+  const results = Object.values(appCounts);
+
+  return res.status(StatusCodes.OK).json({
+    results
+  });
+});
+
+const LowMediumVulnerableItemsOverdue = AsyncHandler(async (_req, res) => {
+  const currentDate = moment();
+  const twoMonthsAgo = moment().subtract(2, 'months');
+
+  const startDate = twoMonthsAgo.startOf('month').toDate();
+  const endDate = currentDate.endOf('month').toDate();
+
+  const data = await DataModel.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: startDate, $lte: endDate }, // Filter documents between two months ago and now
+        Severity: { $in: ['Low', 'Medium'] }, // Only select those with 'High' or 'Critical' severity
+        Remediated_Date: { $exists: true, $ne: null }, // Ensure Remediated_Date exists and is not null
+      },
+    },
+    {
+      $addFields: {
+        month: { $month: '$createdAt' }, // Extract month from createdAt
+        year: { $year: '$createdAt' }, // Extract year from createdAt
+      },
+    },
+    {
+      $group: {
+        _id: { month: '$month', year: '$year' },
+        data: {
+          $push: {
+            Application_Name: '$Application_Name',
+            Severity: '$Severity',
+            Scan_Type: '$Scan_Type',
+            Remediated_Date: '$Remediated_Date',
+            createdAt: '$createdAt',
+          },
+        },
+      },
+    },
+  ]);
+
+  const newdata = data.map((item) => ({
+    _id: item._id,
+    data: item.data.filter((ite) => moment(ite.Remediated_Date).isBefore(currentDate)),
+  }));
+
+  const getMonthName = (month) => {
+    return months[month - 1] || '';
+  };
+
+  const appCounts = {};
+
+  const years = new Set();
+  newdata.forEach((entry) => years.add(entry._id.year));
+  const yearRange = Array.from(years).sort().join('-');
+
+  // Iterate through the data and populate the map
+  data.forEach((entry) => {
+    const month = entry._id.month;
+    const monthName = getMonthName(month);
+
+    entry.data.forEach((appData) => {
+      const appName = appData.Application_Name;
+      const scanType = appData.Scan_Type;
+
+      // Initialize the application entry if it doesn't exist
+      if (!appCounts[appName]) {
+        appCounts[appName] = {
+          year: yearRange, // Dynamic year range
+          name: appName,
+          scans: [], // Array to store scan types and their counts
+        };
+      }
+
+      // Find or create the scan type entry
+      let scanEntry = appCounts[appName].scans.find((scan) => scan.scanType === scanType);
+      if (!scanEntry) {
+        scanEntry = { scanType, counts: {} };
+        appCounts[appName].scans.push(scanEntry);
+      }
+
+      // Initialize the month count if it doesn't exist
+      if (!scanEntry.counts[monthName]) {
+        scanEntry.counts[monthName] = 0;
+      }
+
+      // Increment the count for the corresponding month and scan type
+      scanEntry.counts[monthName]++;
+    });
+  });
+
+  // Convert the map to an array of results
+  const results = Object.values(appCounts);
+
+  return res.status(StatusCodes.OK).json({
+    results
+  });
+});
+
 export {
   CreateData,
   getAllData,
@@ -599,5 +779,7 @@ export {
   CriticalHighVulnerableOverdue,
   AddNewData,
   CriticalHighVulnerableItems,
-  LowMediumVulnerableItems
+  LowMediumVulnerableItems,
+  CriticalHighVulnerableItemsOverdue,
+  LowMediumVulnerableItemsOverdue
 };

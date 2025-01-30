@@ -1,6 +1,6 @@
 import { Router } from 'express';
 // local imports
-import { CreateData, getAllData, DeteleOneData, updateOneData, DataCounsts, vulnerableItems, VulnerableRiskRating, NewAndCloseVulnerable, ClosevulnerableItems, vulnerableTargets, CriticalVulnerable, CriticalHighVulnerable, CriticalHighVulnerableOverdue, AddNewData, AssignedTask, CriticalHighVulnerableItems, LowMediumVulnerableItems } from '../controller/Data.controller.js';
+import { CreateData, getAllData, DeteleOneData, updateOneData, DataCounsts, vulnerableItems, VulnerableRiskRating, NewAndCloseVulnerable, ClosevulnerableItems, vulnerableTargets, CriticalVulnerable, CriticalHighVulnerable, CriticalHighVulnerableOverdue, AddNewData, AssignedTask, CriticalHighVulnerableItems, LowMediumVulnerableItems, CriticalHighVulnerableItemsOverdue, LowMediumVulnerableItemsOverdue } from '../controller/Data.controller.js';
 import { upload } from '../config/multer.config.js';
 import { Authentication } from '../middleware/Authentication.js';
 
@@ -23,6 +23,8 @@ routes.route('/CriticalHighVulnerable').get(Authentication, CriticalHighVulnerab
 routes.route('/CriticalHighVulnerableOverdue').get(Authentication,CriticalHighVulnerableOverdue);
 routes.route('/CriticalHighVulnerableItems').get(Authentication,CriticalHighVulnerableItems);
 routes.route('/LowMediumVulnerableItems').get(Authentication,LowMediumVulnerableItems);
+routes.route('/CriticalHighVulnerableItemsOverdue').get(Authentication,CriticalHighVulnerableItemsOverdue);
+routes.route('/LowMediumVulnerableItemsOverdue').get(Authentication,LowMediumVulnerableItemsOverdue);
 
 export default routes;
 
