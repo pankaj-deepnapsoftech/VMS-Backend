@@ -431,7 +431,7 @@ const CriticalHighVulnerableItems = AsyncHandler(async (_req, res) => {
     {
       $group: {
         _id: { month: '$month', year: '$year' },
-        data: { $push: { Application_Name: '$Application_Name', Severity: '$Severity' } },
+        data: { $push: { Application_Name: '$Application_Name', Severity: '$Severity', Scan_Type: '$Scan_Type' } },
       },
     },
   ]);
@@ -445,7 +445,7 @@ const CriticalHighVulnerableItems = AsyncHandler(async (_req, res) => {
     return months[month - 1] || '';
   };
 
-  // Initialize a map to store counts for each application
+  // Initialize a map to store counts for each application and scan type
   const appCounts = {};
 
   // Determine the year range dynamically
@@ -460,6 +460,7 @@ const CriticalHighVulnerableItems = AsyncHandler(async (_req, res) => {
 
     entry.data.forEach((appData) => {
       const appName = appData.Application_Name;
+      const scanType = appData.Scan_Type;
 
       // Initialize the application entry if it doesn't exist
       if (!appCounts[appName]) {
@@ -469,13 +470,18 @@ const CriticalHighVulnerableItems = AsyncHandler(async (_req, res) => {
         };
       }
 
-      // Initialize the month count if it doesn't exist
-      if (!appCounts[appName][monthName]) {
-        appCounts[appName][monthName] = 0;
+      // Initialize the scan type entry if it doesn't exist
+      if (!appCounts[appName][scanType]) {
+        appCounts[appName][scanType] = {};
       }
 
-      // Increment the count for the corresponding month
-      appCounts[appName][monthName]++;
+      // Initialize the month count if it doesn't exist
+      if (!appCounts[appName][scanType][monthName]) {
+        appCounts[appName][scanType][monthName] = 0;
+      }
+
+      // Increment the count for the corresponding month and scan type
+      appCounts[appName][scanType][monthName]++;
     });
   });
 
@@ -483,6 +489,78 @@ const CriticalHighVulnerableItems = AsyncHandler(async (_req, res) => {
   const results = Object.values(appCounts);
 
   res.status(StatusCodes.OK).json({ results });
+});
+
+
+const MediumLowVulnerableItems = AsyncHandler(async (_req, res) => {
+  const currentDate = moment();
+  const twoMonthsAgo = moment().subtract(2, 'months');
+
+  const startDate = twoMonthsAgo.startOf('month').toDate();
+  const endDate = currentDate.endOf('month').toDate();
+
+  const data = await DataModel.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: startDate, $lte: endDate }, 
+        Severity: { $in: ['High', 'Critical'] }, 
+      },
+    },
+    {
+      $addFields: {
+        month: { $month: '$createdAt' },
+        year: { $year: '$createdAt' },
+      },
+    },
+    {
+      $group: {
+        _id: { month: '$month', year: '$year' },
+        data: { $push: { Application_Name: '$Application_Name', Severity: '$Severity' } },
+      },
+    },
+  ]);
+
+  
+  const getMonthName = (month) => {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return months[month - 1] || '';
+  };
+
+  const appCounts = {};
+
+  const years = new Set();
+  data.forEach(entry => years.add(entry._id.year));
+  const yearRange = Array.from(years).sort().join('-');
+
+  data.forEach((entry) => {
+    const month = entry._id.month;
+    const monthName = getMonthName(month);
+
+    entry.data.forEach((appData) => {
+      const appName = appData.Application_Name;
+
+      if (!appCounts[appName]) {
+        appCounts[appName] = {
+          year: yearRange, 
+          name: appName,
+        };
+      }
+
+      if (!appCounts[appName][monthName]) {
+        appCounts[appName][monthName] = 0;
+      }
+
+      appCounts[appName][monthName]++;
+    });
+  });
+
+
+  const results = Object.values(appCounts);
+
+  res.status(StatusCodes.OK).json({ results, });
 });
 
 export {
@@ -502,4 +580,5 @@ export {
   CriticalHighVulnerableOverdue,
   AddNewData,
   CriticalHighVulnerableItems,
+  MediumLowVulnerableItems
 };
