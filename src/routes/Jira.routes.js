@@ -1,8 +1,11 @@
 import { Router } from "express";
-import { GetIssuesJira } from "../controller/Jira.controller.js";
+import { CreateJiraConfig, GetIssuesJira, GetJIraConfig } from "../controller/Jira.controller.js";
+import { Authentication } from "../middleware/Authentication.js";
 
 const routes = Router();
 
-routes.route("/issues").get(GetIssuesJira)
+routes.route("/issues").get(Authentication,GetIssuesJira);
+routes.route("/create-jira-config").post(Authentication,CreateJiraConfig);
+routes.route("/get-jira-config/:id").get(Authentication,GetJIraConfig);
 
 export default routes

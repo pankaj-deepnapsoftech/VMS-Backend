@@ -13,6 +13,10 @@ const JiraConfigSchema = new Schema({
     JIRA_API_KEY:{
         type:String,
         required:true
+    },
+    user_id:{
+        type:Schema.Types.ObjectId,
+        ref:"User"
     }
 })
 

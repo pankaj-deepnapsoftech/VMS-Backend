@@ -30,7 +30,7 @@ const routes = Router();
 routes.route('/create').post(Authentication, upload.single('excel'), CreateData);
 routes.route('/add-new').post(Authentication, AddNewData);
 routes.route('/get').get(Authentication, getAllData);
-routes.route('/assign/:id').patch(Authentication, AssignedTask);
+routes.route('/assign/:id').patch( AssignedTask);
 routes.route('/delete/:id').delete(Authentication, DeteleOneData);
 routes.route('/update/:id').patch(Authentication, updateOneData);
 routes.route('/total-data-count').get(Authentication, DataCounsts);

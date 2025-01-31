@@ -2,12 +2,12 @@ import axios from 'axios';
 // local import
 import { config } from '../config/env.config.js';
 
-const auth = {
-  username: config.JIRA_USERNAME,
-  password: config.JIRA_API_KEY,
-};
+// const auth = {
+//   username: config.JIRA_USERNAME,
+//   password: config.JIRA_API_KEY,
+// };
 
-const domain = config.DOMAIN;
+// const domain = config.DOMAIN;
 
 async function getIssueByID(issueKey) {
   try {
@@ -24,8 +24,12 @@ async function getIssueByID(issueKey) {
   }
 }
 
-async function getIssues() {
-
+async function getIssues(username,password,domain) {
+  const auth = {
+    username,
+    password
+  };
+  console.log(domain + '/rest/api/2/search')
     try {  
       const config = {
         method: 'get',

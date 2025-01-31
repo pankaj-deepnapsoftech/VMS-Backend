@@ -2,11 +2,14 @@ import { StatusCodes } from "http-status-codes";
 import { AsyncHandler } from "../utils/AsyncHandler.js";
 import { getIssues } from "../utils/Jira.utils.js";
 import { JiraConfigModule } from "../models/jiraConfig.model.js";
+import { NotFoundError } from "../utils/customError.js";
 
 
 
-const GetIssuesJira = AsyncHandler(async (_req,res)=>{
-    const data = await getIssues();
+const GetIssuesJira = AsyncHandler(async (req,res)=>{
+    const id = req.currentUser?._id;
+    const find = await JiraConfigModule.findById(id)
+    const data = await getIssues(find.JIRA_USERNAME,find.JIRA_API_KEY,find.Domain);
 
     const newData = data.issues.map((item)=>({
         issueType:{
@@ -32,16 +35,30 @@ const GetIssuesJira = AsyncHandler(async (_req,res)=>{
     return res.status(StatusCodes.OK).json({
         newData
     })
-})
+});
 
 const CreateJiraConfig = AsyncHandler(async (req,res) => {
-    const data = req.data;
-    const result = await JiraConfigModule.create(data)
+    const {Domain,JIRA_USERNAME,JIRA_API_KEY} = req.body;
+    const response = await getIssues(JIRA_USERNAME,JIRA_API_KEY,Domain)
+    if(!response.expand){
+        throw new NotFoundError("wrong Credentials","CreateJiraConfig method")
+    }
+    const result = await JiraConfigModule.create({Domain,JIRA_USERNAME,JIRA_API_KEY,user_id:req.currentUser?._id})
     return res.status(StatusCodes.OK).json({
         message:"configration Submited",
         result
     })
+});
 
-})
 
-export {GetIssuesJira}
+const GetJIraConfig = AsyncHandler(async (req,res)=>{
+    const {id} = req.params;
+    const data = await JiraConfigModule.findById(id)
+    return res.status(StatusCodes.OK).json({
+        data
+    })
+});
+
+
+
+export {GetIssuesJira,CreateJiraConfig,GetJIraConfig}
