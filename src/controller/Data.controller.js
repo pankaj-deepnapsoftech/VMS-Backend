@@ -520,7 +520,6 @@ const LowMediumVulnerableItems = AsyncHandler(async (_req, res) => {
     },
   ]);
 
-  
   const getMonthName = (month) => {
     return months[month - 1] || '';
   };
@@ -663,7 +662,7 @@ const CriticalHighVulnerableItemsOverdue = AsyncHandler(async (_req, res) => {
   const results = Object.values(appCounts);
 
   return res.status(StatusCodes.OK).json({
-    results
+    results,
   });
 });
 
@@ -758,7 +757,29 @@ const LowMediumVulnerableItemsOverdue = AsyncHandler(async (_req, res) => {
   const results = Object.values(appCounts);
 
   return res.status(StatusCodes.OK).json({
-    results
+    results,
+  });
+});
+
+const ApplicationvulnerabilityCardData = AsyncHandler(async (_req, res) => {
+  const currentDate = new Date();
+  const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59, 999);
+  const data = await DataModel.find({
+    createdAt: { $gte:startOfMonth,$lt:endOfMonth },
+    Severity:{$in:["High","Low","Medium","Critical"]}
+  });
+
+  const high = data.filter((item) =>item.Severity === 'High').length;
+  const low = data.filter((item) =>item.Severity === 'Low').length;
+  const medium = data.filter((item) =>item.Severity === 'Medium').length;
+  const critical = data.filter((item) =>item.Severity === 'Critical').length;
+
+  return res.status(StatusCodes.OK).json({
+    high,
+    low,
+    medium,
+    critical,
   });
 });
 
@@ -781,5 +802,6 @@ export {
   CriticalHighVulnerableItems,
   LowMediumVulnerableItems,
   CriticalHighVulnerableItemsOverdue,
-  LowMediumVulnerableItemsOverdue
+  LowMediumVulnerableItemsOverdue,
+  ApplicationvulnerabilityCardData,
 };
