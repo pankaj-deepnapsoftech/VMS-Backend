@@ -459,6 +459,16 @@
         }
       }
     },
+    "/data/ApplicationvulnerabilityCardData": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/jira/issues": {
       "get": {
         "description": "",
