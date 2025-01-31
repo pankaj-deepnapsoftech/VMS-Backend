@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { AsyncHandler } from "../utils/AsyncHandler.js";
 import { getIssues } from "../utils/Jira.utils.js";
+import { JiraConfigModule } from "../models/jiraConfig.model.js";
 
 
 
@@ -31,6 +32,16 @@ const GetIssuesJira = AsyncHandler(async (_req,res)=>{
     return res.status(StatusCodes.OK).json({
         newData
     })
+})
+
+const CreateJiraConfig = AsyncHandler(async (req,res) => {
+    const data = req.data;
+    const result = await JiraConfigModule.create(data)
+    return res.status(StatusCodes.OK).json({
+        message:"configration Submited",
+        result
+    })
+
 })
 
 export {GetIssuesJira}
