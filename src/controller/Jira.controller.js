@@ -9,6 +9,9 @@ import { NotFoundError } from "../utils/customError.js";
 const GetIssuesJira = AsyncHandler(async (req,res)=>{
     const id = req.currentUser?._id;
     const find = await JiraConfigModule.findOne({user_id:id})
+    if(!find){
+        throw new NotFoundError("api not found","GetIssuesJira method");
+    }
     const data = await getIssues(find.JIRA_USERNAME,find.JIRA_API_KEY,find.Domain);
 
     const newData = data.issues.map((item)=>({
