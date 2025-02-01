@@ -29,7 +29,6 @@ async function getIssues(username,password,domain) {
     username,
     password
   };
-  console.log(domain + '/rest/api/2/search')
     try {  
       const config = {
         method: 'get',
