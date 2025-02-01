@@ -1,6 +1,6 @@
 import axios from 'axios';
 // local import
-import { config } from '../config/env.config.js';
+// import { config } from '../config/env.config.js';
 
 // const auth = {
 //   username: config.JIRA_USERNAME,
@@ -24,25 +24,23 @@ async function getIssueByID(issueKey) {
   }
 }
 
-async function getIssues(username,password,domain) {
+async function getIssues(username, password, domain) {
   const auth = {
     username,
-    password
+    password,
   };
-    try {  
-      const config = {
-        method: 'get',
-        url: domain + '/rest/api/2/search',
-        headers: { 'Content-Type': 'application/json' },
-        auth: auth
-      };
-      const response = await axios.request(config);
-      return response.data;
-    } catch (error) {
-      console.log(error)
-    }
+  try {
+    const config = {
+      method: 'get',
+      url: domain + '/rest/api/2/search',
+      headers: { 'Content-Type': 'application/json' },
+      auth: auth,
+    };
+    const response = await axios.request(config);
+    return response.data;
+  } catch (error) {
+    console.log(error);
   }
-  
+}
 
-
-export {getIssueByID,getIssues}
+export { getIssueByID, getIssues };

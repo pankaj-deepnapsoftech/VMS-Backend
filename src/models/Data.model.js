@@ -1,12 +1,13 @@
 import { Schema, model } from 'mongoose';
+import { ref } from 'yup';
 
-const DataSchema = new Schema( 
+const DataSchema = new Schema(
   {
     Organization: { type: String },
     Application_Name: { type: String },
     Title: { type: String },
     Vulnerability_Classification: { type: String },
-    Assigned_To: { type:String },
+    Assigned_To: { type: Schema.Types.ObjectId, ref: 'User' },
     Scan_Type: { type: String },
     Severity: { type: String },
     Priority: { type: String },

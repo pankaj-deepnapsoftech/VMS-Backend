@@ -21,6 +21,7 @@ import {
   CriticalHighVulnerableItemsOverdue,
   LowMediumVulnerableItemsOverdue,
   ApplicationvulnerabilityCardData,
+  BulkAsignedTask,
 } from '../controller/Data.controller.js';
 import { upload } from '../config/multer.config.js';
 import { Authentication } from '../middleware/Authentication.js';
@@ -30,7 +31,7 @@ const routes = Router();
 routes.route('/create').post(Authentication, upload.single('excel'), CreateData);
 routes.route('/add-new').post(Authentication, AddNewData);
 routes.route('/get').get(Authentication, getAllData);
-routes.route('/assign/:id').patch( AssignedTask);
+routes.route('/assign/:id').patch(AssignedTask);
 routes.route('/delete/:id').delete(Authentication, DeteleOneData);
 routes.route('/update/:id').patch(Authentication, updateOneData);
 routes.route('/total-data-count').get(Authentication, DataCounsts);
@@ -47,5 +48,6 @@ routes.route('/LowMediumVulnerableItems').get(Authentication, LowMediumVulnerabl
 routes.route('/CriticalHighVulnerableItemsOverdue').get(Authentication, CriticalHighVulnerableItemsOverdue);
 routes.route('/LowMediumVulnerableItemsOverdue').get(Authentication, LowMediumVulnerableItemsOverdue);
 routes.route('/ApplicationvulnerabilityCardData').get(Authentication, ApplicationvulnerabilityCardData);
+routes.route('/bulk-asigned-task').patch(Authentication, BulkAsignedTask);
 
 export default routes;

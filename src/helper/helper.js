@@ -11,4 +11,4 @@ export const ResetPasswordValidate = Validater(ResetPasswordValidation);
 export const ChnagePasswordValidate = Validater(ChnagePasswordValidation);
 
 // jira validation
-export const JiraConfigValidate = Validater(JiraConfigValidation)
+export const JiraConfigValidate = Validater(JiraConfigValidation);

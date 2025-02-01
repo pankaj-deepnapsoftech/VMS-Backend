@@ -33,7 +33,6 @@ const RegisterUser = AsyncHandler(async (req, res) => {
   });
 });
 
-
 const LoginUser = AsyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -62,7 +61,6 @@ const LoginUser = AsyncHandler(async (req, res) => {
   });
 });
 
-
 const VerifyOTP = AsyncHandler(async (req, res) => {
   const { otp } = req.body;
   if (!otp) {
@@ -84,7 +82,6 @@ const VerifyOTP = AsyncHandler(async (req, res) => {
   });
 });
 
-
 const VerifyEmail = AsyncHandler(async (req, res) => {
   const { email } = req.body;
 
@@ -101,7 +98,6 @@ const VerifyEmail = AsyncHandler(async (req, res) => {
   });
 });
 
-
 const ResetPassword = AsyncHandler(async (req, res) => {
   const { token } = req.params;
   if (!token) {
@@ -116,7 +112,6 @@ const ResetPassword = AsyncHandler(async (req, res) => {
   });
 });
 
-
 const LogoutUser = AsyncHandler(async (req, res) => {
   await AuthModel.findByIdAndUpdate(req?.currentUser._id, {
     Login_verification: false,
@@ -128,7 +123,6 @@ const LogoutUser = AsyncHandler(async (req, res) => {
   });
 });
 
-
 const getlogedInUser = AsyncHandler(async (req, res) => {
   const data = await AuthModel.findById(req?.currentUser._id).select('_id full_name email phone role Allowed_path email_verification Login_verification');
 
@@ -137,7 +131,6 @@ const getlogedInUser = AsyncHandler(async (req, res) => {
     data,
   });
 });
-
 
 const UpdateUserPath = AsyncHandler(async (req, res) => {
   const data = req.body;
@@ -148,7 +141,6 @@ const UpdateUserPath = AsyncHandler(async (req, res) => {
     message: 'Paths added Successful',
   });
 });
-
 
 const ChnagePassword = AsyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
@@ -164,7 +156,6 @@ const ChnagePassword = AsyncHandler(async (req, res) => {
     message: 'New password created Successful',
   });
 });
-
 
 const ResendOtp = AsyncHandler(async (req, res) => {
   const { otp, expiresAt } = generateOTP();
@@ -186,24 +177,21 @@ const ResendOtp = AsyncHandler(async (req, res) => {
   });
 });
 
-
 const GetAllUser = AsyncHandler(async (_req, res) => {
-  const users = await AuthModel.find({ role: 'Customer' }).select("full_name email phone role Allowed_path");
+  const users = await AuthModel.find({ role: 'Customer' }).select('full_name email phone role Allowed_path');
   return res.status(StatusCodes.OK).json({
     message: 'all customer',
     users,
   });
 });
-
 
 const GetAllEmployee = AsyncHandler(async (_req, res) => {
-  const users = await AuthModel.find({ role: 'Employee' }).select("full_name email phone role Allowed_path employee_approve");
+  const users = await AuthModel.find({ role: 'Employee' }).select('full_name email phone role Allowed_path employee_approve');
   return res.status(StatusCodes.OK).json({
     message: 'all customer',
     users,
   });
 });
-
 
 const employeeVerification = AsyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -217,5 +205,4 @@ const employeeVerification = AsyncHandler(async (req, res) => {
   });
 });
 
-
-export { RegisterUser, LoginUser, VerifyOTP, VerifyEmail, ResetPassword, LogoutUser, getlogedInUser, UpdateUserPath, ChnagePassword, ResendOtp, GetAllUser, employeeVerification,GetAllEmployee };
+export { RegisterUser, LoginUser, VerifyOTP, VerifyEmail, ResetPassword, LogoutUser, getlogedInUser, UpdateUserPath, ChnagePassword, ResendOtp, GetAllUser, employeeVerification, GetAllEmployee };

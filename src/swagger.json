@@ -469,6 +469,16 @@
         }
       }
     },
+    "/data/bulk-asigned-task": {
+      "patch": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/jira/issues": {
       "get": {
         "description": "",
