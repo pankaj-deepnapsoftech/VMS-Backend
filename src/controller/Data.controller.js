@@ -449,6 +449,9 @@ const CriticalHighVulnerableItems = AsyncHandler(async (_req, res) => {
         data: { $push: { Application_Name: '$Application_Name', Severity: '$Severity', Scan_Type: '$Scan_Type' } },
       },
     },
+    {
+      $sort: { '_id.year': 1, '_id.month': 1 } 
+    }
   ]);
 
   // Helper function to get month name from month number
@@ -533,6 +536,9 @@ const LowMediumVulnerableItems = AsyncHandler(async (_req, res) => {
         data: { $push: { Application_Name: '$Application_Name', Severity: '$Severity', Scan_Type: '$Scan_Type' } },
       },
     },
+    {
+      $sort: { '_id.year': 1, '_id.month': 1 } 
+    }
   ]);
 
   const getMonthName = (month) => {
@@ -621,6 +627,9 @@ const CriticalHighVulnerableItemsOverdue = AsyncHandler(async (_req, res) => {
         },
       },
     },
+    {
+      $sort: { '_id.year': 1, '_id.month': 1 } 
+    }
   ]);
 
   const newdata = data.map((item) => ({
@@ -716,6 +725,9 @@ const LowMediumVulnerableItemsOverdue = AsyncHandler(async (_req, res) => {
         },
       },
     },
+    {
+      $sort: { '_id.year': 1, '_id.month': 1 } 
+    }
   ]);
 
   const newdata = data.map((item) => ({

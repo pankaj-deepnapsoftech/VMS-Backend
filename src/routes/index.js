@@ -10,6 +10,6 @@ const routes = Router();
 routes.use('/auth', AuthRoutes);
 routes.use('/data', DataRoutes);
 routes.use('/jira', JiraRoutes);
-routes.use('/jira', EmployeeRoutes);
+routes.use('/employee', EmployeeRoutes);
 
 export default routes;

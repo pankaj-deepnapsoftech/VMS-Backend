@@ -5,8 +5,8 @@
     "title": "REST API",
     "description": ""
   },
-  "host": "localhost:3000",
-  "basePath": "/",
+  "host": "localhost:4000",
+  "basePath": "/api/v1",
   "schemes": [
     "http"
   ],
@@ -530,6 +530,16 @@
             "type": "string"
           }
         ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/employee/get-employee-task": {
+      "get": {
+        "description": "",
         "responses": {
           "default": {
             "description": ""
