@@ -61,7 +61,7 @@ const getAllData = AsyncHandler(async (req, res) => {
   const limits = parseInt(limit) || 20;
   const skip = (pages - 1) * limits;
 
-  const getAllData = await DataModel.find({}).populate("Assigned_To").skip(skip).limit(limits).exec();
+  const getAllData = await DataModel.find({}).populate("Assigned_To","full_name").skip(skip).limit(limits).exec();
   return res.status(StatusCodes.OK).json({
     message: 'Data Found',
     data: getAllData,
