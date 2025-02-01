@@ -1,0 +1,19 @@
+import { StatusCodes } from "http-status-codes";
+import { DataModel } from "../models/Data.model.js";
+import { AsyncHandler } from "../utils/AsyncHandler.js";
+
+
+const GetEmployeeTasksData = AsyncHandler(async (req,res) => {
+    const id = req.currentUser?._id
+    const find = DataModel.find({user_id:id});
+
+    return res.status(StatusCodes.json({
+        message:"tasks",
+        data:find
+    }))
+
+})
+
+export {
+    GetEmployeeTasksData
+}

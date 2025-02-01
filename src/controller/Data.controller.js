@@ -114,12 +114,27 @@ const DataCounsts = AsyncHandler(async (_req, res) => {
 const vulnerableItems = AsyncHandler(async (_req, res) => {
   const data = await DataModel.aggregate([
     {
-      $group: { _id: { $month: '$createdAt' }, name: { $push: '$Severity' } },
+      $project: {
+        month: { $month: '$createdAt' },
+        year: { $year: '$createdAt' },
+        Severity: 1
+      }
     },
+    {
+      $group: {
+        _id: { month: '$month', year: '$year' },
+        name: { $push: '$Severity' }
+      }
+    },
+    {
+      $sort: { '_id.year': 1, '_id.month': 1 } 
+    }
   ]);
+  
 
   const newData = data.map((item) => ({
-    month: months[item._id - 1],
+    month: months[item._id.month- 1],
+    year:item._id.year,
     high: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('high')).length,
     low: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('low')).length,
     informational: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('informational')).length,
@@ -766,14 +781,14 @@ const ApplicationvulnerabilityCardData = AsyncHandler(async (_req, res) => {
   const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59, 999);
   const data = await DataModel.find({
-    createdAt: { $gte: startOfMonth, $lt: endOfMonth },
-    Severity: { $in: ['High', 'Low', 'Medium', 'Critical'] },
+    createdAt: { $gte:startOfMonth,$lt:endOfMonth },
+    Severity:{$in:["High","Low","Medium","Critical"]}
   });
 
-  const high = data.filter((item) => item.Severity === 'High').length;
-  const low = data.filter((item) => item.Severity === 'Low').length;
-  const medium = data.filter((item) => item.Severity === 'Medium').length;
-  const critical = data.filter((item) => item.Severity === 'Critical').length;
+  const high = data.filter((item) =>item.Severity === 'High').length;
+  const low = data.filter((item) =>item.Severity === 'Low').length;
+  const medium = data.filter((item) =>item.Severity === 'Medium').length;
+  const critical = data.filter((item) =>item.Severity === 'Critical').length;
 
   return res.status(StatusCodes.OK).json({
     high,
@@ -783,16 +798,16 @@ const ApplicationvulnerabilityCardData = AsyncHandler(async (_req, res) => {
   });
 });
 
-const BulkAsignedTask = AsyncHandler(async (req, res) => {
-  const { tasks, Assigned_To } = req.body;
-  if (tasks.length < 0 || !Assigned_To.trim()) {
-    throw new NotFoundError('Tasks and Assigned To is required', BulkAsignedTask);
+const BulkAsignedTask = AsyncHandler(async(req,res)=>{
+  const {tasks,Assigned_To} = req.body;
+  if(tasks.length < 0 || !Assigned_To.trim()){
+    throw new NotFoundError("Tasks and Assigned To is required",BulkAsignedTask)
   }
-  await DataModel.updateMany({ _id: { $in: tasks } }, { Assigned_To });
+  await DataModel.updateMany({_id:{$in:tasks}},{Assigned_To})
   return res.status(StatusCodes.OK).json({
-    message: 'Tasks assined Successful',
-  });
-});
+    message:"Tasks assined Successful"
+  })
+})
 
 export {
   CreateData,
@@ -815,5 +830,5 @@ export {
   CriticalHighVulnerableItemsOverdue,
   LowMediumVulnerableItemsOverdue,
   ApplicationvulnerabilityCardData,
-  BulkAsignedTask,
+  BulkAsignedTask
 };
