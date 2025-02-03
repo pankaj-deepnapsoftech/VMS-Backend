@@ -24,12 +24,13 @@ function convertKeysToUnderscore(obj) {
 }
 
 const CreateData = AsyncHandler(async (req, res) => {
+  const id = req.currentUser?._id
   const file = req.file;
   if (!file) {
     throw new NotFoundError('File is reqired', 'CreateData method');
   }
   const data = convertExcelToJson(file.path);
-  const newdata = data.map((item) => convertKeysToUnderscore(item));
+  const newdata = data.map((item) => convertKeysToUnderscore({...item,creator_id:id}));
   const result = await DataModel.create(newdata);
 
   fs.unlinkSync(file.path);
