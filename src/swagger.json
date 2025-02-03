@@ -5,8 +5,8 @@
     "title": "REST API",
     "description": ""
   },
-  "host": "localhost:4000",
-  "basePath": "/api/v1",
+  "host": "localhost:3000",
+  "basePath": "/",
   "schemes": [
     "http"
   ],
@@ -519,17 +519,9 @@
         }
       }
     },
-    "/jira/get-jira-config/{id}": {
+    "/jira/get-jira-config": {
       "get": {
         "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
         "responses": {
           "default": {
             "description": ""

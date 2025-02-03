@@ -7,6 +7,6 @@ const routes = Router();
 
 routes.route('/issues').get(Authentication, GetIssuesJira);
 routes.route('/create-jira-config').post(Authentication, JiraConfigValidate, CreateJiraConfig);
-routes.route('/get-jira-config/:id').get(Authentication, GetJIraConfig);
+routes.route('/get-jira-config').get(Authentication, GetJIraConfig);
 
 export default routes;
