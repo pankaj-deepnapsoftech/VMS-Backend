@@ -41,7 +41,7 @@ const GetIssuesJira = AsyncHandler(async (req, res) => {
 const CreateJiraConfig = AsyncHandler(async (req, res) => {
   const { Domain, JIRA_USERNAME, JIRA_API_KEY } = req.body;
   const response = await getIssues(JIRA_USERNAME, JIRA_API_KEY, Domain);
-  if (!response.expand) {
+  if (!response?.expand) {
     throw new NotFoundError('wrong Credentials', 'CreateJiraConfig method');
   }
   const result = await JiraConfigModule.create({ Domain, JIRA_USERNAME, JIRA_API_KEY, user_id: req.currentUser?._id });
