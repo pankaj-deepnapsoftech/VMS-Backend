@@ -112,24 +112,36 @@ const DataCounsts = AsyncHandler(async (_req, res) => {
 });
 
 const vulnerableItems = AsyncHandler(async (_req, res) => {
-  const data = await DataModel.aggregate([
-    {
-      $project: {
-        month: { $month: '$createdAt' },
-        year: { $year: '$createdAt' },
-        Severity: 1
+  const currentYear = new Date().getFullYear();  // Get the current year
+
+const data = await DataModel.aggregate([
+  // Match documents from the current year only
+  {
+    $match: {
+      createdAt: {
+        $gte: new Date(currentYear, 0, 1),  // Start of the current year (January 1st)
+        $lt: new Date(currentYear + 1, 0, 1) // Start of the next year (January 1st of the next year)
       }
-    },
-    {
-      $group: {
-        _id: { month: '$month', year: '$year' },
-        name: { $push: '$Severity' }
-      }
-    },
-    {
-      $sort: { '_id.year': 1, '_id.month': 1 } 
     }
-  ]);
+  },
+  {
+    $project: {
+      month: { $month: '$createdAt' },
+      Severity: 1
+    }
+  },
+  {
+    $group: {
+      _id: { month: '$month' },
+      name: { $push: '$Severity' }
+    }
+  },
+  // Sort by year and month
+  {
+    $sort: { '_id.month': 1 }
+  }
+]);
+
   
 
   const newData = data.map((item) => ({
@@ -224,15 +236,32 @@ const VulnerableRiskRating = AsyncHandler(async (_req, res) => {
 });
 
 const NewAndCloseVulnerable = AsyncHandler(async (_req, res) => {
-  const data = await DataModel.aggregate([
-    {
-      $group: { _id: { $month: '$createdAt' }, name: { $push: '$Status' } },
+ const currentYear = new Date().getFullYear();  
+
+const data = await DataModel.aggregate([
+  {
+    $match: {
+      createdAt: {
+        $gte: new Date(currentYear, 0, 1), 
+        $lt: new Date(currentYear + 1, 0, 1),
+      }
+    }
+  },
+  {
+    $group: { 
+      _id: { $month: '$createdAt' }, 
+      name: { $push: '$Status' }
     },
-  ]);
+  },
+  {
+    $sort: { '_id': 1 }
+  }
+]);
+
 
   const newData = data.map((item) => ({
     month: months[item._id - 1],
-    Open: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('open')).length,
+    Open: item. name.filter((ite) => ite?.toLocaleLowerCase().includes('open')).length,
     Closed: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('closed')).length,
   }));
 

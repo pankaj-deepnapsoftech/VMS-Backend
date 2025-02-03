@@ -7,10 +7,10 @@ const GetEmployeeTasksData = AsyncHandler(async (req,res) => {
     const id = req.currentUser?._id
     const find = DataModel.find({user_id:id});
 
-    return res.status(StatusCodes.json({
+    return res.status(StatusCodes.OK).json({
         message:"tasks",
         data:find
-    }))
+    });
 
 })
 
