@@ -4,6 +4,7 @@ import AuthRoutes from './Auth.routes.js';
 import DataRoutes from './data.routes.js';
 import JiraRoutes from './Jira.routes.js';
 import EmployeeRoutes from './Employee.routes.js';
+import GuardRoutes from "./gurdain.routes.js" ;
 
 const routes = Router();
 
@@ -11,5 +12,6 @@ routes.use('/auth', AuthRoutes);
 routes.use('/data', DataRoutes);
 routes.use('/jira', JiraRoutes);
 routes.use('/employee', EmployeeRoutes);
+routes.use("/guardain",GuardRoutes)
 
 export default routes;
