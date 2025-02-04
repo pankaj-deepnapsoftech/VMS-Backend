@@ -7,7 +7,9 @@
   },
   "host": "localhost:3000",
   "basePath": "/",
-  "schemes": ["http"],
+  "schemes": [
+    "http"
+  ],
   "paths": {
     "/auth/create": {
       "post": {
@@ -536,6 +538,16 @@
           }
         }
       }
+    },
+    "/employee/emp-data": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -573,5 +585,7 @@
       }
     }
   },
-  "apis": ["./src/routes/index.js"]
+  "apis": [
+    "./src/routes/index.js"
+  ]
 }
