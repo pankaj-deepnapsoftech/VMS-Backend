@@ -52,7 +52,7 @@ const CreateJiraConfig = AsyncHandler(async (req, res) => {
 });
 
 const GetJIraConfig = AsyncHandler(async (req, res) => {
-  const data = await JiraConfigModule.findOne({user_id:req.currentUser?._id});
+  const data = await JiraConfigModule.findOne({ user_id: req.currentUser?._id });
   return res.status(StatusCodes.OK).json({
     data,
   });

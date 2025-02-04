@@ -3,7 +3,7 @@ import { Router } from 'express';
 import AuthRoutes from './Auth.routes.js';
 import DataRoutes from './data.routes.js';
 import JiraRoutes from './Jira.routes.js';
-import EmployeeRoutes from "./Employee.routes.js";
+import EmployeeRoutes from './Employee.routes.js';
 
 const routes = Router();
 

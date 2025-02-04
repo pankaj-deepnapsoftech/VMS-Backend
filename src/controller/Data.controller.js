@@ -24,13 +24,13 @@ function convertKeysToUnderscore(obj) {
 }
 
 const CreateData = AsyncHandler(async (req, res) => {
-  const id = req.currentUser?._id
+  const id = req.currentUser?._id;
   const file = req.file;
   if (!file) {
     throw new NotFoundError('File is reqired', 'CreateData method');
   }
   const data = convertExcelToJson(file.path);
-  const newdata = data.map((item) => convertKeysToUnderscore({...item,creator_id:id}));
+  const newdata = data.map((item) => convertKeysToUnderscore({ ...item, creator_id: id }));
   const result = await DataModel.create(newdata);
 
   fs.unlinkSync(file.path);
@@ -62,7 +62,7 @@ const getAllData = AsyncHandler(async (req, res) => {
   const limits = parseInt(limit) || 20;
   const skip = (pages - 1) * limits;
 
-  const getAllData = await DataModel.find({}).populate("Assigned_To","full_name").skip(skip).limit(limits).exec();
+  const getAllData = await DataModel.find({}).populate('Assigned_To', 'full_name').skip(skip).limit(limits).exec();
   return res.status(StatusCodes.OK).json({
     message: 'Data Found',
     data: getAllData,
@@ -113,41 +113,39 @@ const DataCounsts = AsyncHandler(async (_req, res) => {
 });
 
 const vulnerableItems = AsyncHandler(async (_req, res) => {
-  const currentYear = new Date().getFullYear();  // Get the current year
+  const currentYear = new Date().getFullYear(); // Get the current year
 
-const data = await DataModel.aggregate([
-  // Match documents from the current year only
-  {
-    $match: {
-      createdAt: {
-        $gte: new Date(currentYear, 0, 1),  // Start of the current year (January 1st)
-        $lt: new Date(currentYear + 1, 0, 1) // Start of the next year (January 1st of the next year)
-      }
-    }
-  },
-  {
-    $project: {
-      month: { $month: '$createdAt' },
-      Severity: 1
-    }
-  },
-  {
-    $group: {
-      _id: { month: '$month' },
-      name: { $push: '$Severity' }
-    }
-  },
-  // Sort by year and month
-  {
-    $sort: { '_id.month': 1 }
-  }
-]);
-
-  
+  const data = await DataModel.aggregate([
+    // Match documents from the current year only
+    {
+      $match: {
+        createdAt: {
+          $gte: new Date(currentYear, 0, 1), // Start of the current year (January 1st)
+          $lt: new Date(currentYear + 1, 0, 1), // Start of the next year (January 1st of the next year)
+        },
+      },
+    },
+    {
+      $project: {
+        month: { $month: '$createdAt' },
+        Severity: 1,
+      },
+    },
+    {
+      $group: {
+        _id: { month: '$month' },
+        name: { $push: '$Severity' },
+      },
+    },
+    // Sort by year and month
+    {
+      $sort: { '_id.month': 1 },
+    },
+  ]);
 
   const newData = data.map((item) => ({
-    month: months[item._id.month- 1],
-    year:item._id.year,
+    month: months[item._id.month - 1],
+    year: item._id.year,
     high: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('high')).length,
     low: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('low')).length,
     informational: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('informational')).length,
@@ -237,32 +235,31 @@ const VulnerableRiskRating = AsyncHandler(async (_req, res) => {
 });
 
 const NewAndCloseVulnerable = AsyncHandler(async (_req, res) => {
- const currentYear = new Date().getFullYear();  
+  const currentYear = new Date().getFullYear();
 
-const data = await DataModel.aggregate([
-  {
-    $match: {
-      createdAt: {
-        $gte: new Date(currentYear, 0, 1), 
-        $lt: new Date(currentYear + 1, 0, 1),
-      }
-    }
-  },
-  {
-    $group: { 
-      _id: { $month: '$createdAt' }, 
-      name: { $push: '$Status' }
+  const data = await DataModel.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: new Date(currentYear, 0, 1),
+          $lt: new Date(currentYear + 1, 0, 1),
+        },
+      },
     },
-  },
-  {
-    $sort: { '_id': 1 }
-  }
-]);
-
+    {
+      $group: {
+        _id: { $month: '$createdAt' },
+        name: { $push: '$Status' },
+      },
+    },
+    {
+      $sort: { _id: 1 },
+    },
+  ]);
 
   const newData = data.map((item) => ({
     month: months[item._id - 1],
-    Open: item. name.filter((ite) => ite?.toLocaleLowerCase().includes('open')).length,
+    Open: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('open')).length,
     Closed: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('closed')).length,
   }));
 
@@ -480,8 +477,8 @@ const CriticalHighVulnerableItems = AsyncHandler(async (_req, res) => {
       },
     },
     {
-      $sort: { '_id.year': 1, '_id.month': 1 } 
-    }
+      $sort: { '_id.year': 1, '_id.month': 1 },
+    },
   ]);
 
   // Helper function to get month name from month number
@@ -567,8 +564,8 @@ const LowMediumVulnerableItems = AsyncHandler(async (_req, res) => {
       },
     },
     {
-      $sort: { '_id.year': 1, '_id.month': 1 } 
-    }
+      $sort: { '_id.year': 1, '_id.month': 1 },
+    },
   ]);
 
   const getMonthName = (month) => {
@@ -658,8 +655,8 @@ const CriticalHighVulnerableItemsOverdue = AsyncHandler(async (_req, res) => {
       },
     },
     {
-      $sort: { '_id.year': 1, '_id.month': 1 } 
-    }
+      $sort: { '_id.year': 1, '_id.month': 1 },
+    },
   ]);
 
   const newdata = data.map((item) => ({
@@ -756,8 +753,8 @@ const LowMediumVulnerableItemsOverdue = AsyncHandler(async (_req, res) => {
       },
     },
     {
-      $sort: { '_id.year': 1, '_id.month': 1 } 
-    }
+      $sort: { '_id.year': 1, '_id.month': 1 },
+    },
   ]);
 
   const newdata = data.map((item) => ({
@@ -823,14 +820,14 @@ const ApplicationvulnerabilityCardData = AsyncHandler(async (_req, res) => {
   const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59, 999);
   const data = await DataModel.find({
-    createdAt: { $gte:startOfMonth,$lt:endOfMonth },
-    Severity:{$in:["High","Low","Medium","Critical"]}
+    createdAt: { $gte: startOfMonth, $lt: endOfMonth },
+    Severity: { $in: ['High', 'Low', 'Medium', 'Critical'] },
   });
 
-  const high = data.filter((item) =>item.Severity === 'High').length;
-  const low = data.filter((item) =>item.Severity === 'Low').length;
-  const medium = data.filter((item) =>item.Severity === 'Medium').length;
-  const critical = data.filter((item) =>item.Severity === 'Critical').length;
+  const high = data.filter((item) => item.Severity === 'High').length;
+  const low = data.filter((item) => item.Severity === 'Low').length;
+  const medium = data.filter((item) => item.Severity === 'Medium').length;
+  const critical = data.filter((item) => item.Severity === 'Critical').length;
 
   return res.status(StatusCodes.OK).json({
     high,
@@ -840,15 +837,15 @@ const ApplicationvulnerabilityCardData = AsyncHandler(async (_req, res) => {
   });
 });
 
-const BulkAsignedTask = AsyncHandler(async(req,res)=>{
-  const {tasks,Assigned_To} = req.body;
-  if(tasks.length < 0 || !Assigned_To.trim()){
-    throw new NotFoundError("Tasks and Assigned To is required",BulkAsignedTask)
+const BulkAsignedTask = AsyncHandler(async (req, res) => {
+  const { tasks, Assigned_To } = req.body;
+  if (tasks.length < 0 || !Assigned_To.trim()) {
+    throw new NotFoundError('Tasks and Assigned To is required', BulkAsignedTask);
   }
-  await DataModel.updateMany({_id:{$in:tasks}},{Assigned_To})
+  await DataModel.updateMany({ _id: { $in: tasks } }, { Assigned_To });
   return res.status(StatusCodes.OK).json({
-    message:"Tasks assined Successful"
-  })
+    message: 'Tasks assined Successful',
+  });
 });
 
 export {
@@ -872,5 +869,5 @@ export {
   CriticalHighVulnerableItemsOverdue,
   LowMediumVulnerableItemsOverdue,
   ApplicationvulnerabilityCardData,
-  BulkAsignedTask
+  BulkAsignedTask,
 };

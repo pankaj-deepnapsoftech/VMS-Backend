@@ -15,7 +15,7 @@ const DataSchema = new Schema(
     Remediated_Date: { type: Number },
     Ageing: { type: String },
     Remediate_Upcoming_Time_Line: { type: String },
-    creator_id:{type:Schema.Types.ObjectId,ref:"User"}
+    creator_id: { type: Schema.Types.ObjectId, ref: 'User' },
   },
   { timestamps: true },
 );
