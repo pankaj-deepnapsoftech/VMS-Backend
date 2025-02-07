@@ -7,9 +7,7 @@
   },
   "host": "localhost:3000",
   "basePath": "/",
-  "schemes": [
-    "http"
-  ],
+  "schemes": ["http"],
   "paths": {
     "/auth/create": {
       "post": {
@@ -560,8 +558,44 @@
       }
     },
     "/assessment/get": {
-      "post": {
+      "get": {
         "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/assessment/delete/{id}": {
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/assessment/update/{id}": {
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -605,7 +639,5 @@
       }
     }
   },
-  "apis": [
-    "./src/routes/index.js"
-  ]
+  "apis": ["./src/routes/index.js"]
 }

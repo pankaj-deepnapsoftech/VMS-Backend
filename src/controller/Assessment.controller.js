@@ -1,14 +1,15 @@
 import { StatusCodes } from 'http-status-codes';
 import { AssessmentModel } from '../models/Assessment.model.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
+import { NotFoundError } from '../utils/customError.js';
 
 const createAssessment = AsyncHandler(async (req, res) => {
   const data = req.body;
   const file = req.file;
 
-  let filePath = "";
+  let filePath = '';
   if (file) {
-    filePath = `http://localhost:4000/images/${file.filename}`;
+    filePath = `http://localhost:4000/file/${file.filename}`;
   }
 
   const result = await AssessmentModel.create({ ...data, creator_id: req.currentUser?._id, code_Upload: filePath });
@@ -26,4 +27,34 @@ const getAssessment = AsyncHandler(async (req, res) => {
   });
 });
 
-export { createAssessment, getAssessment };
+const deleteAssessment = AsyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const find = await AssessmentModel.findById(id);
+
+  if (!find) {
+    throw new NotFoundError('Wrong Id', 'deleteAssessment Method');
+  }
+  await AssessmentModel.findByIdAndDelete(id);
+  return res.status(StatusCodes.OK).json({
+    message: 'Data Deleted Successfully',
+  });
+});
+
+const updateAssessment = AsyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const data = req.body;
+  const file = req.file;
+  let filepath = '';
+  if (file) {
+    filepath = `http://localhost:4000/file/${file.filename}`;
+  }
+
+  const find = await AssessmentModel.findById(id);
+  if (!find) {
+    throw new NotFoundError('data not found', 'updateAssessment method');
+  }
+  await AssessmentModel.findByIdAndUpdate(id, { ...data, code_Upload: filepath });
+});
+
+export { createAssessment, getAssessment, deleteAssessment, updateAssessment };

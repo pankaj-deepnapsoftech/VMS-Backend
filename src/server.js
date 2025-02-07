@@ -2,6 +2,8 @@ import express, { json, urlencoded } from 'express';
 import cors from 'cors';
 import { StatusCodes } from 'http-status-codes';
 import cron from 'node-cron';
+import path from 'path';
+import { fileURLToPath } from 'url';
 // local imports
 import { config } from './config/env.config.js';
 import { Health } from './controller/health.controller.js';
@@ -11,6 +13,8 @@ import { AuthModel } from './models/Auth.model.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from './swagger.json' assert { type: 'json' };
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express();
 
 app.use(json({ limit: '20mb' }));
@@ -26,6 +30,7 @@ app.use(
 app.get('/health', Health);
 app.use('/api/v1', MainRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/file', express.static(path.join(__dirname, '../', 'public/temp')));
 app.all('*', (_req, _res, next) => {
   next(new NotFoundError('Path Not Found ', 'server.js '));
 });

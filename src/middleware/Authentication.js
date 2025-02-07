@@ -94,4 +94,3 @@ export const ClientSMEAuthentication = AsyncHandler(async (req, _res, next) => {
   req.currentUser = user;
   next();
 });
-
