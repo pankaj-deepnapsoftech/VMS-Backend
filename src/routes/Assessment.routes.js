@@ -6,7 +6,7 @@ import { Assessmentvalidater } from '../helper/helper.js';
 
 const router = Router();
 
-router.route('/create').post(ClientSMEAuthentication, Assessmentvalidater, upload.single('code_Upload'), createAssessment);
+router.route('/create').post(ClientSMEAuthentication,upload.single('code_Upload'),Assessmentvalidater, createAssessment);
 router.route('/get').get(ClientSMEAuthentication, getAssessment);
 router.route('/delete/:id').delete(ClientSMEAuthentication, deleteAssessment);
 router.route('/update/:id').delete(ClientSMEAuthentication, upload.single('code_Upload'), updateAssessment);
