@@ -549,7 +549,7 @@
         }
       }
     },
-    "/guardain/create-guardain": {
+    "/assessment/create": {
       "post": {
         "description": "",
         "responses": {
@@ -559,27 +559,9 @@
         }
       }
     },
-    "/guardain/get-guardain": {
-      "get": {
+    "/assessment/get": {
+      "post": {
         "description": "",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/guardain/delete/{id}": {
-      "delete": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
         "responses": {
           "default": {
             "description": ""

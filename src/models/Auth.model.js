@@ -9,7 +9,7 @@ const AuthSchema = new Schema({
   role: {
     type: String,
     required: true,
-    enum: ['Customer', 'Employee', 'Admin'],
+    enum: ['ClientCTO', 'Employee', 'Admin',"ClientSME"],
   },
   otp: { type: Number },
   employee_approve: { type: Boolean, required: true, default: false },

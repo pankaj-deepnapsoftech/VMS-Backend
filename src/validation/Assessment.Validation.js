@@ -1,0 +1,6 @@
+export const RegisterValidation = object({
+  Type_Of_Assesment: string().required('Type Of Assesment is Required'),
+  Data_Classification: string().required('Type Of Assesment is Required'),
+  MFA_Enabled: string().required('Type Of Assesment is Required'),
+  
+});

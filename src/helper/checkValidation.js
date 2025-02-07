@@ -1,4 +1,4 @@
-export const Validater = (schema) => {
+export const  Validater = (schema) => {
   return async (req, res, next) => {
     try {
       const data = req.body;
