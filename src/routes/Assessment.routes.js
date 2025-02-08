@@ -9,6 +9,6 @@ const router = Router();
 router.route('/create').post(ClientSMEAuthentication,upload.single('code_Upload'),Assessmentvalidater, createAssessment);
 router.route('/get').get(ClientSMEAuthentication, getAssessment);
 router.route('/delete/:id').delete(ClientSMEAuthentication, deleteAssessment);
-router.route('/update/:id').delete(ClientSMEAuthentication, upload.single('code_Upload'), updateAssessment);
+router.route('/update/:id').patch(ClientSMEAuthentication, upload.single('code_Upload'), updateAssessment);
 
 export default router;
