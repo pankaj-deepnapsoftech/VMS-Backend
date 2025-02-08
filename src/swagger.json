@@ -7,7 +7,9 @@
   },
   "host": "localhost:3000",
   "basePath": "/",
-  "schemes": ["http"],
+  "schemes": [
+    "http"
+  ],
   "paths": {
     "/auth/create": {
       "post": {
@@ -586,7 +588,7 @@
       }
     },
     "/assessment/update/{id}": {
-      "delete": {
+      "patch": {
         "description": "",
         "parameters": [
           {
@@ -596,6 +598,16 @@
             "type": "string"
           }
         ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/assessment/testers-list": {
+      "get": {
+        "description": "",
         "responses": {
           "default": {
             "description": ""
@@ -639,5 +651,7 @@
       }
     }
   },
-  "apis": ["./src/routes/index.js"]
+  "apis": [
+    "./src/routes/index.js"
+  ]
 }
