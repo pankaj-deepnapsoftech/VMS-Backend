@@ -55,6 +55,9 @@ const updateAssessment = AsyncHandler(async (req, res) => {
     throw new NotFoundError('data not found', 'updateAssessment method');
   }
   await AssessmentModel.findByIdAndUpdate(id, { ...data, code_Upload: filepath });
+  return res.status(StatusCodes.OK).json({
+    message:"Data Update Successful"
+  })
 });
 
 export { createAssessment, getAssessment, deleteAssessment, updateAssessment };
