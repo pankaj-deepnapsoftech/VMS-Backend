@@ -2,6 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import { AssessmentModel } from '../models/Assessment.model.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { NotFoundError } from '../utils/customError.js';
+import { AuthModel } from '../models/Auth.model.js';
 
 const createAssessment = AsyncHandler(async (req, res) => {
   const data = req.body;
@@ -60,4 +61,11 @@ const updateAssessment = AsyncHandler(async (req, res) => {
   })
 });
 
-export { createAssessment, getAssessment, deleteAssessment, updateAssessment };
+const tasterList = AsyncHandler(async (req,res) => {
+  const data = AuthModel.find({role:"Employee"})
+  return res.status(StatusCodes.OK).json({
+    data
+  })
+})
+
+export { createAssessment, getAssessment, deleteAssessment, updateAssessment,tasterList };
