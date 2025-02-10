@@ -2,6 +2,7 @@
 import { config } from './config/env.config.js';
 import { DbConnection } from './connections/MongoDb.js';
 import { app } from './server.js';
+import { getIssues } from './utils/Jira.utils.js';
 
 const SERVER_PORT = 4000;
 
@@ -12,3 +13,4 @@ const startServer = async () => {
 };
 
 startServer();
+

@@ -7,7 +7,7 @@ const AssessmentSchema = new Schema({
   Data_Classification: { type: 'String', required: true },
   Select_Tester: { type: Schema.Types.ObjectId, ref: 'User' },
   MFA_Enabled: { type: Boolean, required: true },
-  creator_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  creator_id: { type: Schema.Types.ObjectId, ref: 'User', required: true }, 
 });
 
 export const AssessmentModel = model('Assessment', AssessmentSchema);
