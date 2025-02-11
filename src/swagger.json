@@ -228,6 +228,18 @@
     "/auth/all-users": {
       "get": {
         "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -238,6 +250,18 @@
     "/auth/all-employee": {
       "get": {
         "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -532,6 +556,18 @@
     "/employee/get-employee-task": {
       "get": {
         "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -540,6 +576,16 @@
       }
     },
     "/employee/emp-data": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/employee/get-orgnization": {
       "get": {
         "description": "",
         "responses": {

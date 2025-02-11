@@ -216,3 +216,4 @@ const employeeVerification = AsyncHandler(async (req, res) => {
 });
 
 export { RegisterUser, LoginUser, VerifyOTP, VerifyEmail, ResetPassword, LogoutUser, getlogedInUser, UpdateUserPath, ChnagePassword, ResendOtp, GetAllUser, employeeVerification, GetAllEmployee };
+

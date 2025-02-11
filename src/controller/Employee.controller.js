@@ -38,4 +38,11 @@ const TasksCardData = AsyncHandler(async (req, res) => {
   });
 });
 
-export { GetEmployeeTasksData, TasksCardData };
+const getOrgnization = AsyncHandler(async (_req,res)=>{
+ const data =await AuthModel.find({role:"ClientSME"})
+  return res.status(StatusCodes.OK).json({
+    data
+  })
+})
+
+export { GetEmployeeTasksData, TasksCardData,getOrgnization };
