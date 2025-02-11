@@ -2,6 +2,7 @@ import { Schema, model } from 'mongoose';
 
 const AssessmentSchema = new Schema({
   Type_Of_Assesment: { type: 'String', required: true },
+  Orgenization_id:{type:Schema.Types.ObjectId,ref:"User",required:true},
   Application_Url: { type: 'String' },
   code_Upload: { type: 'String' },
   Data_Classification: { type: 'String', required: true },
