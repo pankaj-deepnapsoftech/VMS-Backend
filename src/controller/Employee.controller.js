@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { DataModel } from '../models/Data.model.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
+import { AuthModel } from '../models/Auth.model.js';
 
 const GetEmployeeTasksData = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
