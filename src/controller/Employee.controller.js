@@ -40,7 +40,7 @@ const TasksCardData = AsyncHandler(async (req, res) => {
 });
 
 const getOrgnization = AsyncHandler(async (_req,res)=>{
- const data =await AuthModel.find({role:"ClientSME"})
+ const data = await AuthModel.find({role:"ClientSME"}).select("role phone email full_name");
   return res.status(StatusCodes.OK).json({
     data
   })

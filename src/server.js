@@ -1,7 +1,6 @@
 import express, { json, urlencoded } from 'express';
 import cors from 'cors';
 import { StatusCodes } from 'http-status-codes';
-import cron from 'node-cron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 // local imports
@@ -9,7 +8,6 @@ import { config } from './config/env.config.js';
 import { Health } from './controller/health.controller.js';
 import MainRoutes from './routes/index.js';
 import { CustomError, NotFoundError } from './utils/customError.js';
-import { AuthModel } from './models/Auth.model.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from './swagger.json' assert { type: 'json' };
 
@@ -52,13 +50,6 @@ app.use((error, _req, res, next) => {
   next();
 });
 
-cron.schedule('0 0 * * *', async () => {
-  try {
-    await AuthModel.updateMany({}, { Login_verification: false });
-    console.log('app user logout');
-  } catch (error) {
-    console.error('Error calling the API:', error.message);
-  }
-});
+
 
 export { app };

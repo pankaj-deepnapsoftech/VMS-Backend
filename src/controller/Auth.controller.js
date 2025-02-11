@@ -75,7 +75,6 @@ const VerifyOTP = AsyncHandler(async (req, res) => {
   }
   await AuthModel.findByIdAndUpdate(req?.currentUser._id, {
     email_verification: true,
-    Login_verification: true,
   });
   return res.status(StatusCodes.OK).json({
     message: 'OTP Verified Successful',

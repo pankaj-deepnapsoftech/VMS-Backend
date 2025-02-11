@@ -16,7 +16,6 @@ const AuthSchema = new Schema({
   otp_expire: { type: Number },
   Allowed_path: { type: [String] },
   email_verification: { type: Boolean, required: true, default: false },
-  Login_verification: { type: Boolean, required: true, default: false },
 });
 
 AuthSchema.pre('save', async function (next) {
