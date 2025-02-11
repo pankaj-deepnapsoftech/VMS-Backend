@@ -186,7 +186,7 @@ const GetAllUser = AsyncHandler(async (_req, res) => {
 });
 
 const GetAllEmployee = AsyncHandler(async (_req, res) => {
-  const users = await AuthModel.find({ role: 'Employee' }).select('full_name email phone role Allowed_path employee_approve');
+  const users = await AuthModel.find({ role: 'Assessor' }).select('full_name email phone role Allowed_path employee_approve');
   return res.status(StatusCodes.OK).json({
     message: 'all customer',
     users,

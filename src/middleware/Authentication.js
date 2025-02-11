@@ -49,7 +49,7 @@ export const EmployeeAuthentication = AsyncHandler(async (req, _res, next) => {
   if (!user) {
     throw new BadRequestError('Invalid User Please Try Again', 'AdminAuthentication method');
   }
-  if (user.role !== 'Employee') {
+  if (user.role !== 'Assessor') {
     throw new NotAuthenticated('you are not Allowed to asscess this routes', 'AdminAuthentication method');
   }
 
