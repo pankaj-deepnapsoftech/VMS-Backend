@@ -3,8 +3,13 @@ import { DataModel } from '../models/Data.model.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
 
 const GetEmployeeTasksData = AsyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+
+  const pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 10;
+  const skip = (pages - 1) * limits;
   const id = req.currentUser?._id;
-  const find = await DataModel.find({ Assigned_To: id });
+  const find = await DataModel.find({ Assigned_To: id }).sort({_id:-1}).skip(skip).limit(limits);
 
   return res.status(StatusCodes.OK).json({
     message: 'tasks',

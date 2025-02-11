@@ -177,16 +177,26 @@ const ResendOtp = AsyncHandler(async (req, res) => {
   });
 });
 
-const GetAllUser = AsyncHandler(async (_req, res) => {
-  const users = await AuthModel.find({ role: 'Customer' }).select('full_name email phone role Allowed_path');
+const GetAllUser = AsyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+
+  const pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 10;
+  const skip = (pages - 1) * limits;
+  const users = await AuthModel.find({ role:{$in:["ClientCISO","ClientSME"]} }).select('full_name email phone role Allowed_path').sort({_id:-1}).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     message: 'all customer',
     users,
   });
 });
 
-const GetAllEmployee = AsyncHandler(async (_req, res) => {
-  const users = await AuthModel.find({ role: 'Assessor' }).select('full_name email phone role Allowed_path employee_approve');
+const GetAllEmployee = AsyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+
+  const pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 10;
+  const skip = (pages - 1) * limits;
+  const users = await AuthModel.find({ role: 'Assessor' }).select('full_name email phone role Allowed_path employee_approve').sort({_id:-1}).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     message: 'all customer',
     users,
