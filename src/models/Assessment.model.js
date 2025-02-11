@@ -9,6 +9,8 @@ const AssessmentSchema = new Schema({
   Select_Tester: { type: Schema.Types.ObjectId, ref: 'User' },
   MFA_Enabled: { type: Boolean, required: true },
   creator_id: { type: Schema.Types.ObjectId, ref: 'User', required: true }, 
+  task_start:{type:String,required:true},
+  task_end:{type:String,required:true},
 });
 
 export const AssessmentModel = model('Assessment', AssessmentSchema);
