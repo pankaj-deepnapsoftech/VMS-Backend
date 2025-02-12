@@ -848,6 +848,33 @@ const BulkAsignedTask = AsyncHandler(async (req, res) => {
   });
 });
 
+const TopVulnerabilities = AsyncHandler(async (req, res) => {
+  const data = await DataModel.find({}).exec();
+
+  let obj = {};
+
+  data.map((item) => {
+    if (!obj[item.Title]) {
+      obj[item.Title] = 1;
+    } else {
+      obj[item.Title] += 1;
+    }
+  });
+
+  const sortedEntries = Object.entries(obj)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 5);
+
+  let topVulnerabilities = {};
+  sortedEntries.forEach(([key, value]) => {
+    topVulnerabilities[key] = value;
+  });
+
+  return res.status(StatusCodes.OK).json({
+    data:topVulnerabilities,
+  });
+});
+
 export {
   CreateData,
   getAllData,
@@ -870,4 +897,5 @@ export {
   LowMediumVulnerableItemsOverdue,
   ApplicationvulnerabilityCardData,
   BulkAsignedTask,
+  TopVulnerabilities,
 };

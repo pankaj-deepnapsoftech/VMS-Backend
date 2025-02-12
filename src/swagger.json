@@ -503,6 +503,16 @@
         }
       }
     },
+    "/data/top-vulnerabilities": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/jira/issues": {
       "get": {
         "description": "",

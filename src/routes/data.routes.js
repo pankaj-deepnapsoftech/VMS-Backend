@@ -22,6 +22,7 @@ import {
   LowMediumVulnerableItemsOverdue,
   ApplicationvulnerabilityCardData,
   BulkAsignedTask,
+  TopVulnerabilities,
 } from '../controller/Data.controller.js';
 import { upload } from '../config/multer.config.js';
 import { Authentication } from '../middleware/Authentication.js';
@@ -49,5 +50,6 @@ routes.route('/CriticalHighVulnerableItemsOverdue').get(Authentication, Critical
 routes.route('/LowMediumVulnerableItemsOverdue').get(Authentication, LowMediumVulnerableItemsOverdue);
 routes.route('/ApplicationvulnerabilityCardData').get(ApplicationvulnerabilityCardData);
 routes.route('/bulk-asigned-task').patch(Authentication, BulkAsignedTask);
+routes.route("/top-vulnerabilities").get(Authentication,TopVulnerabilities)
 
 export default routes;
