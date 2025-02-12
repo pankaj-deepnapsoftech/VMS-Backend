@@ -6,7 +6,7 @@ const routes = Router();
 
 
 routes.route("/create").post(Authentication,CreateNotification)
-routes.route("/get").post(Authentication,GetNotification)
-routes.route("/viewed/:id").post(Authentication,NotificationViewed)
+routes.route("/get").get(Authentication,GetNotification)
+routes.route("/viewed/:id").patch(Authentication,NotificationViewed)
 
 export default routes 
