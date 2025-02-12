@@ -20,7 +20,7 @@ const GetNotification = AsyncHandler(async(req,res)=>{
 })
 
 const NotificationViewed = AsyncHandler(async(req,res)=>{
-    const id = req.params;
+    const {id} = req.params;
 
     const find = await NotificationModel.findById(id);
     if(!find){

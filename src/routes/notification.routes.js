@@ -5,8 +5,8 @@ import { CreateNotification, GetNotification, NotificationViewed } from "../cont
 const routes = Router();
 
 
-routes.route("/create").post(Authentication,CreateNotification)
-routes.route("/get").get(Authentication,GetNotification)
-routes.route("/viewed/:id").patch(Authentication,NotificationViewed)
+routes.route("/create").post(Authentication,CreateNotification);
+routes.route("/get").get(Authentication,GetNotification);
+routes.route("/viewed/:id").patch(Authentication,NotificationViewed);
 
 export default routes 
