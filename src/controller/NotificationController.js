@@ -13,7 +13,7 @@ const CreateNotification = AsyncHandler(async (req,res)=>{
 });
 
 const GetNotification = AsyncHandler(async(req,res)=>{
-    const data = await NotificationModel.find({reciver_id:req.currentUser?._id});
+    const data = await NotificationModel.find({reciver_id:req.currentUser?._id}).sort({_id:-1});
     return res.status(StatusCodes.OK).json({
         data
     })

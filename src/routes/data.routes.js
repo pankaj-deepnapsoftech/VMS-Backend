@@ -53,7 +53,7 @@ routes.route('/LowMediumVulnerableItemsOverdue').get(Authentication, LowMediumVu
 routes.route('/ApplicationvulnerabilityCardData').get(ApplicationvulnerabilityCardData);
 routes.route('/bulk-asigned-task').patch(Authentication, BulkAsignedTask);
 routes.route("/top-vulnerabilities").get(Authentication,TopVulnerabilities)
-routes.route("/GetAssetsOpenIssues").get(Authentication,GetAssetsOpenIssues)
+routes.route("/GetAssetsOpenIssues").post(GetAssetsOpenIssues)
 routes.route("/GetOrganization").get(Authentication,GetOrganization)
 
 export default routes;
