@@ -20,4 +20,6 @@ const DataSchema = new Schema(
   { timestamps: true },
 );
 
+DataSchema.index({Organization:"text"})
+
 export const DataModel = model('Data', DataSchema);

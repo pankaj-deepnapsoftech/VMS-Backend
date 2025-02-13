@@ -61,7 +61,7 @@ const updateAssessment = AsyncHandler(async (req, res) => {
   })
 });
 
-const tasterList = AsyncHandler(async (req,res) => {
+const tasterList = AsyncHandler(async (_req,res) => {
   const data =await AuthModel.find({role:"Assessor"})
   return res.status(StatusCodes.OK).json({
     data

@@ -10,14 +10,14 @@ const CreateNotification = AsyncHandler(async (req,res)=>{
     return res.status(StatusCodes.OK).json({
         Message:"Notification Send",
     })
-})
+});
 
 const GetNotification = AsyncHandler(async(req,res)=>{
     const data = await NotificationModel.find({reciver_id:req.currentUser?._id});
     return res.status(StatusCodes.OK).json({
         data
     })
-})
+});
 
 const NotificationViewed = AsyncHandler(async(req,res)=>{
     const {id} = req.params;
@@ -30,6 +30,6 @@ const NotificationViewed = AsyncHandler(async(req,res)=>{
     return res.status(StatusCodes.OK).json({
         message:"notification viewed"
     })
-})
+});
 
-export {CreateNotification,GetNotification,NotificationViewed}
+export {CreateNotification,GetNotification,NotificationViewed};

@@ -848,7 +848,7 @@ const BulkAsignedTask = AsyncHandler(async (req, res) => {
   });
 });
 
-const TopVulnerabilities = AsyncHandler(async (req, res) => {
+const TopVulnerabilities = AsyncHandler(async (_req, res) => {
   const data = await DataModel.find({}).exec();
 
   let obj = {};
@@ -871,7 +871,21 @@ const TopVulnerabilities = AsyncHandler(async (req, res) => {
   });
 
   return res.status(StatusCodes.OK).json({
-    data:topVulnerabilities,
+    data: topVulnerabilities,
+  });
+});
+
+const GetAssetsOpenIssues = AsyncHandler(async (req, res) => {
+  const { Organization } = req.body;
+  const data = await DataModel.find({
+    $text: {
+      $search: Organization,
+    },
+    Status: 'Open',
+  });
+
+  return res.status(StatusCodes.OK).json({
+    data,
   });
 });
 
@@ -898,4 +912,5 @@ export {
   ApplicationvulnerabilityCardData,
   BulkAsignedTask,
   TopVulnerabilities,
+  GetAssetsOpenIssues,
 };
