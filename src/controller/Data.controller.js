@@ -883,9 +883,7 @@ const GetAssetsOpenIssues = AsyncHandler(async (req, res) => {
   const skip = (pages - 1) * limits;
   const { Organization } = req.body;
   const data = await DataModel.find({
-    $text: {
-      $search: Organization,
-    },
+    Organization,
     Status: 'Open',
   }).populate('Assigned_To', 'full_name').skip(skip).limit(limits);
 
