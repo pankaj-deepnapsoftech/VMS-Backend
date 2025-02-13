@@ -513,6 +513,26 @@
         }
       }
     },
+    "/data/GetAssetsOpenIssues": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/data/GetOrganization": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/jira/issues": {
       "get": {
         "description": "",
@@ -682,7 +702,7 @@
       }
     },
     "/notification/get": {
-      "post": {
+      "get": {
         "description": "",
         "responses": {
           "default": {
@@ -692,7 +712,7 @@
       }
     },
     "/notification/viewed/{id}": {
-      "post": {
+      "patch": {
         "description": "",
         "parameters": [
           {

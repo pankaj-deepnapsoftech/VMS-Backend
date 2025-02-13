@@ -24,6 +24,7 @@ import {
   BulkAsignedTask,
   TopVulnerabilities,
   GetAssetsOpenIssues,
+  GetOrganization,
 } from '../controller/Data.controller.js';
 import { upload } from '../config/multer.config.js';
 import { Authentication } from '../middleware/Authentication.js';
@@ -53,5 +54,6 @@ routes.route('/ApplicationvulnerabilityCardData').get(ApplicationvulnerabilityCa
 routes.route('/bulk-asigned-task').patch(Authentication, BulkAsignedTask);
 routes.route("/top-vulnerabilities").get(Authentication,TopVulnerabilities)
 routes.route("/GetAssetsOpenIssues").get(Authentication,GetAssetsOpenIssues)
+routes.route("/GetOrganization").get(Authentication,GetOrganization)
 
 export default routes;

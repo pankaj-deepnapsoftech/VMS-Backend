@@ -876,18 +876,38 @@ const TopVulnerabilities = AsyncHandler(async (_req, res) => {
 });
 
 const GetAssetsOpenIssues = AsyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+
+  const pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 20;
+  const skip = (pages - 1) * limits;
   const { Organization } = req.body;
   const data = await DataModel.find({
     $text: {
       $search: Organization,
     },
     Status: 'Open',
-  });
+  }).populate('Assigned_To', 'full_name').skip(skip).limit(limits);
 
   return res.status(StatusCodes.OK).json({
     data,
   });
 });
+
+const GetOrganization = AsyncHandler(async (req,res) => {
+  const find = await DataModel.find({})
+  let obj = {};
+  let data = [];
+  find.map((item)=>{
+    if(!obj[item.Organization]){
+      obj[item.Organization] = true;
+      data.push(item.Organization)
+    }
+  })
+  return res.status(StatusCodes.OK).json({
+    data
+  })
+})
 
 export {
   CreateData,
@@ -913,4 +933,5 @@ export {
   BulkAsignedTask,
   TopVulnerabilities,
   GetAssetsOpenIssues,
+  GetOrganization
 };
