@@ -10,11 +10,27 @@ const GetEmployeeTasksData = AsyncHandler(async (req, res) => {
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
   const id = req.currentUser?._id;
-  const find = await DataModel.find({ Assigned_To: id }).sort({_id:-1}).skip(skip).limit(limits);
+  const find = await DataModel.find({ Assigned_To: id }).populate({path:"creator_id",select:"full_name"}).sort({_id:-1}).skip(skip).limit(limits);
+
+  const data = find.map((item)=>({
+    _id:item._id,
+    Organization:item?.Organization,
+    Application_Name:item?.Application_Name,
+    Title:item?.Title,
+    Vulnerability_Classification:item?.Vulnerability_Classification,
+    Scan_Type:item?.Scan_Type,
+    Severity:item?.Severity,
+    Priority:item?.Priority,
+    Status:item?.Status,
+    Remediated_Date:item?.Remediated_Date,
+    Ageing:item?.Ageing,
+    Remediate_Upcoming_Time_Line:item?.Remediate_Upcoming_Time_Line,
+    creator_id:item?.creator_id?.full_name,
+  }))
 
   return res.status(StatusCodes.OK).json({
     message: 'tasks',
-    data: find,
+    data: data,
   });
 });
 
