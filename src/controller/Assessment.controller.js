@@ -30,12 +30,12 @@ const getAssessment = AsyncHandler(async (req, res) => {
   const newData =  data.map((item)=>({
     _id:item._id,
     Type_Of_Assesment:item.Type_Of_Assesment,
-    Orgenization_id:item.Orgenization_id.full_name,
+    Orgenization:item.Orgenization_id.full_name,
     code_Upload:item.code_Upload,
     Data_Classification:item.Data_Classification,
-    Select_Tester:item.Select_Tester.full_name,
+    Tester:item.Select_Tester.full_name,
     MFA_Enabled:item.MFA_Enabled,
-    creator_id:item.creator_id.full_name,
+    creator:item.creator_id.full_name,
     task_start:item.task_start,
     task_end:item.task_end
   }))

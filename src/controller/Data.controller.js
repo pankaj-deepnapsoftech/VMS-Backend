@@ -62,10 +62,26 @@ const getAllData = AsyncHandler(async (req, res) => {
   const limits = parseInt(limit) || 20;
   const skip = (pages - 1) * limits;
 
-  const getAllData = await DataModel.find({}).populate('Assigned_To', 'full_name').skip(skip).limit(limits).exec();
+  const getAllData = await DataModel.find({}).populate([{path:'Assigned_To', select:'full_name'},{path:'creator_id', select:'full_name'}]).skip(skip).limit(limits).exec();
+  const data = getAllData.map((item)=>({
+    _id:item._id,
+    Organization:item?.Organization,
+    Application_Name:item?.Application_Name,
+    Title:item?.Title,
+    Assigned_To:item?.Assigned_To,
+    Vulnerability_Classification:item?.Vulnerability_Classification,
+    Scan_Type:item?.Scan_Type,
+    Severity:item?.Severity,
+    Priority:item?.Priority,
+    Status:item?.Status,
+    Remediated_Date:item?.Remediated_Date,
+    Ageing:item?.Ageing,
+    Remediate_Upcoming_Time_Line:item?.Remediate_Upcoming_Time_Line,
+    creator:item?.creator_id?.full_name,
+  }))
   return res.status(StatusCodes.OK).json({
     message: 'Data Found',
-    data: getAllData,
+    data,
   });
 });
 

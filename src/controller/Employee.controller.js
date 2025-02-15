@@ -25,7 +25,7 @@ const GetEmployeeTasksData = AsyncHandler(async (req, res) => {
     Remediated_Date:item?.Remediated_Date,
     Ageing:item?.Ageing,
     Remediate_Upcoming_Time_Line:item?.Remediate_Upcoming_Time_Line,
-    creator_id:item?.creator_id?.full_name,
+    creator:item?.creator_id?.full_name,
   }))
 
   return res.status(StatusCodes.OK).json({
