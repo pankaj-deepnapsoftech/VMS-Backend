@@ -514,7 +514,7 @@
       }
     },
     "/data/GetAssetsOpenIssues": {
-      "get": {
+      "post": {
         "description": "",
         "responses": {
           "default": {
@@ -638,6 +638,18 @@
     "/assessment/get": {
       "get": {
         "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -682,6 +694,16 @@
       }
     },
     "/assessment/testers-list": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/assessment/DashboardData": {
       "get": {
         "description": "",
         "responses": {

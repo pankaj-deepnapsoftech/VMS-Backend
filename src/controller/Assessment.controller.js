@@ -85,4 +85,52 @@ const tasterList = AsyncHandler(async (_req,res) => {
   })
 })
 
-export { createAssessment, getAssessment, deleteAssessment, updateAssessment,tasterList };
+const DashboardData = AsyncHandler(async (_req,res) => {
+  const filterData = ["Secure Code Scan","Dynamic Application","Web Application Penetration Testing","Api Penetration Testing","Infrastructure Vulnerability Scan","Infrastructure Penetration Testing"]
+  const data =await AssessmentModel.find({creator_id: req.currentUser?._id})
+  let SecureCode = 0;
+  let DynamicApplication = 0;
+  let WebApplication = 0;
+  let ApiPenetration = 0;
+  let InfrastructureVulnerability = 0;
+  let InfrastructurePenetration = 0;
+
+  data.map((item) => {
+    if(item.Type_Of_Assesment === filterData[0]){
+      SecureCode += 1
+    }
+
+    if(item.Type_Of_Assesment === filterData[1]){
+      DynamicApplication += 1
+    }
+
+    if(item.Type_Of_Assesment === filterData[2]){
+      WebApplication += 1
+    }
+
+    if(item.Type_Of_Assesment === filterData[3]){
+      ApiPenetration += 1
+    }
+
+    if(item.Type_Of_Assesment === filterData[4]){
+      InfrastructureVulnerability += 1
+    }
+
+    if(item.Type_Of_Assesment === filterData[5]){
+      InfrastructurePenetration += 1
+    }
+
+  })
+
+  return res.status(StatusCodes.OK).json({
+    SecureCode, 
+    DynamicApplication, 
+    WebApplication, 
+    ApiPenetration, 
+    InfrastructureVulnerability, 
+    InfrastructurePenetration
+  })
+
+})
+
+export { createAssessment, getAssessment, deleteAssessment, updateAssessment,tasterList, DashboardData };
