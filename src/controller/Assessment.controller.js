@@ -85,7 +85,7 @@ const tasterList = AsyncHandler(async (_req,res) => {
   })
 })
 
-const DashboardData = AsyncHandler(async (_req,res) => {
+const DashboardData = AsyncHandler(async (req,res) => {
   const filterData = ["Secure Code Scan","Dynamic Application","Web Application Penetration Testing","Api Penetration Testing","Infrastructure Vulnerability Scan","Infrastructure Penetration Testing"]
   const data =await AssessmentModel.find({creator_id: req.currentUser?._id})
   let SecureCode = 0;
