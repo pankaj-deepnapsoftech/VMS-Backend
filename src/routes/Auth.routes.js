@@ -15,6 +15,7 @@ import {
   GetAllUser,
   GetAllEmployee,
   GetAllCISO,
+  getAllSME,
 } from '../controller/Auth.controller.js';
 import { Authentication } from '../middleware/Authentication.js';
 
@@ -34,5 +35,6 @@ routes.route('/verify-employee/:id').patch(Authentication, employeeVerification)
 routes.route('/all-users').get(Authentication, GetAllUser);
 routes.route('/all-employee').get(Authentication, GetAllEmployee);
 routes.route('/all-ciso').get(Authentication, GetAllCISO);
+routes.route('/all-sme').get(Authentication, getAllSME);
 
 export default routes;

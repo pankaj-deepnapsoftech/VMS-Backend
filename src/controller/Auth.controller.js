@@ -240,7 +240,7 @@ const getAllSME = AsyncHandler(async (req, res) => {
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
-  const find = await AuthModel.find({ role: 'ClientSME' }).select('full_name email phone role Allowed_path employee_approve').sort({ _id: -1 }).skip(skip).limit(limits);
+  const find = await AuthModel.find({ owner: req.currentUser?._id }).select('full_name email phone role Allowed_path employee_approve').sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     data: find,
   });
@@ -261,4 +261,5 @@ export {
   employeeVerification,
   GetAllEmployee,
   GetAllCISO,
+  getAllSME
 };

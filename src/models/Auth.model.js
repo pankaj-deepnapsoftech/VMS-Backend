@@ -15,7 +15,7 @@ const AuthSchema = new Schema({
   employee_approve: { type: Boolean, required: true, default: false },
   otp_expire: { type: Number },
   department: { type: String },
-  email_verification: { type: Boolean, required: true, default: false },
+  owner: { type: Schema.Types.ObjectId, ref:"User" },
 });
 
 AuthSchema.pre('save', async function (next) {
