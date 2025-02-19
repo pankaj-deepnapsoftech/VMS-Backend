@@ -14,7 +14,7 @@ const AuthSchema = new Schema({
   otp: { type: Number },
   employee_approve: { type: Boolean, required: true, default: false },
   otp_expire: { type: Number },
-  Allowed_path: { type: [String] },
+  department: { type: String },
   email_verification: { type: Boolean, required: true, default: false },
 });
 

@@ -7,6 +7,6 @@ const router = Router();
 
 router.route('/get-employee-task').get(EmployeeAuthentication, GetEmployeeTasksData);
 router.route('/emp-data').get(EmployeeAuthentication, TasksCardData);
-router.route("/get-orgnization").get(AdminAuthentication,getOrgnization)
+router.route('/get-orgnization').get(AdminAuthentication, getOrgnization);
 
 export default router;

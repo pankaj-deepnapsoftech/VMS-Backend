@@ -41,8 +41,8 @@ const LoginUser = AsyncHandler(async (req, res) => {
     throw new NotFoundError('User not exist', 'LoginUser method');
   }
 
-  if(!user.email_verification){
-    throw new NotFoundError("User email not Verifyed","LoginUser method")
+  if (!user.email_verification) {
+    throw new NotFoundError('User email not Verifyed', 'LoginUser method');
   }
 
   if (!user.employee_approve && user.role === 'Assessor') {
@@ -186,7 +186,11 @@ const GetAllUser = AsyncHandler(async (req, res) => {
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
-  const users = await AuthModel.find({ role:{$in:["ClientCISO","ClientSME"]} }).select('full_name email phone role Allowed_path').sort({_id:-1}).skip(skip).limit(limits);
+  const users = await AuthModel.find({ role: { $in: ['ClientCISO', 'ClientSME'] } })
+    .select('full_name email phone role Allowed_path')
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limits);
   return res.status(StatusCodes.OK).json({
     message: 'all customer',
     users,
@@ -199,7 +203,7 @@ const GetAllEmployee = AsyncHandler(async (req, res) => {
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
-  const users = await AuthModel.find({ role: 'Assessor' }).select('full_name email phone role Allowed_path employee_approve').sort({_id:-1}).skip(skip).limit(limits);
+  const users = await AuthModel.find({ role: 'Assessor' }).select('full_name email phone role Allowed_path employee_approve').sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     message: 'all customer',
     users,
@@ -218,5 +222,43 @@ const employeeVerification = AsyncHandler(async (req, res) => {
   });
 });
 
-export { RegisterUser, LoginUser, VerifyOTP, VerifyEmail, ResetPassword, LogoutUser, getlogedInUser, UpdateUserPath, ChnagePassword, ResendOtp, GetAllUser, employeeVerification, GetAllEmployee };
+const GetAllCISO = AsyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
 
+  const pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 10;
+  const skip = (pages - 1) * limits;
+  const find = await AuthModel.find({ role: 'ClientCISO' }).select('full_name email phone role Allowed_path employee_approve').sort({ _id: -1 }).skip(skip).limit(limits);
+  return res.status(StatusCodes.OK).json({
+    data: find,
+  });
+});
+
+const getAllSME = AsyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+
+  const pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 10;
+  const skip = (pages - 1) * limits;
+  const find = await AuthModel.find({ role: 'ClientSME' }).select('full_name email phone role Allowed_path employee_approve').sort({ _id: -1 }).skip(skip).limit(limits);
+  return res.status(StatusCodes.OK).json({
+    data: find,
+  });
+});
+
+export {
+  RegisterUser,
+  LoginUser,
+  VerifyOTP,
+  VerifyEmail,
+  ResetPassword,
+  LogoutUser,
+  getlogedInUser,
+  UpdateUserPath,
+  ChnagePassword,
+  ResendOtp,
+  GetAllUser,
+  employeeVerification,
+  GetAllEmployee,
+  GetAllCISO,
+};

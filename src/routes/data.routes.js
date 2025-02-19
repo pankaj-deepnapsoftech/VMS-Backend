@@ -52,8 +52,8 @@ routes.route('/CriticalHighVulnerableItemsOverdue').get(Authentication, Critical
 routes.route('/LowMediumVulnerableItemsOverdue').get(Authentication, LowMediumVulnerableItemsOverdue);
 routes.route('/ApplicationvulnerabilityCardData').get(ApplicationvulnerabilityCardData);
 routes.route('/bulk-asigned-task').patch(Authentication, BulkAsignedTask);
-routes.route("/top-vulnerabilities").get(Authentication,TopVulnerabilities)
-routes.route("/GetAssetsOpenIssues").post(GetAssetsOpenIssues)
-routes.route("/GetOrganization").get(Authentication,GetOrganization)
+routes.route('/top-vulnerabilities').get(Authentication, TopVulnerabilities);
+routes.route('/GetAssetsOpenIssues').post(GetAssetsOpenIssues);
+routes.route('/GetOrganization').get(Authentication, GetOrganization);
 
 export default routes;

@@ -26,22 +26,30 @@ const getAssessment = AsyncHandler(async (req, res) => {
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
-  const data = await AssessmentModel.find({ creator_id: req.currentUser?._id }).populate([{path:"Orgenization_id",select:"full_name"},{path:"Select_Tester",select:"full_name"},{path:"creator_id",select:"full_name"}]).sort({_id:-1}).skip(skip).limit(limits);
-  const newData =  data.map((item)=>({
-    _id:item._id,
-    Type_Of_Assesment:item.Type_Of_Assesment,
-    Orgenization:item.Orgenization_id.full_name,
-    code_Upload:item.code_Upload,
-    Data_Classification:item.Data_Classification,
-    Tester:item.Select_Tester.full_name,
-    MFA_Enabled:item.MFA_Enabled,
-    creator:item.creator_id.full_name,
-    task_start:item.task_start,
-    task_end:item.task_end
-  }))
+  const data = await AssessmentModel.find({ creator_id: req.currentUser?._id })
+    .populate([
+      { path: 'Orgenization_id', select: 'full_name' },
+      { path: 'Select_Tester', select: 'full_name' },
+      { path: 'creator_id', select: 'full_name' },
+    ])
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limits);
+  const newData = data.map((item) => ({
+    _id: item._id,
+    Type_Of_Assesment: item.Type_Of_Assesment,
+    Orgenization: item.Orgenization_id.full_name,
+    code_Upload: item.code_Upload,
+    Data_Classification: item.Data_Classification,
+    Tester: item.Select_Tester.full_name,
+    MFA_Enabled: item.MFA_Enabled,
+    creator: item.creator_id.full_name,
+    task_start: item.task_start,
+    task_end: item.task_end,
+  }));
   return res.status(StatusCodes.OK).json({
     message: 'User Assessment',
-    data:newData,
+    data: newData,
   });
 });
 
@@ -74,20 +82,27 @@ const updateAssessment = AsyncHandler(async (req, res) => {
   }
   await AssessmentModel.findByIdAndUpdate(id, { ...data, code_Upload: filepath });
   return res.status(StatusCodes.OK).json({
-    message:"Data Update Successful"
-  })
+    message: 'Data Update Successful',
+  });
 });
 
-const tasterList = AsyncHandler(async (_req,res) => {
-  const data =await AuthModel.find({role:"Assessor"})
+const tasterList = AsyncHandler(async (_req, res) => {
+  const data = await AuthModel.find({ role: 'Assessor' });
   return res.status(StatusCodes.OK).json({
-    data
-  })
-})
+    data,
+  });
+});
 
-const DashboardData = AsyncHandler(async (req,res) => {
-  const filterData = ["Secure Code Scan","Dynamic Application","Web Application Penetration Testing","Api Penetration Testing","Infrastructure Vulnerability Scan","Infrastructure Penetration Testing"]
-  const data =await AssessmentModel.find({creator_id: req.currentUser?._id})
+const DashboardData = AsyncHandler(async (req, res) => {
+  const filterData = [
+    'Secure Code Scan',
+    'Dynamic Application',
+    'Web Application Penetration Testing',
+    'Api Penetration Testing',
+    'Infrastructure Vulnerability Scan',
+    'Infrastructure Penetration Testing',
+  ];
+  const data = await AssessmentModel.find({ creator_id: req.currentUser?._id });
   let SecureCode = 0;
   let DynamicApplication = 0;
   let WebApplication = 0;
@@ -96,41 +111,39 @@ const DashboardData = AsyncHandler(async (req,res) => {
   let InfrastructurePenetration = 0;
 
   data.map((item) => {
-    if(item.Type_Of_Assesment === filterData[0]){
-      SecureCode += 1
+    if (item.Type_Of_Assesment === filterData[0]) {
+      SecureCode += 1;
     }
 
-    if(item.Type_Of_Assesment === filterData[1]){
-      DynamicApplication += 1
+    if (item.Type_Of_Assesment === filterData[1]) {
+      DynamicApplication += 1;
     }
 
-    if(item.Type_Of_Assesment === filterData[2]){
-      WebApplication += 1
+    if (item.Type_Of_Assesment === filterData[2]) {
+      WebApplication += 1;
     }
 
-    if(item.Type_Of_Assesment === filterData[3]){
-      ApiPenetration += 1
+    if (item.Type_Of_Assesment === filterData[3]) {
+      ApiPenetration += 1;
     }
 
-    if(item.Type_Of_Assesment === filterData[4]){
-      InfrastructureVulnerability += 1
+    if (item.Type_Of_Assesment === filterData[4]) {
+      InfrastructureVulnerability += 1;
     }
 
-    if(item.Type_Of_Assesment === filterData[5]){
-      InfrastructurePenetration += 1
+    if (item.Type_Of_Assesment === filterData[5]) {
+      InfrastructurePenetration += 1;
     }
-
-  })
+  });
 
   return res.status(StatusCodes.OK).json({
-    SecureCode, 
-    DynamicApplication, 
-    WebApplication, 
-    ApiPenetration, 
-    InfrastructureVulnerability, 
-    InfrastructurePenetration
-  })
+    SecureCode,
+    DynamicApplication,
+    WebApplication,
+    ApiPenetration,
+    InfrastructureVulnerability,
+    InfrastructurePenetration,
+  });
+});
 
-})
-
-export { createAssessment, getAssessment, deleteAssessment, updateAssessment,tasterList, DashboardData };
+export { createAssessment, getAssessment, deleteAssessment, updateAssessment, tasterList, DashboardData };

@@ -62,23 +62,30 @@ const getAllData = AsyncHandler(async (req, res) => {
   const limits = parseInt(limit) || 20;
   const skip = (pages - 1) * limits;
 
-  const getAllData = await DataModel.find({}).populate([{path:'Assigned_To', select:'full_name'},{path:'creator_id', select:'full_name'}]).skip(skip).limit(limits).exec();
-  const data = getAllData.map((item)=>({
-    _id:item._id,
-    Organization:item?.Organization,
-    Application_Name:item?.Application_Name,
-    Title:item?.Title,
-    Assigned_To:item?.Assigned_To,
-    Vulnerability_Classification:item?.Vulnerability_Classification,
-    Scan_Type:item?.Scan_Type,
-    Severity:item?.Severity,
-    Priority:item?.Priority,
-    Status:item?.Status,
-    Remediated_Date:item?.Remediated_Date,
-    Ageing:item?.Ageing,
-    Remediate_Upcoming_Time_Line:item?.Remediate_Upcoming_Time_Line,
-    creator:item?.creator_id?.full_name,
-  }))
+  const getAllData = await DataModel.find({})
+    .populate([
+      { path: 'Assigned_To', select: 'full_name' },
+      { path: 'creator_id', select: 'full_name' },
+    ])
+    .skip(skip)
+    .limit(limits)
+    .exec();
+  const data = getAllData.map((item) => ({
+    _id: item._id,
+    Organization: item?.Organization,
+    Application_Name: item?.Application_Name,
+    Title: item?.Title,
+    Assigned_To: item?.Assigned_To,
+    Vulnerability_Classification: item?.Vulnerability_Classification,
+    Scan_Type: item?.Scan_Type,
+    Severity: item?.Severity,
+    Priority: item?.Priority,
+    Status: item?.Status,
+    Remediated_Date: item?.Remediated_Date,
+    Ageing: item?.Ageing,
+    Remediate_Upcoming_Time_Line: item?.Remediate_Upcoming_Time_Line,
+    creator: item?.creator_id?.full_name,
+  }));
   return res.status(StatusCodes.OK).json({
     message: 'Data Found',
     data,
@@ -903,27 +910,30 @@ const GetAssetsOpenIssues = AsyncHandler(async (req, res) => {
       $search: Organization,
     },
     Status: 'Open',
-  }).populate('Assigned_To', 'full_name').skip(skip).limit(limits);
+  })
+    .populate('Assigned_To', 'full_name')
+    .skip(skip)
+    .limit(limits);
 
   return res.status(StatusCodes.OK).json({
     data,
   });
 });
 
-const GetOrganization = AsyncHandler(async (req,res) => {
-  const find = await DataModel.find({})
+const GetOrganization = AsyncHandler(async (req, res) => {
+  const find = await DataModel.find({});
   let obj = {};
   let data = [];
-  find.map((item)=>{
-    if(!obj[item.Organization]){
+  find.map((item) => {
+    if (!obj[item.Organization]) {
       obj[item.Organization] = true;
-      data.push(item.Organization)
+      data.push(item.Organization);
     }
-  })
+  });
   return res.status(StatusCodes.OK).json({
-    data
-  })
-})
+    data,
+  });
+});
 
 export {
   CreateData,
@@ -949,5 +959,5 @@ export {
   BulkAsignedTask,
   TopVulnerabilities,
   GetAssetsOpenIssues,
-  GetOrganization
+  GetOrganization,
 };
