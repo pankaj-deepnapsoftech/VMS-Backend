@@ -3,6 +3,7 @@ import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { getIssues } from '../utils/Jira.utils.js';
 import { JiraConfigModule } from '../models/jiraConfig.model.js';
 import { NotFoundError } from '../utils/customError.js';
+import { object } from 'yup';
 
 const GetIssuesJira = AsyncHandler(async (req, res) => {
   const id = req.currentUser?._id;
@@ -58,4 +59,132 @@ const GetJIraConfig = AsyncHandler(async (req, res) => {
   });
 });
 
-export { GetIssuesJira, CreateJiraConfig, GetJIraConfig };
+const JIraDataViaStatus = AsyncHandler(async (req, res) => {
+  const id = req.currentUser?._id;
+  const find = await JiraConfigModule.findOne({ user_id: id });
+  if (!find) {
+    throw new NotFoundError('api not found', 'GetIssuesJira method');
+  }
+  const data = await getIssues(find.JIRA_USERNAME, find.JIRA_API_KEY, find.Domain);
+
+  const newData = data.issues.map((item) => ({
+    issueType: {
+      id: item.fields?.issuetype?.id,
+      description: item.fields?.issuetype?.description,
+      name: item.fields?.issuetype?.name,
+    },
+    project: {
+      name: item.fields?.project?.name,
+      projectTypeKey: item.fields?.project?.projectTypeKey,
+    },
+    priority: item.fields?.priority?.name,
+    assignee: item.fields?.assignee?.displayName,
+    status: item.fields?.status?.name,
+    Remediated_Date: item.fields?.customfield_10009,
+    creator: {
+      accountId: item.fields?.creator?.accountId,
+      emailAddress: item.fields?.creator?.emailAddress,
+      displayName: item.fields?.creator?.displayName,
+    },
+  }));
+
+  let obj = {};
+
+  newData.map((item) => {
+    if (!obj[item.status]) {
+      obj[item.status] = 1;
+    } else {
+      obj[item.status] += 1;
+    }
+  });
+  return res.status(StatusCodes.ACCEPTED).json({
+    obj,
+  });
+});
+
+const JIraDataTargetsStatus = AsyncHandler(async (req, res) => {
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const futureDate = new Date(today);
+  futureDate.setDate(today.getDate() + 7);
+
+  const id = req.currentUser?._id;
+  const find = await JiraConfigModule.findOne({ user_id: id });
+  if (!find) {
+    throw new NotFoundError('api not found', 'GetIssuesJira method');
+  }
+  const data = await getIssues(find.JIRA_USERNAME, find.JIRA_API_KEY, find.Domain);
+
+  const newData = data.issues.map((item) => ({
+    issueType: {
+      id: item.fields?.issuetype?.id,
+      description: item.fields?.issuetype?.description,
+      name: item.fields?.issuetype?.name,
+    },
+    project: {
+      name: item.fields?.project?.name,
+      projectTypeKey: item.fields?.project?.projectTypeKey,
+    },
+    priority: item.fields?.priority?.name,
+    assignee: item.fields?.assignee?.displayName,
+    status: item.fields?.status?.name,
+    Remediated_Date: item.fields?.customfield_10009,
+    creator: {
+      accountId: item.fields?.creator?.accountId,
+      emailAddress: item.fields?.creator?.emailAddress,
+      displayName: item.fields?.creator?.displayName,
+    },
+  }));
+
+  let noTraget = 0;
+  let inFlight = 0;
+  let targetMissed = 0;
+  let targetMet = 0;
+  let ApproachingTarget = 0;
+
+  newData.forEach((item) => {
+    let taskdate;
+    if (item?.Remediated_Date) {
+      taskdate = new Date(item?.Remediated_Date);
+    }
+
+    const statusLower = item.status?.toLocaleLowerCase();
+    if (isNaN(taskdate)) {
+      noTraget += 1;
+      return;
+    }
+
+    // Compare the dates using getTime() for accurate comparison
+    const taskDateTime = taskdate.getTime();
+    const todayTime = today.getTime();
+    const futureDateTime = futureDate.getTime();
+
+    if (futureDateTime <= taskDateTime && statusLower.includes("open")) {
+      inFlight += 1;
+    }
+
+    if (taskDateTime >= todayTime && futureDateTime >= taskDateTime && statusLower.includes("open")) {
+      ApproachingTarget += 1;
+    }
+
+    if (statusLower?.includes('closed')) {
+      targetMet += 1;
+    }
+
+    if (taskDateTime < todayTime && statusLower?.includes('open')) {
+      targetMissed += 1;
+    }
+  });
+
+  return res.status(StatusCodes.ACCEPTED).json({
+    noTraget,
+    inFlight,
+    targetMissed,
+    targetMet,
+    ApproachingTarget
+  });
+});
+
+
+export { GetIssuesJira, CreateJiraConfig, GetJIraConfig, JIraDataViaStatus, JIraDataTargetsStatus };
