@@ -6,6 +6,7 @@ import { generateOTP } from '../utils/otpGenerater.js';
 import { PasswordSignToken, SignToken, VerifyToken } from '../utils/jwtTokens.js';
 import { SendMail } from '../utils/SendMain.js';
 import { compare } from 'bcrypt';
+import { config } from '../config/env.config.js';
 
 const RegisterUser = AsyncHandler(async (req, res) => {
   const data = req.body;
@@ -57,6 +58,13 @@ const LoginUser = AsyncHandler(async (req, res) => {
   const token = SignToken({ email: user.email, id: user._id });
   user.password = null;
   user.otp = null;
+
+  res.cookie("tok","token",{
+    httpOnly: true,      
+    secure: config.NODE_ENV !== 'developement', 
+    sameSite: 'None',     
+    maxAge: 1000000, 
+  })
 
   return res.status(StatusCodes.OK).json({
     message: 'Login Successful',
@@ -180,23 +188,6 @@ const ResendOtp = AsyncHandler(async (req, res) => {
   });
 });
 
-const GetAllUser = AsyncHandler(async (req, res) => {
-  const { page, limit } = req.query;
-
-  const pages = parseInt(page) || 1;
-  const limits = parseInt(limit) || 10;
-  const skip = (pages - 1) * limits;
-  const users = await AuthModel.find({ role: { $in: ['ClientCISO', 'ClientSME'] } })
-    .select('full_name email phone role Allowed_path')
-    .sort({ _id: -1 })
-    .skip(skip)
-    .limit(limits);
-  return res.status(StatusCodes.OK).json({
-    message: 'all customer',
-    users,
-  });
-});
-
 const GetAllEmployee = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
 
@@ -257,7 +248,6 @@ export {
   UpdateUserPath,
   ChnagePassword,
   ResendOtp,
-  GetAllUser,
   employeeVerification,
   GetAllEmployee,
   GetAllCISO,

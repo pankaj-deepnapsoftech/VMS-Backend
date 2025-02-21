@@ -12,7 +12,6 @@ import {
   ChnagePassword,
   ResendOtp,
   employeeVerification,
-  GetAllUser,
   GetAllEmployee,
   GetAllCISO,
   getAllSME,
@@ -32,7 +31,6 @@ routes.route('/update-paths').put(Authentication, UpdateUserPath);
 routes.route('/resend-otp').put(Authentication, ResendOtp);
 routes.route('/change-password').put(Authentication, ChnagePasswordValidate, ChnagePassword);
 routes.route('/verify-employee/:id').patch(Authentication, employeeVerification);
-routes.route('/all-users').get(Authentication, GetAllUser);
 routes.route('/all-employee').get(Authentication, GetAllEmployee);
 routes.route('/all-ciso').get(Authentication, GetAllCISO);
 routes.route('/all-sme').get(Authentication, getAllSME);
