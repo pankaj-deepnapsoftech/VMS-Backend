@@ -70,11 +70,19 @@ const EmployeeCount = AsyncHandler(async (req,res) => {
   data.map((item)=>{
     if(!item?.department) return "";
 
+    if(!newData["Totalcount"]){
+      newData["Totalcount"] = 1;
+    }else{
+      newData["Totalcount"] += 1;
+    }
+
     if(!newData[item?.department]){
       newData[item?.department] = 1
     }else{
       newData[item?.department] += 1
     }
+
+    
   })
 
   return res.status(StatusCodes.ACCEPTED).json({
