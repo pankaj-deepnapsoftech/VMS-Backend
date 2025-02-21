@@ -62,4 +62,24 @@ const getOrgnization = AsyncHandler(async (_req, res) => {
   });
 });
 
-export { GetEmployeeTasksData, TasksCardData, getOrgnization };
+const EmployeeCount = AsyncHandler(async (req,res) => {
+  const data = await AuthModel.find({owner:req.currentUser?._id});
+
+  const newData = {}
+
+  data.map((item)=>{
+    if(!item?.department) return "";
+
+    if(!newData[item?.department]){
+      newData[item?.department] = 1
+    }else{
+      newData[item?.department] += 1
+    }
+  })
+
+  return res.status(StatusCodes.ACCEPTED).json({
+    data:newData,
+  })
+})
+
+export { GetEmployeeTasksData, TasksCardData, getOrgnization,EmployeeCount };

@@ -117,23 +117,37 @@ const updateOneData = AsyncHandler(async (req, res) => {
   });
 });
 
-const DataCounsts = AsyncHandler(async (_req, res) => {
+const DataCounsts  = AsyncHandler(async (_req, res) => {
   const data = await DataModel.find({}).exec();
-  const totalData = data.length;
-  const inProgress = data.filter((item) => item.Status?.toLocaleLowerCase().includes('open')).length;
-  const open = data.filter((item) => item.Status?.toLocaleLowerCase() === 'open').length;
-  const reopen = data.filter((item) => item.Status?.toLocaleLowerCase().includes('reopen')).length;
-  const closed = data.filter((item) => item.Status?.toLocaleLowerCase().includes('closed')).length;
-  const onHold = data.filter((item) => item.Status?.toLocaleLowerCase().includes('on hold')).length;
-  return res.status(StatusCodes.OK).json({
-    totalData,
-    inProgress,
-    open,
-    reopen,
-    closed,
-    onHold,
-  });
+
+  const counts = data.reduce(
+    (acc, item) => {
+      const status = item.Status?.toLocaleLowerCase();
+      
+      if (status?.includes('in progress')) acc.inProgress++;
+      if (status === 'open') acc.open++;
+      if (status?.includes('reopen')) acc.reopen++;
+      if (status?.includes('closed')) acc.closed++;
+      if (status?.includes('on hold')) acc.onHold++;
+      if (status?.includes('exceptions')) acc.Exceptions++;
+
+      acc.totalData++;  // Increment total data count
+      return acc;
+    },
+    {
+      totalData: 0,
+      inProgress: 0,
+      open: 0,
+      reopen: 0,
+      closed: 0,
+      onHold: 0,
+      Exceptions: 0,
+    }
+  );
+
+  return res.status(StatusCodes.OK).json(counts);
 });
+
 
 const vulnerableItems = AsyncHandler(async (_req, res) => {
   const currentYear = new Date().getFullYear(); // Get the current year
