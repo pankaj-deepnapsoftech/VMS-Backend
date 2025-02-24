@@ -2,6 +2,7 @@ import { Schema, model } from 'mongoose';
 import { hash } from 'bcrypt';
 
 const AuthSchema = new Schema({
+  Organization:{types:String},
   full_name: { type: String, trim: true, required: true },
   email: { type: String, trim: true, required: true },
   phone: { type: String, trim: true, required: true },
