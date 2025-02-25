@@ -26,6 +26,7 @@ import {
   GetAssetsOpenIssues,
   GetOrganization,
   ExpectionApprove,
+  ExpectionVerify,
 } from '../controller/Data.controller.js';
 import { upload } from '../config/multer.config.js';
 import { Authentication } from '../middleware/Authentication.js';
@@ -57,5 +58,6 @@ routes.route('/top-vulnerabilities').get(Authentication, TopVulnerabilities);
 routes.route('/GetAssetsOpenIssues').post(GetAssetsOpenIssues);
 routes.route('/GetOrganization').get(Authentication, GetOrganization);
 routes.route("/ExpectionApprove").get(Authentication,ExpectionApprove)
+routes.route("/ExpectionVerify").get(Authentication,ExpectionVerify)
 
 export default routes;

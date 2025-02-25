@@ -225,28 +225,6 @@
         }
       }
     },
-    "/auth/all-users": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
     "/auth/all-employee": {
       "get": {
         "description": "",
@@ -577,6 +555,26 @@
         }
       }
     },
+    "/data/ExpectionApprove": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/data/ExpectionVerify": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/jira/issues": {
       "get": {
         "description": "",
@@ -627,6 +625,26 @@
         }
       }
     },
+    "/jira/JIraDataViaStatus": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/jira/JIraDataTargetsStatus": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/employee/get-employee-task": {
       "get": {
         "description": "",
@@ -660,6 +678,16 @@
       }
     },
     "/employee/get-orgnization": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/employee/employee-count": {
       "get": {
         "description": "",
         "responses": {

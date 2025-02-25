@@ -148,7 +148,6 @@ const DataCounsts  = AsyncHandler(async (_req, res) => {
   return res.status(StatusCodes.OK).json(counts);
 });
 
-
 const vulnerableItems = AsyncHandler(async (_req, res) => {
   const currentYear = new Date().getFullYear(); // Get the current year
 
@@ -964,6 +963,20 @@ const ExpectionApprove = AsyncHandler(async (req,res) => {
 
 })
 
+const ExpectionVerify = AsyncHandler(async (req,res) => {
+  const Organization = req.currentUser?.Organization;
+  const { page, limit } = req.query;
+
+  const pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 20;
+  const skip = (pages - 1) * limits;
+
+  const data = await DataModel.find({Organization,Status:'Exception',client_Approve:true}).sort({_id:-1}).skip(skip).limit(limits);
+  return res.status(StatusCodes.ACCEPTED).json({
+    data
+  })
+})
+
 export {
   CreateData,
   getAllData,
@@ -989,5 +1002,6 @@ export {
   TopVulnerabilities,
   GetAssetsOpenIssues,
   GetOrganization,
-  ExpectionApprove
+  ExpectionApprove,
+  ExpectionVerify
 };
