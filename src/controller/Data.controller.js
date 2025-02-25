@@ -961,7 +961,7 @@ const ExpectionApprove = AsyncHandler(async (req,res) => {
     data
   })
 
-})
+});
 
 const ExpectionVerify = AsyncHandler(async (req,res) => {
   const { page, limit } = req.query;
@@ -974,7 +974,7 @@ const ExpectionVerify = AsyncHandler(async (req,res) => {
   return res.status(StatusCodes.ACCEPTED).json({
     data
   })
-})
+});
 
 export {
   CreateData,
