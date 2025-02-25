@@ -22,6 +22,7 @@ const RegisterUser = AsyncHandler(async (req, res) => {
     ...data,
     otp,
     otp_expire: expiresAt,
+    Organization:data?.Organization || ""
   });
   result.password = null;
   result.otp = null;
