@@ -85,6 +85,7 @@ const getAllData = AsyncHandler(async (req, res) => {
     Ageing: item?.Ageing,
     Remediate_Upcoming_Time_Line: item?.Remediate_Upcoming_Time_Line,
     creator: item?.creator_id?.full_name,
+    detailed_Report:item?.docs
   }));
   return res.status(StatusCodes.OK).json({
     message: 'Data Found',
