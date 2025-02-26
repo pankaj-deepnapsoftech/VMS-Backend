@@ -981,7 +981,7 @@ const UploadPdf = AsyncHandler(async (req, res) => {
     throw new NotFoundError('File is required', 'UploadPdf method');
   }
   const { filename } = req.file;
-  const path = `http://localhost:8078/pdf/${filename}`;
+  const path = `http://localhost:8078/file/${filename}`;
 
   const find = await DataModel.findById(id);
   if (!find) {

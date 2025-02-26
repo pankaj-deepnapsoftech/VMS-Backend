@@ -60,6 +60,6 @@ routes.route('/GetAssetsOpenIssues').post(GetAssetsOpenIssues);
 routes.route('/GetOrganization').get(Authentication, GetOrganization);
 routes.route('/ExpectionApprove').get(Authentication, ExpectionApprove);
 routes.route('/ExpectionVerify').get(Authentication, ExpectionVerify);
-routes.route("/upload-pdf").post(Authentication,upload.single('PDF'),UploadPdf)
+routes.route("/upload-pdf/:id").post(Authentication,upload.single('PDF'),UploadPdf)
 
 export default routes;
