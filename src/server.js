@@ -19,11 +19,12 @@ app.use(json({ limit: '20mb' }));
 app.use(urlencoded({ limit: '20mb', extended: true }));
 app.use(
   cors({
-    origin: config.NODE_ENV !== "development" ? config.CLIENT_URL : config.CLIENT_URL1,
+    origin: config.NODE_ENV !== "development" ? config.CLIENT_URL : config.FILE_URL_LOCAL,
     methods: ['POST', 'PUT', 'PATCH', 'DELETE', 'GET', 'OPTIONS'],
     credentials: true,
   }),
 );
+
 
 app.get('/health', Health);
 app.use('/api/v1', MainRoutes);

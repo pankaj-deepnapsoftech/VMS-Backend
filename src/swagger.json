@@ -593,6 +593,26 @@
         }
       }
     },
+    "/data/AdminExpectionDataFiftyDays": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/data/ClientExpectionDataFiftyDays": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/jira/issues": {
       "get": {
         "description": "",
