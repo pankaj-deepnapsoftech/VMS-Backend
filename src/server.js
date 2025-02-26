@@ -19,7 +19,7 @@ app.use(json({ limit: '20mb' }));
 app.use(urlencoded({ limit: '20mb', extended: true }));
 app.use(
   cors({
-    origin: config.CLIENT_URL,
+    origin: config.NODE_ENV !== "development" ? config.CLIENT_URL : config.CLIENT_URL1,
     methods: ['POST', 'PUT', 'PATCH', 'DELETE', 'GET', 'OPTIONS'],
     credentials: true,
   }),

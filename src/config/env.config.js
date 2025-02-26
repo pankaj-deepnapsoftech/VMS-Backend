@@ -10,7 +10,10 @@ class Config {
     JWT_SECRET;
     DOMAIN;
     JIRA_USERNAME;
-    JIRA_API_KEY
+    JIRA_API_KEY;
+    CLIENT_URL_LOCAL;
+    FILE_URL;
+    FILE_URL_LOCAL
     constructor(){
         this.NODE_ENV = process.env.NODE_ENV;
         this.CLIENT_URL = process.env.CLIENT_URL;
@@ -21,6 +24,9 @@ class Config {
         this.DOMAIN = process.env.DOMAIN;
         this.JIRA_USERNAME = process.env.JIRA_USERNAME;
         this.JIRA_API_KEY = process.env.JIRA_API_KEY;
+        this.CLIENT_URL1 = process.env.CLIENT_URL1;
+        this.FILE_URL = process.env.FILE_URL;
+        this.FILE_URL_LOCAL = process.env.FILE_URL_LOCAL;
         
     }
 }

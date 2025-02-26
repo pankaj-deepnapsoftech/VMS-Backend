@@ -7,6 +7,7 @@ import { convertExcelToJson } from '../utils/ExcelToJson.js';
 import { DataModel } from '../models/Data.model.js';
 import { NotFoundError } from '../utils/customError.js';
 import { excelSerialToDate } from '../utils/excelSerialToDate.js';
+import { config } from '../config/env.config.js';
 
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -982,7 +983,7 @@ const UploadPdf = AsyncHandler(async (req, res) => {
     throw new NotFoundError('File is required', 'UploadPdf method');
   }
   const { filename } = req.file;
-  const path = `http://localhost:8078/file/${filename}`;
+  const path = `${config.NODE_ENV !== "development" ? config.FILE_URL : config.FILE_URL_LOCAL}/file/${filename}`;
 
   const find = await DataModel.findById(id);
   if (!find) {
