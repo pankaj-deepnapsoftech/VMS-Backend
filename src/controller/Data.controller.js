@@ -87,7 +87,7 @@ const getAllData = AsyncHandler(async (req, res) => {
     Remediate_Upcoming_Time_Line: item?.Remediate_Upcoming_Time_Line,
     creator: item?.creator_id?.full_name,
     detailed_Report: item?.docs,
-    Expection_time:item?.Expection_time,
+    Expection_time: item?.Expection_time,
   }));
   return res.status(StatusCodes.OK).json({
     message: 'Data Found',
@@ -1002,10 +1002,10 @@ const AdminExpectionDataFiftyDays = AsyncHandler(async (_req, res) => {
 
   // First day of the current month
   const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-  
+
   // 15th day of the current month (Middle day)
   const middleDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 15);
-  
+
   // Last day of the current month
   const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
 
@@ -1016,8 +1016,8 @@ const AdminExpectionDataFiftyDays = AsyncHandler(async (_req, res) => {
   const data = await DataModel.find({
     Expection_time: {
       $gte: firstDayOfMonth.toISOString(), // Start date
-      $lte: nextMonthDate.toISOString()  // End date
-    }
+      $lte: nextMonthDate.toISOString(), // End date
+    },
   });
 
   // Initialize counters
@@ -1042,9 +1042,9 @@ const AdminExpectionDataFiftyDays = AsyncHandler(async (_req, res) => {
 
   // Return response with counts and data
   return res.status(StatusCodes.OK).json({
-    one,   
-    two,   
-    three,
+    '15 days': one,
+    '30 days': two,
+    '45 days': three,
   });
 });
 
@@ -1054,10 +1054,10 @@ const ClientExpectionDataFiftyDays = AsyncHandler(async (req, res) => {
 
   // First day of the current month
   const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-  
+
   // 15th day of the current month (Middle day)
   const middleDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 15);
-  
+
   // Last day of the current month
   const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
 
@@ -1067,10 +1067,10 @@ const ClientExpectionDataFiftyDays = AsyncHandler(async (req, res) => {
   // Fetch the data for the date range between the first day of this month and the 15th day of the next month
   const data = await DataModel.find({
     Expection_time: {
-      $gte: firstDayOfMonth.toISOString(), 
-      $lte: nextMonthDate.toISOString()  
+      $gte: firstDayOfMonth.toISOString(),
+      $lte: nextMonthDate.toISOString(),
     },
-    Organization:req.currentUser?.Organization
+    Organization: req.currentUser?.Organization,
   });
 
   // Initialize counters
@@ -1093,11 +1093,10 @@ const ClientExpectionDataFiftyDays = AsyncHandler(async (req, res) => {
     }
   });
 
-
   return res.status(StatusCodes.OK).json({
-    one, 
-    two,   
-    three, 
+    '15 days': one,
+    '30 days': two,
+    '45 days': three,
   });
 });
 
@@ -1130,5 +1129,5 @@ export {
   ExpectionVerify,
   UploadPdf,
   AdminExpectionDataFiftyDays,
-  ClientExpectionDataFiftyDays
+  ClientExpectionDataFiftyDays,
 };
