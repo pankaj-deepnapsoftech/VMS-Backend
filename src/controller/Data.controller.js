@@ -117,13 +117,13 @@ const updateOneData = AsyncHandler(async (req, res) => {
   });
 });
 
-const DataCounsts  = AsyncHandler(async (_req, res) => {
+const DataCounsts = AsyncHandler(async (_req, res) => {
   const data = await DataModel.find({}).exec();
 
   const counts = data.reduce(
     (acc, item) => {
       const status = item.Status?.toLocaleLowerCase();
-      
+
       if (status?.includes('in progress')) acc.inProgress++;
       if (status === 'open') acc.open++;
       if (status?.includes('reopen')) acc.reopen++;
@@ -131,7 +131,7 @@ const DataCounsts  = AsyncHandler(async (_req, res) => {
       if (status?.includes('on hold')) acc.onHold++;
       if (status?.includes('exceptions')) acc.Exceptions++;
 
-      acc.totalData++;  // Increment total data count
+      acc.totalData++; // Increment total data count
       return acc;
     },
     {
@@ -142,7 +142,7 @@ const DataCounsts  = AsyncHandler(async (_req, res) => {
       closed: 0,
       onHold: 0,
       Exceptions: 0,
-    }
+    },
   );
 
   return res.status(StatusCodes.OK).json(counts);
@@ -948,7 +948,7 @@ const GetOrganization = AsyncHandler(async (_req, res) => {
   });
 });
 
-const ExpectionApprove = AsyncHandler(async (req,res) => {
+const ExpectionApprove = AsyncHandler(async (req, res) => {
   const Organization = req.currentUser?.Organization;
   const { page, limit } = req.query;
 
@@ -956,24 +956,41 @@ const ExpectionApprove = AsyncHandler(async (req,res) => {
   const limits = parseInt(limit) || 20;
   const skip = (pages - 1) * limits;
 
-  const data = await DataModel.find({Organization,Status:'Exception',client_Approve:false}).sort({_id:-1}).skip(skip).limit(limits);
+  const data = await DataModel.find({ Organization, Status: 'Exception', client_Approve: false }).sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.ACCEPTED).json({
-    data
-  })
-
+    data,
+  });
 });
 
-const ExpectionVerify = AsyncHandler(async (req,res) => {
+const ExpectionVerify = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
 
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 20;
   const skip = (pages - 1) * limits;
 
-  const data = await DataModel.find({Status:'Exception',client_Approve:true}).sort({_id:-1}).skip(skip).limit(limits);
+  const data = await DataModel.find({ Status: 'Exception', client_Approve: true }).sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.ACCEPTED).json({
-    data
-  })
+    data,
+  });
+});
+
+const UploadPdf = AsyncHandler(async (req, res) => {
+  const { id } = req.params;
+  if (!req.file) {
+    throw new NotFoundError('File is required', 'UploadPdf method');
+  }
+  const { filename } = req.file;
+  const path = `http://localhost:8078/pdf/${filename}`;
+
+  const find = await DataModel.findById(id);
+  if (!find) {
+    throw new NotFoundError('data not Found', 'UploadPdf method');
+  }
+  await DataModel.findByIdAndUpdate(id, { docs: path });
+  return res.status(StatusCodes.OK).json({
+    message: 'File uploaded successful',
+  });
 });
 
 export {
@@ -1002,5 +1019,6 @@ export {
   GetAssetsOpenIssues,
   GetOrganization,
   ExpectionApprove,
-  ExpectionVerify
+  ExpectionVerify,
+  UploadPdf,
 };

@@ -17,7 +17,8 @@ const DataSchema = new Schema(
     Remediate_Upcoming_Time_Line: { type: String },
     Expection_time:{type:Date},
     creator_id: { type: Schema.Types.ObjectId, ref: 'User' },
-    client_Approve:{type:Boolean,default:false,required:true}
+    client_Approve:{type:Boolean,default:false,required:true},
+    docs:{type:String}
   },
   { timestamps: true },
 );

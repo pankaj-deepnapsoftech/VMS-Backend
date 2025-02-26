@@ -27,6 +27,7 @@ import {
   GetOrganization,
   ExpectionApprove,
   ExpectionVerify,
+  UploadPdf,
 } from '../controller/Data.controller.js';
 import { upload } from '../config/multer.config.js';
 import { Authentication } from '../middleware/Authentication.js';
@@ -59,5 +60,6 @@ routes.route('/GetAssetsOpenIssues').post(GetAssetsOpenIssues);
 routes.route('/GetOrganization').get(Authentication, GetOrganization);
 routes.route('/ExpectionApprove').get(Authentication, ExpectionApprove);
 routes.route('/ExpectionVerify').get(Authentication, ExpectionVerify);
+routes.route("/upload-pdf").post(Authentication,upload.single('PDF'),UploadPdf)
 
 export default routes;
