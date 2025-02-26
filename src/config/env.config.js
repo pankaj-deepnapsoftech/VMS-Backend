@@ -24,9 +24,9 @@ class Config {
         this.DOMAIN = process.env.DOMAIN;
         this.JIRA_USERNAME = process.env.JIRA_USERNAME;
         this.JIRA_API_KEY = process.env.JIRA_API_KEY;
-        this.CLIENT_URL1 = process.env.CLIENT_URL1;
         this.FILE_URL = process.env.FILE_URL;
         this.FILE_URL_LOCAL = process.env.FILE_URL_LOCAL;
+        this.CLIENT_URL_LOCAL = process.env.CLIENT_URL_LOCAL;
         
     }
 }
