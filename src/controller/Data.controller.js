@@ -87,7 +87,7 @@ const getAllData = AsyncHandler(async (req, res) => {
     Remediate_Upcoming_Time_Line: item?.Remediate_Upcoming_Time_Line,
     creator: item?.creator_id?.full_name,
     detailed_Report: item?.docs,
-    Expection_time: item?.Expection_time,
+    Exception_time: item?.Expection_time,
   }));
   return res.status(StatusCodes.OK).json({
     message: 'Data Found',
@@ -1100,6 +1100,10 @@ const ClientExpectionDataFiftyDays = AsyncHandler(async (req, res) => {
   });
 });
 
+const AdminRiskRating = AsyncHandler (async (_req,res) => {
+  // const 
+});
+
 export {
   CreateData,
   getAllData,
@@ -1130,4 +1134,5 @@ export {
   UploadPdf,
   AdminExpectionDataFiftyDays,
   ClientExpectionDataFiftyDays,
+  AdminRiskRating
 };
