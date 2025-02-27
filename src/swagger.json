@@ -23,6 +23,9 @@
               "properties": {
                 "email": {
                   "example": "any"
+                },
+                "Organization": {
+                  "example": "any"
                 }
               }
             }
@@ -852,6 +855,33 @@
             "in": "path",
             "required": true,
             "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/notification/orgnization-notification": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "Organization": {
+                  "example": "any"
+                },
+                "text": {
+                  "example": "any"
+                }
+              }
+            }
           }
         ],
         "responses": {
