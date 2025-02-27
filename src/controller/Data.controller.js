@@ -1103,41 +1103,49 @@ const ClientExpectionDataFiftyDays = AsyncHandler(async (req, res) => {
 const AdminRiskRating = AsyncHandler(async (_req, res) => {
   const data = await DataModel.find({ Status: 'Exception' });
 
-  let AwaitingApproval = 0;
-  let RiskAccepted = 0;
+  let monthlyData = {};
 
   for (let item of data) {
+    const itemDate = new Date(item.createdAt); 
+    const month = itemDate.getMonth() + 1; 
+
+    if (!monthlyData[months[month -1]]) {
+      monthlyData[months[month -1 ]] = { RiskAccepted: 0, AwaitingApproval: 0 };
+    }
+
     if (item.client_Approve) {
-      RiskAccepted += 1;
+      monthlyData[months[month -1]].RiskAccepted += 1;
     } else {
-      AwaitingApproval += 1;
+      monthlyData[months[month -1]].AwaitingApproval += 1;
     }
   }
 
   return res.status(StatusCodes.ACCEPTED).json({
-    RiskAccepted,
-    AwaitingApproval,
-    data,
+    monthlyData
   });
 });
 
 const ClientRiskRating = AsyncHandler(async (req, res) => {
   const data = await DataModel.find({ Status: 'Exception', Organization: req.currentUser?.Organization });
-
-  let AwaitingApproval = 0;
-  let RiskAccepted = 0;
+  let monthlyData = {};
 
   for (let item of data) {
+    const itemDate = new Date(item.createdAt); 
+    const month = itemDate.getMonth() + 1; 
+
+    if (!monthlyData[months[month -1]]) {
+      monthlyData[months[month -1 ]] = { RiskAccepted: 0, AwaitingApproval: 0 };
+    }
+
     if (item.client_Approve) {
-      RiskAccepted += 1;
+      monthlyData[months[month -1]].RiskAccepted += 1;
     } else {
-      AwaitingApproval += 1;
+      monthlyData[months[month -1]].AwaitingApproval += 1;
     }
   }
 
   return res.status(StatusCodes.ACCEPTED).json({
-    RiskAccepted,
-    AwaitingApproval,
+    monthlyData,
   });
 });
 
