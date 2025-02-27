@@ -2,6 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import { NotificationModel } from '../models/Notifictaion.model.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { NotFoundError } from '../utils/customError.js';
+import { AuthModel } from '../models/Auth.model.js';
 
 const CreateNotification = AsyncHandler(async (req, res) => {
   const data = req.body;
@@ -31,4 +32,18 @@ const NotificationViewed = AsyncHandler(async (req, res) => {
   });
 });
 
-export { CreateNotification, GetNotification, NotificationViewed };
+const orginzationNotification = AsyncHandler(async (req, res) => {
+  const { Organization, text } = req.body;
+
+  const data = await AuthModel.findOne({ Organization });
+  if (!data) {
+    throw new NotFoundError('Organization name not match ', 'orginzationNotification method');
+  }
+
+  await NotificationModel.create({ reciver_id: data._id, title: text });
+  return res.status(StatusCodes.ACCEPTED).json({
+    message: 'Notification Send to Client',
+  });
+});
+
+export { CreateNotification, GetNotification, NotificationViewed, orginzationNotification };
