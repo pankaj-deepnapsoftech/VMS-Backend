@@ -1103,20 +1103,20 @@ const ClientExpectionDataFiftyDays = AsyncHandler(async (req, res) => {
 const AdminRiskRating = AsyncHandler(async (_req, res) => {
   const data = await DataModel.find({ Status: 'Exception' });
 
-  let AwaitingApprovel = 0;
+  let AwaitingApproval = 0;
   let RiskAccepted = 0;
 
   for (let item of data) {
     if (item.client_Approve) {
       RiskAccepted += 1;
     } else {
-      AwaitingApprovel += 1;
+      AwaitingApproval += 1;
     }
   }
 
   return res.status(StatusCodes.ACCEPTED).json({
     RiskAccepted,
-    AwaitingApprovel,
+    AwaitingApproval,
     data,
   });
 });
@@ -1124,20 +1124,20 @@ const AdminRiskRating = AsyncHandler(async (_req, res) => {
 const ClientRiskRating = AsyncHandler(async (req, res) => {
   const data = await DataModel.find({ Status: 'Exception', Organization: req.currentUser?.Organization });
 
-  let AwaitingApprovel = 0;
+  let AwaitingApproval = 0;
   let RiskAccepted = 0;
 
   for (let item of data) {
     if (item.client_Approve) {
       RiskAccepted += 1;
     } else {
-      AwaitingApprovel += 1;
+      AwaitingApproval += 1;
     }
   }
 
   return res.status(StatusCodes.ACCEPTED).json({
     RiskAccepted,
-    AwaitingApprovel,
+    AwaitingApproval,
   });
 });
 
