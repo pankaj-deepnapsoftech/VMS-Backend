@@ -11,10 +11,7 @@ import { config } from '../config/env.config.js';
 const RegisterUser = AsyncHandler(async (req, res) => {
   const data = req.body;
 
-  const existUser = await AuthModel.findOne({ $or:[
-    {email: data.email},
-    {Organization:data.Organization}
-  ] });
+  const existUser = await AuthModel.findOne({ $or: [{ email: data.email }, { Organization: data.Organization }] });
   if (existUser) {
     throw new BadRequestError('User already exist', 'RegisterUser method');
   }
@@ -25,7 +22,7 @@ const RegisterUser = AsyncHandler(async (req, res) => {
     ...data,
     otp,
     otp_expire: expiresAt,
-    Organization:data?.Organization || ""
+    Organization: data?.Organization || '',
   });
   result.password = null;
   result.otp = null;
@@ -63,12 +60,12 @@ const LoginUser = AsyncHandler(async (req, res) => {
   user.password = null;
   user.otp = null;
 
-  res.cookie("tok","token",{
-    httpOnly: true,      
-    secure: config.NODE_ENV !== 'developement', 
-    sameSite: 'None',     
-    maxAge: 1000000, 
-  })
+  res.cookie('tok', 'token', {
+    httpOnly: true,
+    secure: config.NODE_ENV !== 'developement',
+    sameSite: 'None',
+    maxAge: 1000000,
+  });
 
   return res.status(StatusCodes.OK).json({
     message: 'Login Successful',
@@ -255,5 +252,5 @@ export {
   employeeVerification,
   GetAllEmployee,
   GetAllCISO,
-  getAllSME
+  getAllSME,
 };

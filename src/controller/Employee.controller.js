@@ -62,32 +62,30 @@ const getOrgnization = AsyncHandler(async (_req, res) => {
   });
 });
 
-const EmployeeCount = AsyncHandler(async (req,res) => {
-  const data = await AuthModel.find({owner:req.currentUser?._id});
+const EmployeeCount = AsyncHandler(async (req, res) => {
+  const data = await AuthModel.find({ owner: req.currentUser?._id });
 
-  const newData = {}
+  const newData = {};
 
-  data.map((item)=>{
-    if(!item?.department) return "";
+  data.map((item) => {
+    if (!item?.department) return '';
 
-    if(!newData["Totalcount"]){
-      newData["Totalcount"] = 1;
-    }else{
-      newData["Totalcount"] += 1;
+    if (!newData['Totalcount']) {
+      newData['Totalcount'] = 1;
+    } else {
+      newData['Totalcount'] += 1;
     }
 
-    if(!newData[item?.department]){
-      newData[item?.department] = 1
-    }else{
-      newData[item?.department] += 1
+    if (!newData[item?.department]) {
+      newData[item?.department] = 1;
+    } else {
+      newData[item?.department] += 1;
     }
-
-    
-  })
+  });
 
   return res.status(StatusCodes.ACCEPTED).json({
-    data:newData,
-  })
-})
+    data: newData,
+  });
+});
 
-export { GetEmployeeTasksData, TasksCardData, getOrgnization,EmployeeCount };
+export { GetEmployeeTasksData, TasksCardData, getOrgnization, EmployeeCount };

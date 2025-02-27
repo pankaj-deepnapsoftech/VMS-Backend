@@ -32,6 +32,8 @@ import {
   ClientExpectionDataFiftyDays,
   AdminRiskRating,
   ClientRiskRating,
+  AdminDeferredVulnerableItems,
+  ClientDeferredVulnerableItems,
 } from '../controller/Data.controller.js';
 import { upload } from '../config/multer.config.js';
 import { Authentication } from '../middleware/Authentication.js';
@@ -64,10 +66,12 @@ routes.route('/GetAssetsOpenIssues').post(GetAssetsOpenIssues);
 routes.route('/GetOrganization').get(Authentication, GetOrganization);
 routes.route('/ExpectionApprove').get(Authentication, ExpectionApprove);
 routes.route('/ExpectionVerify').get(Authentication, ExpectionVerify);
-routes.route("/upload-pdf/:id").post(Authentication,upload.single('PDF'),UploadPdf);
-routes.route("/AdminExpectionDataFiftyDays").get(Authentication,AdminExpectionDataFiftyDays);
-routes.route("/ClientExpectionDataFiftyDays").get(Authentication,ClientExpectionDataFiftyDays);
-routes.route("/AdminRiskRating").get(Authentication,AdminRiskRating);
-routes.route("/ClientRiskRating").get(Authentication,ClientRiskRating);
+routes.route('/upload-pdf/:id').post(Authentication, upload.single('PDF'), UploadPdf);
+routes.route('/AdminExpectionDataFiftyDays').get(Authentication, AdminExpectionDataFiftyDays);
+routes.route('/ClientExpectionDataFiftyDays').get(Authentication, ClientExpectionDataFiftyDays);
+routes.route('/AdminRiskRating').get(Authentication, AdminRiskRating);
+routes.route('/ClientRiskRating').get(Authentication, ClientRiskRating);
+routes.route('/AdminDeferredVulnerableItems').get(Authentication, AdminDeferredVulnerableItems);
+routes.route('/ClientDeferredVulnerableItems').get(Authentication, ClientDeferredVulnerableItems);
 
 export default routes;

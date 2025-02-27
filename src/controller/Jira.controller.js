@@ -160,11 +160,11 @@ const JIraDataTargetsStatus = AsyncHandler(async (req, res) => {
     const todayTime = today.getTime();
     const futureDateTime = futureDate.getTime();
 
-    if (futureDateTime <= taskDateTime && statusLower.includes("open")) {
+    if (futureDateTime <= taskDateTime && statusLower.includes('open')) {
       inFlight += 1;
     }
 
-    if (taskDateTime >= todayTime && futureDateTime >= taskDateTime && statusLower.includes("open")) {
+    if (taskDateTime >= todayTime && futureDateTime >= taskDateTime && statusLower.includes('open')) {
       ApproachingTarget += 1;
     }
 
@@ -182,9 +182,8 @@ const JIraDataTargetsStatus = AsyncHandler(async (req, res) => {
     inFlight,
     targetMissed,
     targetMet,
-    ApproachingTarget
+    ApproachingTarget,
   });
 });
-
 
 export { GetIssuesJira, CreateJiraConfig, GetJIraConfig, JIraDataViaStatus, JIraDataTargetsStatus };

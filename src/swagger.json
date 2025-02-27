@@ -7,9 +7,7 @@
   },
   "host": "localhost:3000",
   "basePath": "/",
-  "schemes": [
-    "http"
-  ],
+  "schemes": ["http"],
   "paths": {
     "/auth/create": {
       "post": {
@@ -636,6 +634,26 @@
         }
       }
     },
+    "/data/AdminDeferredVulnerableItems": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/data/ClientDeferredVulnerableItems": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/jira/issues": {
       "get": {
         "description": "",
@@ -947,7 +965,5 @@
       }
     }
   },
-  "apis": [
-    "./src/routes/index.js"
-  ]
+  "apis": ["./src/routes/index.js"]
 }

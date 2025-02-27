@@ -1100,45 +1100,79 @@ const ClientExpectionDataFiftyDays = AsyncHandler(async (req, res) => {
   });
 });
 
-const AdminRiskRating = AsyncHandler (async (_req,res) => {
-  const data = await DataModel.find({Status:"Exception"})
+const AdminRiskRating = AsyncHandler(async (_req, res) => {
+  const data = await DataModel.find({ Status: 'Exception' });
 
   let AwaitingApprovel = 0;
   let RiskAccepted = 0;
 
-  for(let item of data) {
-    if(item.client_Approve){
-      RiskAccepted += 1
-    }else{
-      AwaitingApprovel += 1
+  for (let item of data) {
+    if (item.client_Approve) {
+      RiskAccepted += 1;
+    } else {
+      AwaitingApprovel += 1;
     }
   }
 
   return res.status(StatusCodes.ACCEPTED).json({
     RiskAccepted,
     AwaitingApprovel,
-    data
-  })
+    data,
+  });
 });
 
-const ClientRiskRating = AsyncHandler (async (req,res) => {
-  const data = await DataModel.find({Status:"Exception",Organization: req.currentUser?.Organization})
+const ClientRiskRating = AsyncHandler(async (req, res) => {
+  const data = await DataModel.find({ Status: 'Exception', Organization: req.currentUser?.Organization });
 
   let AwaitingApprovel = 0;
   let RiskAccepted = 0;
 
-  for(let item of data) {
-    if(item.client_Approve){
-      RiskAccepted += 1
-    }else{
-      AwaitingApprovel += 1
+  for (let item of data) {
+    if (item.client_Approve) {
+      RiskAccepted += 1;
+    } else {
+      AwaitingApprovel += 1;
     }
   }
 
   return res.status(StatusCodes.ACCEPTED).json({
     RiskAccepted,
     AwaitingApprovel,
-  })
+  });
+});
+
+const AdminDeferredVulnerableItems = AsyncHandler(async (_req, res) => {
+  const data = await DataModel.find({ Status: 'Exception' });
+  let obj = {};
+
+  for (let item of data) {
+    if (!obj[item.Scan_Type]) {
+      obj[item.Scan_Type] = 1;
+    } else {
+      obj[item.Scan_Type] += 1;
+    }
+  }
+
+  return res.status(StatusCodes.OK).json({
+    data: obj,
+  });
+});
+
+const ClientDeferredVulnerableItems = AsyncHandler(async (req, res) => {
+  const data = await DataModel.find({ Status: 'Exception', Organization: req.currentUser?.Organization });
+  let obj = {};
+
+  for (let item of data) {
+    if (!obj[item.Scan_Type]) {
+      obj[item.Scan_Type] = 1;
+    } else {
+      obj[item.Scan_Type] += 1;
+    }
+  }
+
+  return res.status(StatusCodes.OK).json({
+    data: obj,
+  });
 });
 
 export {
@@ -1172,5 +1206,7 @@ export {
   AdminExpectionDataFiftyDays,
   ClientExpectionDataFiftyDays,
   AdminRiskRating,
-  ClientRiskRating
+  ClientRiskRating,
+  AdminDeferredVulnerableItems,
+  ClientDeferredVulnerableItems,
 };

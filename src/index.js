@@ -8,7 +8,7 @@ const SERVER_PORT = 8078;
 const startServer = async () => {
   app.listen(SERVER_PORT);
   console.log('Server is up and running on port : %d ', SERVER_PORT);
-  await DbConnection(config.MONGODB_URI); 
+  await DbConnection(config.MONGODB_URI);
 };
 
 startServer();
