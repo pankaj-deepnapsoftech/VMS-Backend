@@ -30,6 +30,8 @@ import {
   UploadPdf,
   AdminExpectionDataFiftyDays,
   ClientExpectionDataFiftyDays,
+  AdminRiskRating,
+  ClientRiskRating,
 } from '../controller/Data.controller.js';
 import { upload } from '../config/multer.config.js';
 import { Authentication } from '../middleware/Authentication.js';
@@ -65,5 +67,7 @@ routes.route('/ExpectionVerify').get(Authentication, ExpectionVerify);
 routes.route("/upload-pdf/:id").post(Authentication,upload.single('PDF'),UploadPdf);
 routes.route("/AdminExpectionDataFiftyDays").get(Authentication,AdminExpectionDataFiftyDays);
 routes.route("/ClientExpectionDataFiftyDays").get(Authentication,ClientExpectionDataFiftyDays);
+routes.route("/AdminRiskRating").get(Authentication,AdminRiskRating);
+routes.route("/ClientRiskRating").get(Authentication,ClientRiskRating);
 
 export default routes;
