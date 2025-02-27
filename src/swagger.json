@@ -616,6 +616,26 @@
         }
       }
     },
+    "/data/AdminRiskRating": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/data/ClientRiskRating": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/jira/issues": {
       "get": {
         "description": "",
