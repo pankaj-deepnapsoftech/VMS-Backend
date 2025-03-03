@@ -11,7 +11,8 @@ import { config } from '../config/env.config.js';
 const RegisterUser = AsyncHandler(async (req, res) => {
   const data = req.body;
 
-  const existUser = await AuthModel.findOne({ $or: [{ email: data.email }, { Organization: data.Organization }] });
+  const existUser = await AuthModel.findOne({ email: data.email });
+
   if (existUser) {
     throw new BadRequestError('User already exist', 'RegisterUser method');
   }
