@@ -6,6 +6,7 @@ import JiraRoutes from './Jira.routes.js';
 import EmployeeRoutes from './Employee.routes.js';
 import AssessmentRoutes from './Assessment.routes.js';
 import NotificationRoutes from './notification.routes.js';
+import OrginizationRoutes from "./organization.routes.js";
 
 const routes = Router();
 
@@ -15,5 +16,6 @@ routes.use('/jira', JiraRoutes);
 routes.use('/employee', EmployeeRoutes);
 routes.use('/assessment', AssessmentRoutes);
 routes.use('/notification', NotificationRoutes);
+routes.use("/org", OrginizationRoutes)
 
 export default routes;
