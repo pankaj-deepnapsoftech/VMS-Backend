@@ -9,7 +9,7 @@ import { NotFoundError } from '../utils/customError.js';
 import { excelSerialToDate } from '../utils/excelSerialToDate.js';
 import { config } from '../config/env.config.js';
 
-const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+export const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 function convertKeysToUnderscore(obj) {
   const newObj = {};

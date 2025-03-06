@@ -7,7 +7,9 @@
   },
   "host": "localhost:3000",
   "basePath": "/",
-  "schemes": ["http"],
+  "schemes": [
+    "http"
+  ],
   "paths": {
     "/auth/create": {
       "post": {
@@ -20,9 +22,6 @@
               "type": "object",
               "properties": {
                 "email": {
-                  "example": "any"
-                },
-                "Organization": {
                   "example": "any"
                 }
               }
@@ -928,6 +927,78 @@
           }
         }
       }
+    },
+    "/org/organization-vulnerability": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/org/CriticalHighVulnerableItems": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/org/LowMediumVulnerableItems": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/org/CriticalHighVulnerableItemsOverdue": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/org/LowMediumVulnerableItemsOverdue": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/org/ApplicationvulnerabilityCardData": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -965,5 +1036,7 @@
       }
     }
   },
-  "apis": ["./src/routes/index.js"]
+  "apis": [
+    "./src/routes/index.js"
+  ]
 }
