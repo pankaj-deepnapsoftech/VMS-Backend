@@ -239,6 +239,18 @@ const getAllSME = AsyncHandler(async (req, res) => {
   });
 });
 
+const GetOrganizationData = AsyncHandler(async (req,res) => {
+  const { page, limit } = req.query;
+
+  const pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 10;
+  const totalData = pages*limits
+  const find = await AuthModel.find({ role: 'ClientCISO' }).select('Organization').sort({ _id: -1 }).limit(totalData);
+  return res.status(StatusCodes.OK).json({
+    data: find,
+  });
+})
+
 export {
   RegisterUser,
   LoginUser,
@@ -254,4 +266,5 @@ export {
   GetAllEmployee,
   GetAllCISO,
   getAllSME,
+  GetOrganizationData
 };
