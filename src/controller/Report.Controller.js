@@ -18,7 +18,7 @@ const CreateReport = AsyncHandler(async (req, res) => {
   }
 
   file = config.NODE_ENV !== 'development' ? `${config.FILE_URL}/file/${file.filename}` : `${config.FILE_URL_LOCAL}/file/${file.filename}`;
-  await ReportModel.create({ file, cretor: req.currentUser?._id, Organization });
+    await ReportModel.create({ file, creator: req.currentUser?._id, Organization });
   return res.status(StatusCodes.CREATED).json({
     message: 'Report Upload Successful',
   });
@@ -31,7 +31,7 @@ const GetReport = AsyncHandler(async (req, res) => {
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
 
-  const data = await ReportModel.find({}).sort({ _id: -1 }).skip(skip).limit(limits);
+    const data = await ReportModel.find({}).populate({ path: "creator", select:"full_name role"}).sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     data,
   });
