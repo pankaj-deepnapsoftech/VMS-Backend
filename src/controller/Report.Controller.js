@@ -86,7 +86,7 @@ const OrganizationReport = AsyncHandler(async (req,res) => {
     const limits = parseInt(limit) || 10;
     const skip = (pages -1) * limits;
 
-    const data = await ReportModel.find({Organization:req.currentUser?.Organization}).sort({_id:-1}).skip(skip).limit(limits);
+  const data = await ReportModel.find({ Organization: req.currentUser?.Organization }).populate({ path: "creator", select: "full_name role" }).sort({_id:-1}).skip(skip).limit(limits);
     return res.status(StatusCodes.OK).json({
         data
     })
@@ -99,7 +99,7 @@ const AssessorReport = AsyncHandler(async (req,res) => {
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
 
-  const data = await ReportModel.find({ creator:req.currentUser?._id  }).sort({ _id: -1 }).skip(skip).limit(limits);
+  const data = await ReportModel.find({ creator: req.currentUser?._id }).populate({ path: "Organization", select: "Organization" }).sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     data
   })
