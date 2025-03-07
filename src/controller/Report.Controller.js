@@ -79,4 +79,17 @@ const UpdateReport = AsyncHandler(async (req, res) => {
   });
 });
 
-export { CreateReport, GetReport, DeleteReport, UpdateReport };
+const OrganizationReport = AsyncHandler(async (req,res) => {
+    const {page,limit} = req.query;
+
+    const pages = parseInt(page) || 1;
+    const limits = parseInt(limit) || 10;
+    const skip = (pages -1) * limits;
+
+    const data = await ReportModel.find({Organization:req.currentUser?.Organization}).sort({_id:-1}).skip(skip).limit(limits);
+    return res.status(StatusCodes.OK).json({
+        data
+    })
+})
+
+export { CreateReport, GetReport, DeleteReport, UpdateReport, OrganizationReport };

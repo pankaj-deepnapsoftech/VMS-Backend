@@ -57,7 +57,7 @@ export const EmployeeAuthentication = AsyncHandler(async (req, _res, next) => {
   next();
 });
 
-export const ClientCTOAuthentication = AsyncHandler(async (req, _res, next) => {
+export const ClientCISOAuthentication = AsyncHandler(async (req, _res, next) => {
   const token = req.headers?.authorization?.split(' ')[1];
   if (!token) {
     throw new NotAuthenticated('User not Authenticated', 'AdminAuthentication method');
@@ -68,7 +68,7 @@ export const ClientCTOAuthentication = AsyncHandler(async (req, _res, next) => {
   if (!user) {
     throw new BadRequestError('Invalid User Please Try Again', 'AdminAuthentication method');
   }
-  if (user.role !== 'ClientCTO') {
+  if (user.role !== 'ClientCISO') {
     throw new NotAuthenticated('you are not Allowed to asscess this routes', 'AdminAuthentication method');
   }
 
