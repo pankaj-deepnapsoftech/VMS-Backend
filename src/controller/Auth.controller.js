@@ -239,13 +239,8 @@ const getAllSME = AsyncHandler(async (req, res) => {
   });
 });
 
-const GetOrganizationData = AsyncHandler(async (req,res) => {
-  const { page, limit } = req.query;
-
-  const pages = parseInt(page) || 1;
-  const limits = parseInt(limit) || 10;
-  const totalData = pages*limits
-  const find = await AuthModel.find({ role: 'ClientCISO' }).select('Organization').sort({ _id: -1 }).limit(totalData);
+const GetOrganizationData = AsyncHandler(async (_req,res) => {
+  const find = await AuthModel.find({ role: 'ClientCISO' }).select('Organization');
   return res.status(StatusCodes.OK).json({
     data: find,
   });
