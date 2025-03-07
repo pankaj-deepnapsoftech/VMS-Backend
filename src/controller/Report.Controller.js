@@ -92,4 +92,17 @@ const OrganizationReport = AsyncHandler(async (req,res) => {
     })
 })
 
-export { CreateReport, GetReport, DeleteReport, UpdateReport, OrganizationReport };
+const AssessorReport = AsyncHandler(async (req,res) => {
+  const { page, limit } = req.query;
+
+  const pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 10;
+  const skip = (pages - 1) * limits;
+
+  const data = await ReportModel.find({ creator:req.currentUser?._id  }).sort({ _id: -1 }).skip(skip).limit(limits);
+  return res.status(StatusCodes.OK).json({
+    data
+  })
+})
+
+export { CreateReport, GetReport, DeleteReport, UpdateReport, OrganizationReport, AssessorReport };
