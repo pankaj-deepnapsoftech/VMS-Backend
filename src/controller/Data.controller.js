@@ -1106,22 +1106,22 @@ const AdminRiskRating = AsyncHandler(async (_req, res) => {
   let monthlyData = {};
 
   for (let item of data) {
-    const itemDate = new Date(item.createdAt); 
-    const month = itemDate.getMonth() + 1; 
+    const itemDate = new Date(item.createdAt);
+    const month = itemDate.getMonth() + 1;
 
-    if (!monthlyData[months[month -1]]) {
-      monthlyData[months[month -1 ]] = { RiskAccepted: 0, AwaitingApproval: 0 };
+    if (!monthlyData[months[month - 1]]) {
+      monthlyData[months[month - 1]] = { RiskAccepted: 0, AwaitingApproval: 0 };
     }
 
     if (item.client_Approve) {
-      monthlyData[months[month -1]].RiskAccepted += 1;
+      monthlyData[months[month - 1]].RiskAccepted += 1;
     } else {
-      monthlyData[months[month -1]].AwaitingApproval += 1;
+      monthlyData[months[month - 1]].AwaitingApproval += 1;
     }
   }
 
   return res.status(StatusCodes.ACCEPTED).json({
-    monthlyData
+    monthlyData,
   });
 });
 
@@ -1130,17 +1130,17 @@ const ClientRiskRating = AsyncHandler(async (req, res) => {
   let monthlyData = {};
 
   for (let item of data) {
-    const itemDate = new Date(item.createdAt); 
-    const month = itemDate.getMonth() + 1; 
+    const itemDate = new Date(item.createdAt);
+    const month = itemDate.getMonth() + 1;
 
-    if (!monthlyData[months[month -1]]) {
-      monthlyData[months[month -1 ]] = { RiskAccepted: 0, AwaitingApproval: 0 };
+    if (!monthlyData[months[month - 1]]) {
+      monthlyData[months[month - 1]] = { RiskAccepted: 0, AwaitingApproval: 0 };
     }
 
     if (item.client_Approve) {
-      monthlyData[months[month -1]].RiskAccepted += 1;
+      monthlyData[months[month - 1]].RiskAccepted += 1;
     } else {
-      monthlyData[months[month -1]].AwaitingApproval += 1;
+      monthlyData[months[month - 1]].AwaitingApproval += 1;
     }
   }
 
