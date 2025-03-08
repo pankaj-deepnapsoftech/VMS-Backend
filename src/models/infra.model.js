@@ -1,3 +1,4 @@
+import { timeStamp } from "console";
 import {Schema,model} from "mongoose";
 
 
@@ -11,6 +12,6 @@ const InfraSchema = new Schema({
     Impact: { type: String, required: true },
     Solution: { type: String, required: true },
     CI: { type: String, required: true },
-});
+},{timestamps:true});
 
 export const InfraModel = model("Infrastructure", InfraSchema)
