@@ -132,7 +132,7 @@ const DataCounsts = AsyncHandler(async (_req, res) => {
       if (status?.includes('reopen')) acc.reopen++;
       if (status?.includes('closed')) acc.closed++;
       if (status?.includes('on hold')) acc.onHold++;
-      if (status?.includes('exceptions')) acc.Exceptions++;
+      if (status?.includes('exception')) acc.Exceptions++;
 
       acc.totalData++; // Increment total data count
       return acc;

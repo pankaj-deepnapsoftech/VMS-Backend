@@ -6,6 +6,6 @@ import { upload } from "../config/multer.config.js";
 const router = Router();
 
 router.route("/create-infra").post(Authentication,upload.single("excel"),CreateInfra);
-router.route("/Vulnerable-ci-1").get(Graph1CIClasses)
+router.route("/Vulnerable-ci-1").get(Authentication,Graph1CIClasses)
 
 export default router;
