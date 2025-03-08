@@ -8,7 +8,7 @@ import AssessmentRoutes from './Assessment.routes.js';
 import NotificationRoutes from './notification.routes.js';
 import OrginizationRoutes from './organization.routes.js';
 import ReportRoutes from './Report.routes.js';
-import InfraRoutes from "./infra.routes.js"
+import InfraRoutes from './infra.routes.js';
 
 const routes = Router();
 
@@ -20,6 +20,6 @@ routes.use('/assessment', AssessmentRoutes);
 routes.use('/notification', NotificationRoutes);
 routes.use('/org', OrginizationRoutes);
 routes.use('/report', ReportRoutes);
-routes.use("/infra", InfraRoutes)
+routes.use('/infra', InfraRoutes);
 
 export default routes;

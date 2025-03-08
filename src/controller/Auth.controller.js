@@ -239,12 +239,12 @@ const getAllSME = AsyncHandler(async (req, res) => {
   });
 });
 
-const GetOrganizationData = AsyncHandler(async (_req,res) => {
+const GetOrganizationData = AsyncHandler(async (_req, res) => {
   const find = await AuthModel.find({ role: 'ClientCISO' }).select('Organization');
   return res.status(StatusCodes.OK).json({
     data: find,
   });
-})
+});
 
 export {
   RegisterUser,
@@ -261,5 +261,5 @@ export {
   GetAllEmployee,
   GetAllCISO,
   getAllSME,
-  GetOrganizationData
+  GetOrganizationData,
 };
