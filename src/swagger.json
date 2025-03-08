@@ -1147,6 +1147,26 @@
           }
         }
       }
+    },
+    "/infra/create-infra": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/infra/Vulnerable-ci-1": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "definitions": {
