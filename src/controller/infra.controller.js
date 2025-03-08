@@ -34,4 +34,29 @@ const Graph1CIClasses = AsyncHandler(async(req,res) => {
 
 })
 
-export { CreateInfra, Graph1CIClasses }
+const Graph2CIClasses = AsyncHandler(async (req, res) => {
+    const data = await InfraModel.find({});
+    const NewData = {};
+
+    data.forEach((item) => {
+
+        if (item.CI && item.Severity) {
+            if (!NewData[item.CI]) {
+                NewData[item.CI] = {}; 
+            }
+
+            if (!NewData[item.CI][item.Severity]) {
+                NewData[item.CI][item.Severity] = 1;
+            } else {
+                NewData[item.CI][item.Severity] += 1;
+            }
+        }
+    });
+
+
+    res.status(200).json({ data: NewData });
+});
+
+
+
+export { CreateInfra, Graph1CIClasses, Graph2CIClasses }

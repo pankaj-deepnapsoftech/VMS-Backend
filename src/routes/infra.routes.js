@@ -1,11 +1,12 @@
 import {Router} from "express";
 import { Authentication } from "../middleware/Authentication.js";
-import { CreateInfra, Graph1CIClasses } from "../controller/infra.controller.js";
+import { CreateInfra, Graph1CIClasses, Graph2CIClasses } from "../controller/infra.controller.js";
 import { upload } from "../config/multer.config.js";
 
 const router = Router();
 
 router.route("/create-infra").post(Authentication,upload.single("excel"),CreateInfra);
-router.route("/Vulnerable-ci-1").get(Authentication,Graph1CIClasses)
+router.route("/Vulnerable-ci-1").get(Authentication,Graph1CIClasses);
+router.route("/Vulnerable-ci-2").get(Authentication, Graph2CIClasses);
 
 export default router;

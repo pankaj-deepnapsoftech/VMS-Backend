@@ -1167,6 +1167,16 @@
           }
         }
       }
+    },
+    "/infra/Vulnerable-ci-2": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "definitions": {
