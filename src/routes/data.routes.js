@@ -43,7 +43,7 @@ const routes = Router();
 routes.route('/create').post(Authentication, upload.single('excel'), CreateData);
 routes.route('/add-new').post(Authentication, AddNewData);
 routes.route('/get').get(Authentication, getAllData);
-routes.route('/assign/:id').patch(AssignedTask);
+routes.route('/assign/:id').patch(Authentication,AssignedTask);
 routes.route('/delete/:id').delete(Authentication, DeteleOneData);
 routes.route('/update/:id').patch(Authentication, updateOneData);
 routes.route('/total-data-count').get(Authentication, DataCounsts);
@@ -62,7 +62,7 @@ routes.route('/LowMediumVulnerableItemsOverdue').get(Authentication, LowMediumVu
 routes.route('/ApplicationvulnerabilityCardData').get(ApplicationvulnerabilityCardData);
 routes.route('/bulk-asigned-task').patch(Authentication, BulkAsignedTask);
 routes.route('/top-vulnerabilities').get(Authentication, TopVulnerabilities);
-routes.route('/GetAssetsOpenIssues').post(GetAssetsOpenIssues);
+routes.route('/GetAssetsOpenIssues').post(Authentication,GetAssetsOpenIssues);
 routes.route('/GetOrganization').get(Authentication, GetOrganization);
 routes.route('/ExpectionApprove').get(Authentication, ExpectionApprove);
 routes.route('/ExpectionVerify').get(Authentication, ExpectionVerify);
