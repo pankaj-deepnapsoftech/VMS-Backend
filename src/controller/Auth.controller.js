@@ -247,51 +247,6 @@ const GetOrganizationData = AsyncHandler(async (_req, res) => {
 });
 
 
-const WithoutLoginSendOtp = AsyncHandler(async(req,res) => {
-  const {email} = req.body;
-  const { otp, expiresAt } = generateOTP();
-
-  const result = await AuthModel.findOne({email});
-  if (!result) {
-    throw new NotFoundError('user not found', 'ResendOtp method');
-  }
-
-  await AuthModel.findOneAndUpdate({email}, {
-    otp,
-    otp_expire: expiresAt,
-  });
-
-  await SendMail('EmailVerification.ejs', { userName: result.full_name, otpCode: otp }, { email: result.email, subject: 'Email Verification' });
-
-  return res.status(StatusCodes.OK).json({
-    message: 'OTP send in Your E-mail',
-  });
-
-})
-
-const WithOutLoginVerify = AsyncHandler(async (req,res) => {
-  const { otp,email } = req.body;
-
-  const findData = await AuthModel.findOne({email})
-  if (!otp) {
-    throw new BadRequestError('OTP Is Required', 'VerifyOTP method');
-  }
-  const date = Date.now();
-  if (date > findData.otp_expire) {
-    throw new BadRequestError('OTP is expire', 'VerifyOTP method');
-  }
-  if (otp !== findData.otp) {
-    throw new BadRequestError('Wrong OTP', 'VerifyOTP method');
-  }
-  await AuthModel.findByIdAndUpdate(findData._id, {
-    email_verification: true,
-  });
-  return res.status(StatusCodes.OK).json({
-    message: 'OTP Verified Successful',
-  });
-})
-
-
 export {
   RegisterUser,
   LoginUser,
