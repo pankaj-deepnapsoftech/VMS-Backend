@@ -263,6 +263,4 @@ export {
   GetAllCISO,
   getAllSME,
   GetOrganizationData,
-  WithoutLoginSendOtp,
-  WithOutLoginVerify
 };

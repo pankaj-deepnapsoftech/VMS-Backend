@@ -301,43 +301,6 @@
         }
       }
     },
-    "/auth/resend-without-login": {
-      "post": {
-        "description": "",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/auth/verify-without-token": {
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "otp": {
-                  "example": "any"
-                },
-                "email": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
     "/data/create": {
       "post": {
         "description": "",

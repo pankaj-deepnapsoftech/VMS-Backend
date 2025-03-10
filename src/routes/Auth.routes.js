@@ -16,8 +16,6 @@ import {
   GetAllCISO,
   getAllSME,
   GetOrganizationData,
-  WithoutLoginSendOtp,
-  WithOutLoginVerify,
 } from '../controller/Auth.controller.js';
 import { Authentication } from '../middleware/Authentication.js';
 
