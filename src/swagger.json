@@ -7,7 +7,9 @@
   },
   "host": "localhost:3000",
   "basePath": "/",
-  "schemes": ["http"],
+  "schemes": [
+    "http"
+  ],
   "paths": {
     "/auth/create": {
       "post": {
@@ -290,6 +292,16 @@
       }
     },
     "/auth/all-orgs": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/auth/resend-without-login": {
       "get": {
         "description": "",
         "responses": {
@@ -1222,5 +1234,7 @@
       }
     }
   },
-  "apis": ["./src/routes/index.js"]
+  "apis": [
+    "./src/routes/index.js"
+  ]
 }

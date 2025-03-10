@@ -246,6 +246,30 @@ const GetOrganizationData = AsyncHandler(async (_req, res) => {
   });
 });
 
+
+const WithoutLoginSendOtp = AsyncHandler(async(req,res) => {
+  const {email} = req.body;
+
+
+  const result = await AuthModel.findOne({email});
+  if (!result) {
+    throw new NotFoundError('user not found', 'ResendOtp method');
+  }
+
+  await AuthModel.findByIdAndUpdate(req?.currentUser._id, {
+    otp,
+    otp_expire: expiresAt,
+  });
+
+  await SendMail('EmailVerification.ejs', { userName: result.full_name, otpCode: otp }, { email: result.email, subject: 'Email Verification' });
+
+  return res.status(StatusCodes.OK).json({
+    message: 'OTP send again Your E-mail',
+  });
+
+})
+
+
 export {
   RegisterUser,
   LoginUser,
@@ -262,4 +286,5 @@ export {
   GetAllCISO,
   getAllSME,
   GetOrganizationData,
+  WithoutLoginSendOtp
 };
