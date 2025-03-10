@@ -269,6 +269,28 @@ const WithoutLoginSendOtp = AsyncHandler(async(req,res) => {
 
 })
 
+const WithOutLoginVerify = AsyncHandler(async (req,res) => {
+  const { otp,email } = req.body;
+
+  const findData = await AuthModel.findOne({email})
+  if (!otp) {
+    throw new BadRequestError('OTP Is Required', 'VerifyOTP method');
+  }
+  const date = Date.now();
+  if (date > findData.otp_expire) {
+    throw new BadRequestError('OTP is expire', 'VerifyOTP method');
+  }
+  if (otp !== findData.otp) {
+    throw new BadRequestError('Wrong OTP', 'VerifyOTP method');
+  }
+  await AuthModel.findByIdAndUpdate(findData._id, {
+    email_verification: true,
+  });
+  return res.status(StatusCodes.OK).json({
+    message: 'OTP Verified Successful',
+  });
+})
+
 
 export {
   RegisterUser,
@@ -286,5 +308,6 @@ export {
   GetAllCISO,
   getAllSME,
   GetOrganizationData,
-  WithoutLoginSendOtp
+  WithoutLoginSendOtp,
+  WithOutLoginVerify
 };
