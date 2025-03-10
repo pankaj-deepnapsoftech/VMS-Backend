@@ -53,9 +53,9 @@ const LoginUser = AsyncHandler(async (req, res) => {
     throw new BadRequestError('Wrong Password Try Again...', 'LoginUser method');
   }
 
-  if (!user.email_verification) {
-    throw new NotFoundError('User email not Verifyed', 'LoginUser method');
-  }
+  // if (!user.email_verification) {
+  //   throw new NotFoundError('User email not Verifyed', 'LoginUser method');
+  // }
 
   const token = SignToken({ email: user.email, id: user._id });
   user.password = null;
