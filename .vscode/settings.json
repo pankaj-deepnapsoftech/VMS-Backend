@@ -1,3 +1,7 @@
 {
-  "editor.fontFamily": "Space Mono"
+  "editor.fontFamily": "Space Mono",
+  "editor.fontSize": 16,
+  "editor.fontWeight": "normal",
+  "editor.minimap.sectionHeaderLetterSpacing": 1,
+  "editor.letterSpacing": 1
 }

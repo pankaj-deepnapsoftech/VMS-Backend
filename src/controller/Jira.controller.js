@@ -4,6 +4,8 @@ import { getIssues } from '../utils/Jira.utils.js';
 import { JiraConfigModule } from '../models/jiraConfig.model.js';
 import { NotFoundError } from '../utils/customError.js';
 import { object } from 'yup';
+import { convertExcelToJson } from '../utils/ExcelToJson.js';
+import { jiraModel } from '../models/jiraData.model.js';
 
 const GetIssuesJira = AsyncHandler(async (req, res) => {
   const id = req.currentUser?._id;
@@ -186,4 +188,29 @@ const JIraDataTargetsStatus = AsyncHandler(async (req, res) => {
   });
 });
 
-export { GetIssuesJira, CreateJiraConfig, GetJIraConfig, JIraDataViaStatus, JIraDataTargetsStatus };
+const jiraDataWithExcel = AsyncHandler(async(req,res) => {
+  const file = req.file;
+
+  if(!file){
+    throw new NotFoundError("file is required field","jiraDataWithExcel method")
+  }
+
+  const data = convertExcelToJson(file.path);
+  for(let i of data ) {
+    await jiraModel.create({...i,creator_id:req.currentUser?._id});
+  };
+
+  return res.status(StatusCodes.CREATED).json({
+    message:"data created successful"
+  })
+
+})
+
+export { 
+  GetIssuesJira,
+  CreateJiraConfig,
+  GetJIraConfig,
+  JIraDataViaStatus,
+  JIraDataTargetsStatus,
+  jiraDataWithExcel
+ };
