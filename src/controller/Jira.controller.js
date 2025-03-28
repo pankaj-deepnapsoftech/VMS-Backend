@@ -245,6 +245,17 @@ const DeleteJiradata = AsyncHandler(async(req,res) => {
 
 });
 
+const MultipalDataDeleteJira = AsyncHandler(async(req,res) => {
+  const {id} = req.body;
+  if(id.length <= 0){
+    throw new NotFoundError("id is Empty","MultipalDataDeleteJira method")
+  }
+  await jiraModel.deleteMany({_id:{$in:id}});
+  return res.status(StatusCodes.OK).json({
+    message:"data deleted Successful"
+  })
+});
+
 export {
   GetIssuesJira,
   CreateJiraConfig,
@@ -254,5 +265,6 @@ export {
   jiraDataWithExcel,
   GetJiraManualData,
   UpdateJiraManualData,
-  DeleteJiradata
+  DeleteJiradata,
+  MultipalDataDeleteJira
 };

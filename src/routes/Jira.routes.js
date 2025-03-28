@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { CreateJiraConfig, DeleteJiradata, GetIssuesJira, GetJIraConfig, GetJiraManualData, JIraDataTargetsStatus, JIraDataViaStatus, jiraDataWithExcel, UpdateJiraManualData } from '../controller/Jira.controller.js';
+import { CreateJiraConfig, DeleteJiradata, GetIssuesJira, GetJIraConfig, GetJiraManualData, JIraDataTargetsStatus, JIraDataViaStatus, jiraDataWithExcel, MultipalDataDeleteJira, UpdateJiraManualData } from '../controller/Jira.controller.js';
 import { Authentication } from '../middleware/Authentication.js';
 import { JiraConfigValidate } from '../helper/helper.js';
 import { upload } from '../config/multer.config.js';
@@ -18,6 +18,7 @@ routes.route('/JIraDataTargetsStatus').get(Authentication, JIraDataTargetsStatus
 routes.route("/upload-data").post(Authentication,upload.single("excel-jira"),jiraDataWithExcel);
 routes.route("/get-jira-data").get(Authentication,GetJiraManualData);
 routes.route("/update-jira-data/:id").put(Authentication,UpdateJiraManualData);
-routes.route("/delete-jira-data/:id").delete(Authentication,DeleteJiradata)
+routes.route("/delete-jira-data/:id").delete(Authentication,DeleteJiradata);
+routes.route("/multidelete-jira-data").delete(Authentication,MultipalDataDeleteJira)
 
 export default routes;
