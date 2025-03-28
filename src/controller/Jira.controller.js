@@ -3,7 +3,6 @@ import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { getIssues } from '../utils/Jira.utils.js';
 import { JiraConfigModule } from '../models/jiraConfig.model.js';
 import { NotFoundError } from '../utils/customError.js';
-import { object } from 'yup';
 import { convertExcelToJson } from '../utils/ExcelToJson.js';
 import { jiraModel } from '../models/jiraData.model.js';
 
@@ -188,29 +187,72 @@ const JIraDataTargetsStatus = AsyncHandler(async (req, res) => {
   });
 });
 
-const jiraDataWithExcel = AsyncHandler(async(req,res) => {
+const jiraDataWithExcel = AsyncHandler(async (req, res) => {
   const file = req.file;
 
-  if(!file){
-    throw new NotFoundError("file is required field","jiraDataWithExcel method")
+  if (!file) {
+    throw new NotFoundError("file is required field", "jiraDataWithExcel method")
   }
 
   const data = convertExcelToJson(file.path);
-  for(let i of data ) {
-    await jiraModel.create({...i,creator_id:req.currentUser?._id});
+  for (let i of data) {
+    await jiraModel.create({ ...i, creator_id: req.currentUser?._id });
   };
 
   return res.status(StatusCodes.CREATED).json({
-    message:"data created successful"
+    message: "data created successful"
   })
 
-})
+});
 
-export { 
+const GetJiraManualData = AsyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 10;
+  const skip = (pages - 1) * limits;
+
+  const data = await jiraModel.find({ creator_id: req.currentUser?._id }).populate({ path: "creator_id", select: "full_name" }).skip(skip).limit(limits);
+  return res.status(StatusCodes.OK).json({
+    data
+  })
+
+});
+
+const UpdateJiraManualData = AsyncHandler(async (req, res) => {
+  const data = req.body;
+  const { id } = req.params;
+  const find = await jiraModel.findById(id);
+  if (!find) {
+    throw new NotFoundError("Data not found", "UpdatejiraManualdata method");
+  }
+  await jiraModel.findByIdAndUpdate(id, data);
+  return res.status(StatusCodes.OK).json({
+    message: "Data updated Successful"
+  })
+});
+
+const DeleteJiradata = AsyncHandler(async(req,res) => {
+  const {id} = req.params;
+  const find = await jiraModel.findById(id);
+  if(!find){
+    throw new NotFoundError("data not found","DeleteJiradata method");
+  };
+
+  await jiraModel.findByIdAndDelete(id);
+  return res.status(StatusCodes.OK).json({
+    message:"data deleted Sussessful"
+  });
+
+});
+
+export {
   GetIssuesJira,
   CreateJiraConfig,
   GetJIraConfig,
   JIraDataViaStatus,
   JIraDataTargetsStatus,
-  jiraDataWithExcel
- };
+  jiraDataWithExcel,
+  GetJiraManualData,
+  UpdateJiraManualData,
+  DeleteJiradata
+};
