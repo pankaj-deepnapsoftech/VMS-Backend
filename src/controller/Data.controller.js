@@ -120,8 +120,12 @@ const updateOneData = AsyncHandler(async (req, res) => {
   });
 });
 
-const DataCounsts = AsyncHandler(async (_req, res) => {
-  const data = await DataModel.find({}).exec();
+const DataCounsts = AsyncHandler(async (req, res) => {
+  const data = await DataModel.find(
+    req.currentUser?.Organization
+      ? { Organization: req.currentUser?.Organization }
+      : {}
+  ).exec();
 
   const counts = data.reduce(
     (acc, item) => {
@@ -151,13 +155,17 @@ const DataCounsts = AsyncHandler(async (_req, res) => {
   return res.status(StatusCodes.OK).json(counts);
 });
 
-const vulnerableItems = AsyncHandler(async (_req, res) => {
+const vulnerableItems = AsyncHandler(async (req, res) => {
   const currentYear = new Date().getFullYear(); // Get the current year
 
+  const matchCondition = req.currentUser?.Organization
+    ? { Organization: req.currentUser.Organization }
+    : {};
+
   const data = await DataModel.aggregate([
-    // Match documents from the current year only
     {
       $match: {
+        ...matchCondition,
         createdAt: {
           $gte: new Date(currentYear, 0, 1), // Start of the current year (January 1st)
           $lt: new Date(currentYear + 1, 0, 1), // Start of the next year (January 1st of the next year)
@@ -197,88 +205,82 @@ const vulnerableItems = AsyncHandler(async (_req, res) => {
   });
 });
 
-const VulnerableRiskRating = AsyncHandler(async (_req, res) => {
-  const data = await DataModel.aggregate([
-    {
-      $group: { _id: { $month: '$createdAt' }, name: { $push: '$Severity' } },
-    },
-  ]);
+const VulnerableRiskRating = AsyncHandler(async (req, res) => {
+  const currentDate = new Date();
+  const past90Days = new Date();
+  past90Days.setDate(currentDate.getDate() - 90); // 90 days ago
 
-  const Critical = data.reduce(
-    (acc, item) => {
-      acc['name'] = 'Critical';
-      acc['0-30 Days'] += item._id === 1 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('critical')).length : 0;
-      acc['31-60 Days'] += item._id === 2 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('critical')).length : 0;
-      acc['61-90 Days'] += item._id === 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('critical')).length : 0;
-      acc['90+ Days'] += item._id > 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('critical')).length : 0;
-      return acc;
-    },
-    { '0-30 Days': 0, '31-60 Days': 0, '61-90 Days': 0, '90+ Days': 0 },
-  );
-
-  const High = data.reduce(
-    (acc, item) => {
-      acc['name'] = 'High';
-      acc['0-30 Days'] += item._id === 1 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('high')).length : 0;
-      acc['31-60 Days'] += item._id === 2 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('high')).length : 0;
-      acc['61-90 Days'] += item._id === 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('high')).length : 0;
-      acc['90+ Days'] += item._id > 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('high')).length : 0;
-      return acc;
-    },
-    { '0-30 Days': 0, '31-60 Days': 0, '61-90 Days': 0, '90+ Days': 0 },
-  );
-
-  const Medium = data.reduce(
-    (acc, item) => {
-      acc['name'] = 'Medium';
-      acc['0-30 Days'] += item._id === 1 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('medium')).length : 0;
-      acc['31-60 Days'] += item._id === 2 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('medium')).length : 0;
-      acc['61-90 Days'] += item._id === 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('medium')).length : 0;
-      acc['90+ Days'] += item._id > 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('medium')).length : 0;
-      return acc;
-    },
-    { '0-30 Days': 0, '31-60 Days': 0, '61-90 Days': 0, '90+ Days': 0 },
-  );
-
-  const Low = data.reduce(
-    (acc, item) => {
-      acc['name'] = 'Low';
-      acc['0-30 Days'] += item._id === 1 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('low')).length : 0;
-      acc['31-60 Days'] += item._id === 2 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('low')).length : 0;
-      acc['61-90 Days'] += item._id === 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('low')).length : 0;
-      acc['90+ Days'] += item._id > 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('low')).length : 0;
-      return acc;
-    },
-    { '0-30 Days': 0, '31-60 Days': 0, '61-90 Days': 0, '90+ Days': 0 },
-  );
-
-  const info = data.reduce(
-    (acc, item) => {
-      acc['name'] = 'info';
-      acc['0-30 Days'] += item._id === 1 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('informational')).length : 0;
-      acc['31-60 Days'] += item._id === 2 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('informational')).length : 0;
-      acc['61-90 Days'] += item._id === 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('informational')).length : 0;
-      acc['90+ Days'] += item._id > 3 ? item.name.filter((n) => n?.toLocaleLowerCase().includes('informational')).length : 0;
-      return acc;
-    },
-    { '0-30 Days': 0, '31-60 Days': 0, '61-90 Days': 0, '90+ Days': 0 },
-  );
-
-  return res.status(StatusCodes.OK).json({
-    Critical,
-    High,
-    Medium,
-    Low,
-    info,
-  });
-});
-
-const NewAndCloseVulnerable = AsyncHandler(async (_req, res) => {
-  const currentYear = new Date().getFullYear();
+  // Dynamic match condition for organization filter
+  const matchCondition = req.currentUser?.Organization
+    ? { Organization: req.currentUser.Organization }
+    : {};
 
   const data = await DataModel.aggregate([
     {
       $match: {
+        ...matchCondition,
+        createdAt: { $gte: past90Days, $lte: currentDate }, // Last 90 days data
+      },
+    },
+    {
+      $project: {
+        monthDiff: {
+          $divide: [{ $subtract: [currentDate, "$createdAt"] }, 1000 * 60 * 60 * 24], // Convert ms to days
+        },
+        Severity: 1,
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        severities: { $push: { Severity: "$Severity", daysOld: "$monthDiff" } },
+      },
+    },
+  ]);
+
+  if (!data.length) {
+    return res.status(StatusCodes.OK).json({});
+  }
+
+  const severityLevels = ["Critical", "High", "Medium", "Low", "Informational"];
+
+  // Function to categorize severities by age range
+  const categorizeSeverities = (severity) => {
+    return data[0].severities.reduce(
+      (acc, item) => {
+        if (item.Severity?.toLowerCase() === severity.toLowerCase()) {
+          if (item.daysOld <= 30) acc["0-30 Days"]++;
+          else if (item.daysOld <= 60) acc["31-60 Days"]++;
+          else if (item.daysOld <= 90) acc["61-90 Days"]++;
+          else acc["90+ Days"]++;
+        }
+        return acc;
+      },
+      { name: severity, "0-30 Days": 0, "31-60 Days": 0, "61-90 Days": 0, "90+ Days": 0 }
+    );
+  };
+
+  // Generate response dynamically for all severity levels
+  const response = severityLevels.reduce((acc, level) => {
+    acc[level] = categorizeSeverities(level);
+    return acc;
+  }, {});
+
+  return res.status(StatusCodes.OK).json(response);
+});
+
+
+const NewAndCloseVulnerable = AsyncHandler(async (req, res) => {
+  const currentYear = new Date().getFullYear();
+
+  const matchCondition = req.currentUser?.Organization
+    ? { Organization: req.currentUser.Organization }
+    : {};
+
+  const data = await DataModel.aggregate([
+    {
+      $match: {
+        ...matchCondition,
         createdAt: {
           $gte: new Date(currentYear, 0, 1),
           $lt: new Date(currentYear + 1, 0, 1),
@@ -307,14 +309,18 @@ const NewAndCloseVulnerable = AsyncHandler(async (_req, res) => {
   });
 });
 
-const ClosevulnerableItems = AsyncHandler(async (_req, res) => {
+const ClosevulnerableItems = AsyncHandler(async (req, res) => {
   var today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const futureDate = new Date(today);
   futureDate.setDate(today.getDate() + 7);
 
-  const data = await DataModel.find({});
+  const data = await DataModel.find(
+    req.currentUser?.Organization
+      ? { Organization: req.currentUser?.Organization }
+      : {}
+  );
 
   let TargetMet = 0;
   let TargetMissed = 0;
@@ -422,11 +428,14 @@ const AssignedTask = AsyncHandler(async (req, res) => {
   });
 });
 
-const CriticalHighVulnerable = AsyncHandler(async (_req, res) => {
+const CriticalHighVulnerable = AsyncHandler(async (req, res) => {
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the current month
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  const data = await DataModel.find({ createdAt: { $gte: startOfMonth, $lte: endOfMonth }, $or: [{ Severity: 'High' }, { Severity: 'Critical' }] });
+  const matchCondition = req.currentUser?.Organization
+    ? { Organization: req.currentUser.Organization }
+    : {};
+  const data = await DataModel.find({ ...matchCondition, createdAt: { $gte: startOfMonth, $lte: endOfMonth }, $or: [{ Severity: 'High' }, { Severity: 'Critical' }] });
 
   let webApplication = 0;
   let mobileApplication = 0;
@@ -453,11 +462,14 @@ const CriticalHighVulnerable = AsyncHandler(async (_req, res) => {
   });
 });
 
-const CriticalHighVulnerableOverdue = AsyncHandler(async (_req, res) => {
+const CriticalHighVulnerableOverdue = AsyncHandler(async (req, res) => {
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the current month
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  const data = await DataModel.find({ createdAt: { $gte: startOfMonth, $lte: endOfMonth }, $or: [{ Severity: 'High' }, { Severity: 'Critical' }] });
+  const matchCondition = req.currentUser?.Organization
+    ? { Organization: req.currentUser.Organization }
+    : {};
+  const data = await DataModel.find({ ...matchCondition, createdAt: { $gte: startOfMonth, $lte: endOfMonth }, $or: [{ Severity: 'High' }, { Severity: 'Critical' }] });
 
   let webApplication = 0;
   let mobileApplication = 0;
