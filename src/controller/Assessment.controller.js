@@ -26,7 +26,15 @@ const getAssessment = AsyncHandler(async (req, res) => {
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
-  const data = await AssessmentModel.find({ creator_id: req.currentUser?._id })
+  let org;
+  if (req.currentUser?.owner) {
+    org = await AuthModel.findById(req.currentUser?.owner);
+  }
+
+  const AllEmpolyess = await AuthModel.find({ owner: req.currentUser?._id }).select("");
+
+
+  const data = await AssessmentModel.find({ $or: [{ Organization: req.currentUser?.Organization }, { Organization: org?.Organization }, { creator_id: req.currentUser?._id }, { creator_id: { $in: AllEmpolyess } }] })
     .populate([
       { path: 'Orgenization_id', select: 'Organization' },
       { path: 'Select_Tester', select: 'full_name' },
