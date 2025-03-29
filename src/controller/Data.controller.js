@@ -899,8 +899,10 @@ const BulkAsignedTask = AsyncHandler(async (req, res) => {
   });
 });
 
-const TopVulnerabilities = AsyncHandler(async (_req, res) => {
-  const data = await DataModel.find({}).exec();
+const TopVulnerabilities = AsyncHandler(async (req, res) => {
+  const data = await DataModel.find( req.currentUser?.Organization
+    ? { Organization: req.currentUser?.Organization }
+    : {}).exec();
 
   let obj = {};
 
