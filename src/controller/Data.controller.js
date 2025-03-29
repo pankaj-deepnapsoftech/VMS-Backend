@@ -67,7 +67,7 @@ const getAllData = AsyncHandler(async (req, res) => {
     .populate([
       { path: 'Assigned_To', select: 'full_name' },
       { path: 'creator_id', select: 'full_name' },
-    ])
+    ]).sort({_id:-1})
     .skip(skip)
     .limit(limits)
     .exec();
