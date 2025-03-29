@@ -28,7 +28,7 @@ const getAssessment = AsyncHandler(async (req, res) => {
   const skip = (pages - 1) * limits;
   const data = await AssessmentModel.find({ creator_id: req.currentUser?._id })
     .populate([
-      { path: 'Orgenization_id', select: 'full_name' },
+      { path: 'Orgenization_id', select: 'Organization' },
       { path: 'Select_Tester', select: 'full_name' },
       { path: 'creator_id', select: 'full_name' },
     ])
@@ -38,7 +38,7 @@ const getAssessment = AsyncHandler(async (req, res) => {
   const newData = data.map((item) => ({
     _id: item._id,
     Type_Of_Assesment: item.Type_Of_Assesment,
-    Orgenization: item.Orgenization_id.full_name,
+    Orgenization: item.Orgenization_id.Organization,
     code_Upload: item.code_Upload,
     Data_Classification: item.Data_Classification,
     Tester: item.Select_Tester.full_name,
