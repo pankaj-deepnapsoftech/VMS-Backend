@@ -143,7 +143,7 @@ const DataCounsts = AsyncHandler(async (req, res) => {
       if (status?.includes('exception')) acc.Exceptions++;
       if(item.Scan_Type?.includes('Web Application')) acc.Application++;
 
-      acc.totalData++; // Increment total data count
+      acc.totalData++; 
       return acc;
     },
     {

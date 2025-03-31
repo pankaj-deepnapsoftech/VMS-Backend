@@ -31,7 +31,8 @@ const getAssessment = AsyncHandler(async (req, res) => {
   let org;
   if (req.currentUser?.owner) {
     org = await AuthModel.findById(req.currentUser?.owner);
-  }
+  };
+  
 
   const AllEmployees = await AuthModel.find({ owner: req.currentUser?._id }).select('_id');
 
@@ -174,4 +175,20 @@ const AdminGetAssessment = AsyncHandler(async (_req,res) => {
   });
 });
 
-export { createAssessment, getAssessment, deleteAssessment, updateAssessment, tasterList, DashboardData, AdminGetAssessment };
+const testing = AsyncHandler(async (req,res) => {
+  const data =  req.currentUser;
+  
+
+  return res.status(StatusCodes.OK).json({data});
+});
+
+export { 
+  createAssessment,
+  getAssessment,
+  deleteAssessment,
+  updateAssessment,
+  tasterList,
+  DashboardData,
+  AdminGetAssessment,
+  testing
+};

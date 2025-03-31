@@ -212,9 +212,29 @@ const GetJiraManualData = AsyncHandler(async (req, res) => {
   const skip = (pages - 1) * limits;
 
   const data = await jiraModel.find({ creator_id: req.currentUser?._id }).populate({ path: "creator_id", select: "full_name" }).skip(skip).limit(limits);
+  const modify = data.map((item)=>({
+    issueType: {
+      id: item?._id,
+      description: item?.issue_Description,
+      name: item.fields?.issuetype?.name,
+    },
+    project: {
+      name: item?.Project_Name,
+      projectTypeKey: item?.Project_Type,
+    },
+    priority: item?.Priority,
+    assignee: item?.Assignee,
+    status: item?.Status,
+    Remediated_Date: item?.Remediated_Date,
+    creator: {
+      accountId: item?.creator_id,
+      emailAddress: item?.Creator_Email_Address,
+      displayName: item.fields?.creator?.displayName,
+    },
+  }));
   return res.status(StatusCodes.OK).json({
-    data
-  })
+    data:modify
+  });
 
 });
 
