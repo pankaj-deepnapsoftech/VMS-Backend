@@ -28,23 +28,9 @@ const getAssessment = AsyncHandler(async (req, res) => {
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
 
-  let org;
-  if (req.currentUser?.owner) {
-    org = await AuthModel.findById(req.currentUser?.owner);
-  };
-  
-
-  const AllEmployees = await AuthModel.find({ owner: req.currentUser?._id }).select('_id');
 
  
-  const data = await AssessmentModel.find({
-    $or: [
-      { Organization: req.currentUser?.Organization },
-      { Organization: org?.Organization },
-      { creator_id: req.currentUser?._id },
-      { creator_id: { $in: AllEmployees.map(emp => emp._id) } }, 
-    ],
-  }).populate([
+  const data = await AssessmentModel.find(req?.currentUser.role === "ClientCISO" ? {Orgenization_id:req?.currentUser?._id} : req?.currentUser.role === "ClientSME" ? {creator_id:req?.currentUser?._id} : {} ).populate([
     { path: 'Orgenization_id', select: 'Organization' }, 
     { path: 'Select_Tester', select: 'full_name' },
     { path: 'creator_id', select: 'full_name' },
@@ -175,12 +161,7 @@ const AdminGetAssessment = AsyncHandler(async (_req,res) => {
   });
 });
 
-const testing = AsyncHandler(async (req,res) => {
-  const data =  req.currentUser;
 
-  const newdata = await AssessmentModel.find({});
-  return res.status(StatusCodes.OK).json({newdata});
-});
 
 export { 
   createAssessment,
@@ -190,5 +171,4 @@ export {
   tasterList,
   DashboardData,
   AdminGetAssessment,
-  testing
 };
