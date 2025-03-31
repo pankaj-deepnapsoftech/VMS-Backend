@@ -177,9 +177,9 @@ const AdminGetAssessment = AsyncHandler(async (_req,res) => {
 
 const testing = AsyncHandler(async (req,res) => {
   const data =  req.currentUser;
-  
 
-  return res.status(StatusCodes.OK).json({data});
+  const newdata = await AssessmentModel.find({});
+  return res.status(StatusCodes.OK).json({newdata});
 });
 
 export { 

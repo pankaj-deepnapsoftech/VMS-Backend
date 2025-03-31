@@ -137,7 +137,7 @@ const LogoutUser = AsyncHandler(async (req, res) => {
 });
 
 const getlogedInUser = AsyncHandler(async (req, res) => {
-  const data = await AuthModel.findById(req?.currentUser._id).select('_id full_name email phone role Allowed_path email_verification Login_verification employee_approve');
+  const data = await AuthModel.findById(req?.currentUser._id).select('_id full_name email phone role Allowed_path email_verification Login_verification employee_approve owner');
 
   return res.status(StatusCodes.OK).json({
     message: 'user Data',
