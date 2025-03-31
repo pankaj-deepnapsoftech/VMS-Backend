@@ -8,6 +8,7 @@ import { DataModel } from '../models/Data.model.js';
 import { NotFoundError } from '../utils/customError.js';
 import { excelSerialToDate } from '../utils/excelSerialToDate.js';
 import { config } from '../config/env.config.js';
+import { InfraModel } from '../models/infra.model.js';
 
 export const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -15,6 +16,7 @@ function convertKeysToUnderscore(obj) {
   const newObj = {};
 
   for (const key in obj) {
+    // eslint-disable-next-line no-prototype-builtins
     if (obj.hasOwnProperty(key)) {
       const newKey = key.replace(/\s+/g, '_');
       newObj[newKey] = obj[key];
@@ -127,6 +129,8 @@ const DataCounsts = AsyncHandler(async (req, res) => {
       : {}
   ).exec();
 
+  const Infrastructure = (await InfraModel.find({})).length;
+
   const counts = data.reduce(
     (acc, item) => {
       const status = item.Status?.toLocaleLowerCase();
@@ -152,7 +156,7 @@ const DataCounsts = AsyncHandler(async (req, res) => {
     },
   );
 
-  return res.status(StatusCodes.OK).json(counts);
+  return res.status(StatusCodes.OK).json({...counts,Infrastructure});
 });
 
 const vulnerableItems = AsyncHandler(async (req, res) => {
