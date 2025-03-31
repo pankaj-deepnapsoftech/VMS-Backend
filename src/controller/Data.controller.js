@@ -141,6 +141,7 @@ const DataCounsts = AsyncHandler(async (req, res) => {
       if (status?.includes('closed')) acc.closed++;
       if (status?.includes('on hold')) acc.onHold++;
       if (status?.includes('exception')) acc.Exceptions++;
+      if(item.Scan_Type?.includes('Web Application')) acc.Application++;
 
       acc.totalData++; // Increment total data count
       return acc;
@@ -153,6 +154,7 @@ const DataCounsts = AsyncHandler(async (req, res) => {
       closed: 0,
       onHold: 0,
       Exceptions: 0,
+      Application:0,
     },
   );
 

@@ -23,30 +23,40 @@ const createAssessment = AsyncHandler(async (req, res) => {
 const getAssessment = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
 
+  // Parse pagination values
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
+
   let org;
   if (req.currentUser?.owner) {
     org = await AuthModel.findById(req.currentUser?.owner);
   }
 
-  const AllEmpolyess = await AuthModel.find({ owner: req.currentUser?._id }).select("");
+  const AllEmployees = await AuthModel.find({ owner: req.currentUser?._id }).select('_id');
 
-
-  const data = await AssessmentModel.find({ $or: [{ Organization: req.currentUser?.Organization }, { Organization: org?.Organization }, { creator_id: req.currentUser?._id }, { creator_id: { $in: AllEmpolyess } }] })
-    .populate([
-      { path: 'Orgenization_id', select: 'Organization' },
-      { path: 'Select_Tester', select: 'full_name' },
-      { path: 'creator_id', select: 'full_name' },
-    ])
+ 
+  const data = await AssessmentModel.find({
+    $or: [
+      { Organization: req.currentUser?.Organization },
+      { Organization: org?.Organization },
+      { creator_id: req.currentUser?._id },
+      { creator_id: { $in: AllEmployees.map(emp => emp._id) } }, 
+    ],
+  }).populate([
+    { path: 'Orgenization_id', select: 'Organization' }, 
+    { path: 'Select_Tester', select: 'full_name' },
+    { path: 'creator_id', select: 'full_name' },
+  ])
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limits);
+
+  // Map the result to a more convenient format
   const newData = data.map((item) => ({
     _id: item._id,
     Type_Of_Assesment: item.Type_Of_Assesment,
-    Orgenization: item.Orgenization_id.Organization,
+    Orgenization: item.Orgenization_id.Organization, // Ensure this is correct
     code_Upload: item.code_Upload,
     Data_Classification: item.Data_Classification,
     Tester: item.Select_Tester.full_name,
@@ -55,11 +65,14 @@ const getAssessment = AsyncHandler(async (req, res) => {
     task_start: item.task_start,
     task_end: item.task_end,
   }));
+
+  // Return the result
   return res.status(StatusCodes.OK).json({
     message: 'User Assessment',
     data: newData,
   });
 });
+
 
 const deleteAssessment = AsyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -154,4 +167,11 @@ const DashboardData = AsyncHandler(async (req, res) => {
   });
 });
 
-export { createAssessment, getAssessment, deleteAssessment, updateAssessment, tasterList, DashboardData };
+const AdminGetAssessment = AsyncHandler(async (_req,res) => {
+  const data = await AssessmentModel.find({});
+  return res.status(StatusCodes.OK).json({
+    data
+  });
+});
+
+export { createAssessment, getAssessment, deleteAssessment, updateAssessment, tasterList, DashboardData, AdminGetAssessment };
