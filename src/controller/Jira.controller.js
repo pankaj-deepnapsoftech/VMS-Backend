@@ -191,7 +191,7 @@ const jiraDataWithExcel = AsyncHandler(async (req, res) => {
   const file = req.file;
 
   if (!file) {
-    throw new NotFoundError("file is required field", "jiraDataWithExcel method")
+    throw new NotFoundError("file is required field", "jiraDataWithExcel method");
   }
 
   const data = convertExcelToJson(file.path);
@@ -201,7 +201,7 @@ const jiraDataWithExcel = AsyncHandler(async (req, res) => {
 
   return res.status(StatusCodes.CREATED).json({
     message: "data created successful"
-  })
+  });
 
 });
 
@@ -211,7 +211,7 @@ const GetJiraManualData = AsyncHandler(async (req, res) => {
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
 
-  const data = await jiraModel.find({ creator_id: req.currentUser?._id }).populate({ path: "creator_id", select: "full_name" }).skip(skip).limit(limits);
+  const data = await jiraModel.find({ creator_id: req.currentUser?._id }).populate({ path: "creator_id", select: "full_name email" }).skip(skip).limit(limits);
   const modify = data.map((item)=>({
     issueType: {
       id: item?._id,
@@ -227,9 +227,9 @@ const GetJiraManualData = AsyncHandler(async (req, res) => {
     status: item?.Status,
     Remediated_Date: item?.Remediated_Date,
     creator: {
-      accountId: item?.creator_id,
-      emailAddress: item?.Creator_Email_Address,
-      displayName: item.fields?.creator?.displayName,
+      accountId: item?.creator_id?._id,
+      emailAddress: item?.creator_id?.email,
+      displayName: item?.creator_id?.full_name,
     },
   }));
   return res.status(StatusCodes.OK).json({
@@ -248,7 +248,7 @@ const UpdateJiraManualData = AsyncHandler(async (req, res) => {
   await jiraModel.findByIdAndUpdate(id, data);
   return res.status(StatusCodes.OK).json({
     message: "Data updated Successful"
-  })
+  });
 });
 
 const DeleteJiradata = AsyncHandler(async(req,res) => {
@@ -269,7 +269,7 @@ const MultipalDataDeleteJira = AsyncHandler(async(req,res) => {
 
   const {id} = req.body;
   if(id.length <= 0){
-    throw new NotFoundError("id is Empty","MultipalDataDeleteJira method")
+    throw new NotFoundError("id is Empty","MultipalDataDeleteJira method");
   }
   await jiraModel.deleteMany({_id:{$in:id}});
   return res.status(StatusCodes.OK).json({
