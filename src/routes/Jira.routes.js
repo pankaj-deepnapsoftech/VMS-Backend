@@ -19,6 +19,6 @@ routes.route("/upload-data").post(Authentication,upload.single("excel-jira"),jir
 routes.route("/get-jira-data").get(Authentication,GetJiraManualData);
 routes.route("/update-jira-data/:id").put(Authentication,UpdateJiraManualData);
 routes.route("/delete-jira-data/:id").delete(Authentication,DeleteJiradata);
-routes.route("/multidelete-jira-data").delete(Authentication,MultipalDataDeleteJira)
+routes.route("/multidelete-jira-data").post(Authentication,MultipalDataDeleteJira)
 
 export default routes;
