@@ -1,6 +1,7 @@
 import {Schema,model} from "mongoose";
 
 const JiraSchema = new Schema({
+  issue_type:{type:String,required:true},
   issue_Description:{type:String,required:true},
   Project_Name:{type:String,required:true},
   Project_Type:{type:String,required:true},

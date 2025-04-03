@@ -216,7 +216,7 @@ const GetJiraManualData = AsyncHandler(async (req, res) => {
     issueType: {
       id: item?._id,
       description: item?.issue_Description,
-      name: item.fields?.issuetype?.name,
+      name: item?.issue_type,
     },
     project: {
       name: item?.Project_Name,
