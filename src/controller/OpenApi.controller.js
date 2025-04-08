@@ -16,3 +16,20 @@ export const ProblemSolution = AsyncHandler(async (req, res) => {
   });
 });
 
+
+export const GetGptHistory = AsyncHandler(async (req,res) => {
+  const {id} = req.params;
+  const data = await OpenAiHistoryModel.find({$or:[{task:id},{sender_id:req.currentUser?._id}]});
+  return res.status(StatusCodes.OK).json({
+    data
+  });
+});
+
+
+
+
+
+
+
+
+
