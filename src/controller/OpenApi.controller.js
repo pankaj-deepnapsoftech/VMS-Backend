@@ -26,6 +26,14 @@ export const GetGptHistory = AsyncHandler(async (req,res) => {
 });
 
 
+export const AdminGptGetHistroy = AsyncHandler(async (req,res) => {
+  const {id} = req.params;
+  const data = await OpenAiHistoryModel.find({task:id});
+  return res.status(StatusCodes.OK).json({
+    data
+  });
+});
+
 
 
 
