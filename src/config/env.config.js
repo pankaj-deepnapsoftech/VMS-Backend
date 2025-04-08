@@ -13,7 +13,8 @@ class Config {
     JIRA_API_KEY;
     CLIENT_URL_LOCAL;
     FILE_URL;
-    FILE_URL_LOCAL
+    FILE_URL_LOCAL;
+    OPENAPI_API_KEY;
     constructor(){
         this.NODE_ENV = process.env.NODE_ENV;
         this.CLIENT_URL = process.env.CLIENT_URL;
@@ -27,7 +28,7 @@ class Config {
         this.FILE_URL = process.env.FILE_URL;
         this.FILE_URL_LOCAL = process.env.FILE_URL_LOCAL;
         this.CLIENT_URL_LOCAL = process.env.CLIENT_URL_LOCAL;
-        
+        this.OPENAPI_API_KEY = process.env.OPENAPI_API_KEY;
     }
 }
 
