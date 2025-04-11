@@ -162,7 +162,13 @@ const DataCounsts = AsyncHandler(async (req, res) => {
 });
 
 const vulnerableItems = AsyncHandler(async (req, res) => {
-  const currentYear = new Date().getFullYear(); // Get the current year
+  const now = new Date();
+  const currentMonth = now.getMonth(); // 0-based index
+  const currentYear = now.getFullYear();
+
+  // Calculate the start of the 2 months ago
+  const startDate = new Date(currentYear, currentMonth - 2, 1); // Beginning of month 2 months ago
+  const endDate = new Date(currentYear, currentMonth + 1, 1); // Beginning of next month
 
   const matchCondition = req.currentUser?.Organization
     ? { Organization: req.currentUser.Organization }
@@ -173,28 +179,33 @@ const vulnerableItems = AsyncHandler(async (req, res) => {
       $match: {
         ...matchCondition,
         createdAt: {
-          $gte: new Date(currentYear, 0, 1), // Start of the current year (January 1st)
-          $lt: new Date(currentYear + 1, 0, 1), // Start of the next year (January 1st of the next year)
+          $gte: startDate,
+          $lt: endDate,
         },
       },
     },
     {
       $project: {
         month: { $month: '$createdAt' },
+        year: { $year: '$createdAt' },
         Severity: 1,
       },
     },
     {
       $group: {
-        _id: { month: '$month' },
+        _id: { month: '$month', year: '$year' },
         name: { $push: '$Severity' },
       },
     },
-    // Sort by year and month
     {
-      $sort: { '_id.month': 1 },
+      $sort: { '_id.year': 1, '_id.month': 1 },
     },
   ]);
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
 
   const newData = data.map((item) => ({
     month: months[item._id.month - 1],
@@ -210,6 +221,7 @@ const vulnerableItems = AsyncHandler(async (req, res) => {
     newData,
   });
 });
+
 
 const VulnerableRiskRating = AsyncHandler(async (req, res) => {
   const currentDate = new Date();
@@ -308,6 +320,7 @@ const NewAndCloseVulnerable = AsyncHandler(async (req, res) => {
     month: months[item._id - 1],
     Open: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('open')).length,
     Closed: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('closed')).length,
+    Exception: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('exception')).length,
   }));
 
   return res.status(StatusCodes.OK).json({
