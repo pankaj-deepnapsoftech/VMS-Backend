@@ -36,6 +36,18 @@ export const AdminGptGetHistroy = AsyncHandler(async (req,res) => {
 
 
 
+export const getExploitability = async (input,val) => {
+  const text = `${input} cvss scores in ${val} only number`;
+  const response = await GPTResponse(text);
+  const scores = response.match(/\d+(\.\d+)?/g); 
+  if (scores && scores?.length > 0) {
+    return parseFloat(scores[scores.length - 1]);
+  }
+  return  0;
+};
+
+
+
 
 
 

@@ -18,6 +18,7 @@ const DataSchema = new Schema(
     creator_id: { type: Schema.Types.ObjectId, ref: 'User' },
     client_Approve: { type: Boolean, default: false, required: true },
     docs: { type: String },
+    exploitability:{type:Number}
   },
   { timestamps: true },
 );

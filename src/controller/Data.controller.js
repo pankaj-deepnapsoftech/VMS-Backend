@@ -9,6 +9,7 @@ import { NotFoundError } from '../utils/customError.js';
 import { excelSerialToDate } from '../utils/excelSerialToDate.js';
 import { config } from '../config/env.config.js';
 import { InfraModel } from '../models/infra.model.js';
+import { getExploitability } from './OpenApi.controller.js';
 
 export const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -33,7 +34,13 @@ const CreateData = AsyncHandler(async (req, res) => {
     throw new NotFoundError('File is reqired', 'CreateData method');
   }
   const data = convertExcelToJson(file.path);
-  const newdata = data.map((item) => convertKeysToUnderscore({ ...item, creator_id: id }));
+  const newData = await Promise.all(data.map(async(item)=>{
+    const exploitability = await getExploitability(item.Title,item.Severity);
+    return {...item,exploitability};
+  }));
+
+
+  const newdata = newData.map((item) => convertKeysToUnderscore({ ...item, creator_id: id }));
   const result = await DataModel.create(newdata);
 
   fs.unlinkSync(file.path);
