@@ -34,6 +34,7 @@ import {
   ClientRiskRating,
   AdminDeferredVulnerableItems,
   ClientDeferredVulnerableItems,
+  TopExploitability,
 } from '../controller/Data.controller.js';
 import { upload } from '../config/multer.config.js';
 import { Authentication } from '../middleware/Authentication.js';
@@ -73,5 +74,6 @@ routes.route('/AdminRiskRating').get(Authentication, AdminRiskRating);
 routes.route('/ClientRiskRating').get(Authentication, ClientRiskRating);
 routes.route('/AdminDeferredVulnerableItems').get(Authentication, AdminDeferredVulnerableItems);
 routes.route('/ClientDeferredVulnerableItems').get(Authentication, ClientDeferredVulnerableItems);
+routes.route('/TopExploitability').get(Authentication, TopExploitability);
 
 export default routes;

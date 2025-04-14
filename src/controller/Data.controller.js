@@ -34,9 +34,9 @@ const CreateData = AsyncHandler(async (req, res) => {
     throw new NotFoundError('File is reqired', 'CreateData method');
   }
   const data = convertExcelToJson(file.path);
-  const newData = await Promise.all(data.map(async(item)=>{
-    const exploitability = await getExploitability(item.Title,item.Severity);
-    return {...item,exploitability};
+  const newData = await Promise.all(data.map(async (item) => {
+    const exploitability = await getExploitability(item.Title, item.Severity);
+    return { ...item, exploitability };
   }));
 
 
@@ -76,7 +76,7 @@ const getAllData = AsyncHandler(async (req, res) => {
     .populate([
       { path: 'Assigned_To', select: 'full_name' },
       { path: 'creator_id', select: 'full_name' },
-    ]).sort({_id:-1})
+    ]).sort({ _id: -1 })
     .skip(skip)
     .limit(limits)
     .exec();
@@ -148,9 +148,9 @@ const DataCounsts = AsyncHandler(async (req, res) => {
       if (status?.includes('closed')) acc.closed++;
       if (status?.includes('on hold')) acc.onHold++;
       if (status?.includes('exception')) acc.Exceptions++;
-      if(item.Scan_Type?.includes('Web Application')) acc.Application++;
+      if (item.Scan_Type?.includes('Web Application')) acc.Application++;
 
-      acc.totalData++; 
+      acc.totalData++;
       return acc;
     },
     {
@@ -161,11 +161,11 @@ const DataCounsts = AsyncHandler(async (req, res) => {
       closed: 0,
       onHold: 0,
       Exceptions: 0,
-      Application:0,
+      Application: 0,
     },
   );
 
-  return res.status(StatusCodes.OK).json({...counts,Infrastructure});
+  return res.status(StatusCodes.OK).json({ ...counts, Infrastructure });
 });
 
 const vulnerableItems = AsyncHandler(async (req, res) => {
@@ -926,33 +926,43 @@ const BulkAsignedTask = AsyncHandler(async (req, res) => {
 });
 
 const TopVulnerabilities = AsyncHandler(async (req, res) => {
-  const data = await DataModel.find( req.currentUser?.Organization
-    ? { Organization: req.currentUser?.Organization }
-    : {}).exec();
+  const data = await DataModel.find(
+    req.currentUser?.Organization
+      ? { Organization: req.currentUser.Organization }
+      : {}
+  ).exec();
 
-  let obj = {};
+  const countMap = {};
+  const detailsMap = {};
 
-  data.map((item) => {
-    if (!obj[item.Title]) {
-      obj[item.Title] = 1;
-    } else {
-      obj[item.Title] += 1;
+  data.forEach(item => {
+    const title = item.Title?.trim().toLowerCase();
+    if (!title) return;
+
+    countMap[title] = (countMap[title] || 0) + 1;
+
+    if (!detailsMap[title]) {
+      detailsMap[title] = {
+        name: item.Title.trim(),
+        exploitability: item.exploitability || 0
+      };
     }
   });
 
-  const sortedEntries = Object.entries(obj)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 5);
+  const result = Object.keys(detailsMap).map(key => ({
+    ...detailsMap[key],
+    count: countMap[key]
+  }));
 
-  let topVulnerabilities = {};
-  sortedEntries.forEach(([key, value]) => {
-    topVulnerabilities[key] = value;
-  });
+  result.sort((a, b) => b.count - a.count);
+
+  const top5 = result.slice(0, 5);
 
   return res.status(StatusCodes.OK).json({
-    data: topVulnerabilities,
+    top5Vulnerabilities: top5,
   });
 });
+
 
 const GetAssetsOpenIssues = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
@@ -1221,6 +1231,34 @@ const ClientDeferredVulnerableItems = AsyncHandler(async (req, res) => {
   });
 });
 
+const TopExploitability = AsyncHandler(async (req, res) => {
+  const data = await DataModel.find();
+  const obj = {
+    easy: 0,
+    network: 0,
+    public: 0,
+    high: 0
+  };
+
+  data.map((item) => {
+    if (item.exploitability <= 3) {
+      obj.easy += 1;
+    } else if (item.exploitability > 3 && item.exploitability <= 5) {
+      obj.network += 1;
+    } else if (item.exploitability > 5 && item.exploitability <= 7) {
+      obj.public += 1;
+    } else {
+      obj.high += 1;
+    }
+  });
+
+  return res.status(StatusCodes.OK).json({
+    data: obj,
+    length: data.length,
+  });
+
+});
+
 export {
   CreateData,
   getAllData,
@@ -1255,4 +1293,5 @@ export {
   ClientRiskRating,
   AdminDeferredVulnerableItems,
   ClientDeferredVulnerableItems,
+  TopExploitability,
 };
