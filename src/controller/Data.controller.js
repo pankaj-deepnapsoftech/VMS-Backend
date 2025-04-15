@@ -959,7 +959,7 @@ const TopVulnerabilities = AsyncHandler(async (req, res) => {
   const top5 = result.slice(0, 5);
 
   return res.status(StatusCodes.OK).json({
-    top5Vulnerabilities: top5,
+    data: top5,
   });
 });
 
@@ -1252,9 +1252,25 @@ const TopExploitability = AsyncHandler(async (req, res) => {
     }
   });
 
+  let newData = [];
+
+  for(let i in obj){
+    if(i === 'easy'){
+      newData.push({label:"Easily Exploitable",value:parseFloat(((obj[i]*100)/data.length).toFixed(2)),color:"#ef4444"});
+    } 
+    else if ( i === "network"){
+      newData.push({label:"Network Exploitable",value:parseFloat(((obj[i]*100)/data.length).toFixed(2)),color:"#f97316"});
+    }
+    else if ( i === "public"){
+      newData.push({label:"Public Exploit Available",value:parseFloat(((obj[i]*100)/data.length).toFixed(2)),color:"#eab308"});
+    }
+    else {
+      newData.push({label:"High Lateral Movement",value:parseFloat(((obj[i]*100)/data.length).toFixed(2)),color:"#f472b6"});
+    }
+  }
+
   return res.status(StatusCodes.OK).json({
-    data: obj,
-    length: data.length,
+    data:newData
   });
 
 });
