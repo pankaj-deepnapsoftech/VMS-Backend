@@ -5,6 +5,7 @@ import { JiraConfigModule } from '../models/jiraConfig.model.js';
 import { NotFoundError } from '../utils/customError.js';
 import { convertExcelToJson } from '../utils/ExcelToJson.js';
 import { jiraModel } from '../models/jiraData.model.js';
+import { jsDateFromExcelSerial } from '../utils/excelSerialToDate.js';
 
 const GetIssuesJira = AsyncHandler(async (req, res) => {
   const id = req.currentUser?._id;
@@ -62,40 +63,18 @@ const GetJIraConfig = AsyncHandler(async (req, res) => {
 
 const JIraDataViaStatus = AsyncHandler(async (req, res) => {
   const id = req.currentUser?._id;
-  const find = await JiraConfigModule.findOne({ user_id: id });
+  const find = await jiraModel.find({});
   if (!find) {
     throw new NotFoundError('api not found', 'GetIssuesJira method');
   }
-  const data = await getIssues(find.JIRA_USERNAME, find.JIRA_API_KEY, find.Domain);
-
-  const newData = data.issues.map((item) => ({
-    issueType: {
-      id: item.fields?.issuetype?.id,
-      description: item.fields?.issuetype?.description,
-      name: item.fields?.issuetype?.name,
-    },
-    project: {
-      name: item.fields?.project?.name,
-      projectTypeKey: item.fields?.project?.projectTypeKey,
-    },
-    priority: item.fields?.priority?.name,
-    assignee: item.fields?.assignee?.displayName,
-    status: item.fields?.status?.name,
-    Remediated_Date: item.fields?.customfield_10009,
-    creator: {
-      accountId: item.fields?.creator?.accountId,
-      emailAddress: item.fields?.creator?.emailAddress,
-      displayName: item.fields?.creator?.displayName,
-    },
-  }));
-
+  
   let obj = {};
 
-  newData.map((item) => {
-    if (!obj[item.status]) {
-      obj[item.status] = 1;
+  find.map((item) => {
+    if (!obj[item.Status]) {
+      obj[item.Status] = 1;
     } else {
-      obj[item.status] += 1;
+      obj[item.Status] += 1;
     }
   });
   return res.status(StatusCodes.ACCEPTED).json({
@@ -110,33 +89,10 @@ const JIraDataTargetsStatus = AsyncHandler(async (req, res) => {
   const futureDate = new Date(today);
   futureDate.setDate(today.getDate() + 7);
 
-  const id = req.currentUser?._id;
-  const find = await JiraConfigModule.findOne({ user_id: id });
-  if (!find) {
+  const data = await jiraModel.find({});
+  if (!data) {
     throw new NotFoundError('api not found', 'GetIssuesJira method');
   }
-  const data = await getIssues(find.JIRA_USERNAME, find.JIRA_API_KEY, find.Domain);
-
-  const newData = data.issues.map((item) => ({
-    issueType: {
-      id: item.fields?.issuetype?.id,
-      description: item.fields?.issuetype?.description,
-      name: item.fields?.issuetype?.name,
-    },
-    project: {
-      name: item.fields?.project?.name,
-      projectTypeKey: item.fields?.project?.projectTypeKey,
-    },
-    priority: item.fields?.priority?.name,
-    assignee: item.fields?.assignee?.displayName,
-    status: item.fields?.status?.name,
-    Remediated_Date: item.fields?.customfield_10009,
-    creator: {
-      accountId: item.fields?.creator?.accountId,
-      emailAddress: item.fields?.creator?.emailAddress,
-      displayName: item.fields?.creator?.displayName,
-    },
-  }));
 
   let noTraget = 0;
   let inFlight = 0;
@@ -144,19 +100,20 @@ const JIraDataTargetsStatus = AsyncHandler(async (req, res) => {
   let targetMet = 0;
   let ApproachingTarget = 0;
 
-  newData.forEach((item) => {
+  data.forEach((item) => {
     let taskdate;
+
     if (item?.Remediated_Date) {
-      taskdate = new Date(item?.Remediated_Date);
+      taskdate = jsDateFromExcelSerial(item.Remediated_Date);
     }
 
-    const statusLower = item.status?.toLocaleLowerCase();
-    if (isNaN(taskdate)) {
+    const statusLower = item.Status?.toLowerCase();
+
+    if (!(taskdate instanceof Date) || isNaN(taskdate)) {
       noTraget += 1;
       return;
     }
 
-    // Compare the dates using getTime() for accurate comparison
     const taskDateTime = taskdate.getTime();
     const todayTime = today.getTime();
     const futureDateTime = futureDate.getTime();
@@ -169,11 +126,11 @@ const JIraDataTargetsStatus = AsyncHandler(async (req, res) => {
       ApproachingTarget += 1;
     }
 
-    if (statusLower?.includes('closed')) {
+    if (statusLower.includes('closed')) {
       targetMet += 1;
     }
 
-    if (taskDateTime < todayTime && statusLower?.includes('open')) {
+    if (taskDateTime < todayTime && statusLower.includes('open')) {
       targetMissed += 1;
     }
   });
