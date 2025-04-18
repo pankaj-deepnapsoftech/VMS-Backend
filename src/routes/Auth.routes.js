@@ -35,6 +35,6 @@ routes.route('/verify-employee/:id').patch(Authentication, employeeVerification)
 routes.route('/all-employee').get(Authentication, GetAllEmployee);
 routes.route('/all-ciso').get(Authentication, GetAllCISO);
 routes.route('/all-sme').get(Authentication, getAllSME);
-routes.route('/all-orgs').get(Authentication, GetOrganizationData);
+routes.route('/all-orgs').get( GetOrganizationData);
 
 export default routes;
