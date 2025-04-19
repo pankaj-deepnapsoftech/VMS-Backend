@@ -37,6 +37,6 @@ routes.route('/all-employee').get(Authentication, GetAllEmployee);
 routes.route('/all-ciso').get(Authentication, GetAllCISO);
 routes.route('/all-sme').get(Authentication, getAllSME);
 routes.route('/all-orgs').get(Authentication, GetOrganizationData);
-routes.route("/path-access").get(AdminAuthentication,AddPathsAccess);
+routes.route("/path-access/:id").put(AdminAuthentication,AddPathsAccess);
 
 export default routes;

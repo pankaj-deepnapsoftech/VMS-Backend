@@ -137,7 +137,7 @@ const LogoutUser = AsyncHandler(async (req, res) => {
 });
 
 const getlogedInUser = AsyncHandler(async (req, res) => {
-  const data = await AuthModel.findById(req?.currentUser._id).select('_id full_name email phone role Allowed_path email_verification Login_verification employee_approve owner');
+  const data = await AuthModel.findById(req?.currentUser._id).select('_id full_name email phone role Allowed_path email_verification Login_verification employee_approve owner allowed_paths');
 
   return res.status(StatusCodes.OK).json({
     message: 'user Data',
@@ -247,14 +247,14 @@ const GetOrganizationData = AsyncHandler(async (_req, res) => {
 });
 
 const AddPathsAccess = AsyncHandler(async (req,res) => {
-  const {allowed_paths} = req.body;
+  const data = req.body;
   const {id} = req.params;
   const user = await AuthModel.findById(id);
   if (!user){
     throw new NotFoundError("user not found","AddPathsAccess method");
   }
-  await AuthModel.findByIdAndUpdate(id,{allowed_paths});
-  return res.status({
+  await AuthModel.findByIdAndUpdate(id,{allowed_paths:data});
+  return res.status(StatusCodes.CREATED).json({
     message:"path allowed"
   });
 });
