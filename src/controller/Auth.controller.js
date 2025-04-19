@@ -246,6 +246,19 @@ const GetOrganizationData = AsyncHandler(async (_req, res) => {
   });
 });
 
+const AddPathsAccess = AsyncHandler(async (req,res) => {
+  const {allowed_paths} = req.body;
+  const {id} = req.params;
+  const user = await AuthModel.findById(id);
+  if (!user){
+    throw new NotFoundError("user not found","AddPathsAccess method");
+  }
+  await AuthModel.findByIdAndUpdate(id,{allowed_paths});
+  return res.status({
+    message:"path allowed"
+  });
+});
+
 
 export {
   RegisterUser,
@@ -263,4 +276,5 @@ export {
   GetAllCISO,
   getAllSME,
   GetOrganizationData,
+  AddPathsAccess
 };
