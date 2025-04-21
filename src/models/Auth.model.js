@@ -1,6 +1,11 @@
 import { Schema, model } from 'mongoose';
 import { hash } from 'bcrypt';
 
+const pathsSchema = new Schema({
+  name:{type:String},
+  value:{type:String}
+});
+
 const AuthSchema = new Schema({
   full_name: { type: String, trim: true, required: true },
   email: { type: String, trim: true, required: true },
@@ -14,6 +19,7 @@ const AuthSchema = new Schema({
   Organization: { type: String },
   owner: { type: Schema.Types.ObjectId, ref: 'User' },
   email_verification: { type: Boolean, required: true, default: false },
+  allowed_paths:{type:[pathsSchema]}
 });
 
 AuthSchema.pre('save', async function (next) {

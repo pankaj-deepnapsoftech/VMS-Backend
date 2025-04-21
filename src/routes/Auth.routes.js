@@ -16,8 +16,10 @@ import {
   GetAllCISO,
   getAllSME,
   GetOrganizationData,
+  AddPathsAccess,
+  getPathAccessById,
 } from '../controller/Auth.controller.js';
-import { Authentication } from '../middleware/Authentication.js';
+import { AdminAuthentication, Authentication } from '../middleware/Authentication.js';
 
 const routes = Router();
 
@@ -36,5 +38,7 @@ routes.route('/all-employee').get(Authentication, GetAllEmployee);
 routes.route('/all-ciso').get(Authentication, GetAllCISO);
 routes.route('/all-sme').get(Authentication, getAllSME);
 routes.route('/all-orgs').get( GetOrganizationData);
+routes.route("/path-access/:id").put(AdminAuthentication,AddPathsAccess);
+routes.route("/get-access-path/:id").get(AdminAuthentication,getPathAccessById);
 
 export default routes;
