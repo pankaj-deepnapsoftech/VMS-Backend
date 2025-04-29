@@ -19,7 +19,8 @@ const AuthSchema = new Schema({
   Organization: { type: String },
   owner: { type: Schema.Types.ObjectId, ref: 'User' },
   email_verification: { type: Boolean, required: true, default: false },
-  allowed_paths:{type:[pathsSchema]}
+  allowed_paths:{type:[pathsSchema]},
+  deactivate:{type:Boolean,required:true,default:false}
 });
 
 AuthSchema.pre('save', async function (next) {

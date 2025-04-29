@@ -18,6 +18,7 @@ import {
   GetOrganizationData,
   AddPathsAccess,
   getPathAccessById,
+  DeactivatePath,
 } from '../controller/Auth.controller.js';
 import { AdminAuthentication, Authentication } from '../middleware/Authentication.js';
 
@@ -40,5 +41,6 @@ routes.route('/all-sme').get(Authentication, getAllSME);
 routes.route('/all-orgs').get( GetOrganizationData);
 routes.route("/path-access/:id").put(AdminAuthentication,AddPathsAccess);
 routes.route("/get-access-path/:id").get(AdminAuthentication,getPathAccessById);
+routes.route("/deactivate/:id").put(AdminAuthentication,DeactivatePath);
 
 export default routes;

@@ -48,6 +48,10 @@ const LoginUser = AsyncHandler(async (req, res) => {
     throw new BadRequestError('You are not verify By Admin', 'LoginUser method');
   }
 
+  if(user.deactivate){
+    throw new NotFoundError("You account suspend by admin","LoginUser method");
+  }
+
   const isPasswordCurrect = await compare(password, user.password);
   if (!isPasswordCurrect) {
     throw new BadRequestError('Wrong Password Try Again...', 'LoginUser method');
@@ -196,7 +200,7 @@ const GetAllEmployee = AsyncHandler(async (req, res) => {
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
-  const users = await AuthModel.find({ role: 'Assessor' }).select('full_name email phone role Allowed_path employee_approve').sort({ _id: -1 }).skip(skip).limit(limits);
+  const users = await AuthModel.find({ role: 'Assessor' }).select('full_name email phone role Allowed_path employee_approve deactivate').sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     message: 'all customer',
     users,
@@ -246,31 +250,46 @@ const GetOrganizationData = AsyncHandler(async (_req, res) => {
   });
 });
 
-const AddPathsAccess = AsyncHandler(async (req,res) => {
+const AddPathsAccess = AsyncHandler(async (req, res) => {
   const data = req.body;
-  const {id} = req.params;
+  const { id } = req.params;
   const user = await AuthModel.findById(id);
-  if (!user){
-    throw new NotFoundError("user not found","AddPathsAccess method");
-  }
-  await AuthModel.findByIdAndUpdate(id,{allowed_paths:data});
+  if (!user) {
+    throw new NotFoundError("user not found", "AddPathsAccess method");
+  };
+  await AuthModel.updateMany({ $or: [{ _id: id }, { owner: id }] }, { allowed_paths: data });
   return res.status(StatusCodes.CREATED).json({
-    message:"path allowed"
+    message: "path allowed"
   });
 });
 
-const getPathAccessById = AsyncHandler(async (req,res) => {
-  const {id} = req.params;
+const getPathAccessById = AsyncHandler(async (req, res) => {
+  const { id } = req.params;
   const user = await AuthModel.findById(id);
-  if(!user){
-    throw new NotFoundError("User not Exist","getPathAccessById method");
+  if (!user) {
+    throw new NotFoundError("User not Exist", "getPathAccessById method");
   }
 
   return res.status(StatusCodes.OK).json({
-    data:user.allowed_paths
+    data: user.allowed_paths
   });
 });
 
+const DeactivatePath = AsyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const {deactivate} = req.body;
+  const find = await AuthModel.findById(id);
+  if (!find) {
+    throw new NotFoundError("User not found","DeactivatePath method");
+  }
+
+  await AuthModel.findByIdAndUpdate(id,{deactivate});
+
+  return res.status(StatusCodes.ACCEPTED).json({
+    message:"User Status Change"
+  });
+
+});
 
 export {
   RegisterUser,
@@ -289,5 +308,6 @@ export {
   getAllSME,
   GetOrganizationData,
   AddPathsAccess,
-  getPathAccessById
+  getPathAccessById,
+  DeactivatePath
 };
