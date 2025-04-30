@@ -41,6 +41,6 @@ routes.route('/all-sme').get(Authentication, getAllSME);
 routes.route('/all-orgs').get( GetOrganizationData);
 routes.route("/path-access/:id").put(AdminAuthentication,AddPathsAccess);
 routes.route("/get-access-path/:id").get(AdminAuthentication,getPathAccessById);
-routes.route("/deactivate/:id").put(AdminAuthentication,DeactivatePath);
+routes.route("/deactivate/:id").put(Authentication,DeactivatePath);
 
 export default routes;

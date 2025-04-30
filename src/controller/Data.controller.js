@@ -10,6 +10,7 @@ import { excelSerialToDate } from '../utils/excelSerialToDate.js';
 import { config } from '../config/env.config.js';
 import { InfraModel } from '../models/infra.model.js';
 import { getExploitability } from './OpenApi.controller.js';
+import { AuthModel } from '../models/Auth.model.js';
 
 export const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -1232,7 +1233,14 @@ const ClientDeferredVulnerableItems = AsyncHandler(async (req, res) => {
 });
 
 const TopExploitability = AsyncHandler(async (req, res) => {
-  const data = await DataModel.find();
+  let Organization;
+  if(req?.currentUser?.Organization){
+    Organization = req?.currentUser?.Organization;
+  } else if(req?.currentUser?.owner) {
+    const data = await AuthModel.findById(req?.currentUser?.owner);
+    Organization = data?.Organization;
+  }
+  const data = await DataModel.find(Organization ? {Organization} : {});
   const obj = {
     easy: 0,
     network: 0,
