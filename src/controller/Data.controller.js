@@ -1045,8 +1045,15 @@ const UploadPdf = AsyncHandler(async (req, res) => {
   });
 });
 
-const AdminExpectionDataFiftyDays = AsyncHandler(async (_req, res) => {
+const AdminExpectionDataFiftyDays = AsyncHandler(async (req, res) => {
   // Get the current date
+  let Organization;
+  if (req?.currentUser?.Organization) {
+    Organization = req?.currentUser?.Organization;
+  } else if (req?.currentUser?.owner) {
+    const data = await AuthModel.findById(req?.currentUser?.owner);
+    Organization = data?.Organization;
+  }
   const currentDate = new Date();
 
   // First day of the current month
@@ -1062,7 +1069,13 @@ const AdminExpectionDataFiftyDays = AsyncHandler(async (_req, res) => {
   const nextMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 15);
 
   // Fetch the data for the date range between the first day of this month and the 15th day of the next month
-  const data = await DataModel.find({
+  const data = await DataModel.find(Organization ? {
+    Organization,
+    Expection_time: {
+      $gte: firstDayOfMonth.toISOString(), // Start date
+      $lte: nextMonthDate.toISOString(), // End date
+    },
+  } : {
     Expection_time: {
       $gte: firstDayOfMonth.toISOString(), // Start date
       $lte: nextMonthDate.toISOString(), // End date
@@ -1234,13 +1247,13 @@ const ClientDeferredVulnerableItems = AsyncHandler(async (req, res) => {
 
 const TopExploitability = AsyncHandler(async (req, res) => {
   let Organization;
-  if(req?.currentUser?.Organization){
+  if (req?.currentUser?.Organization) {
     Organization = req?.currentUser?.Organization;
-  } else if(req?.currentUser?.owner) {
+  } else if (req?.currentUser?.owner) {
     const data = await AuthModel.findById(req?.currentUser?.owner);
     Organization = data?.Organization;
   }
-  const data = await DataModel.find(Organization ? {Organization} : {});
+  const data = await DataModel.find(Organization ? { Organization } : {});
   const obj = {
     easy: 0,
     network: 0,
@@ -1262,23 +1275,23 @@ const TopExploitability = AsyncHandler(async (req, res) => {
 
   let newData = [];
 
-  for(let i in obj){
-    if(i === 'easy'){
-      newData.push({label:"Easily Exploitable",value:parseFloat(((obj[i]*100)/data.length).toFixed(2)),color:"#ef4444"});
-    } 
-    else if ( i === "network"){
-      newData.push({label:"Network Exploitable",value:parseFloat(((obj[i]*100)/data.length).toFixed(2)),color:"#f97316"});
+  for (let i in obj) {
+    if (i === 'easy') {
+      newData.push({ label: "Easily Exploitable", value: parseFloat(((obj[i] * 100) / data.length).toFixed(2)), color: "#ef4444" });
     }
-    else if ( i === "public"){
-      newData.push({label:"Public Exploit Available",value:parseFloat(((obj[i]*100)/data.length).toFixed(2)),color:"#eab308"});
+    else if (i === "network") {
+      newData.push({ label: "Network Exploitable", value: parseFloat(((obj[i] * 100) / data.length).toFixed(2)), color: "#f97316" });
+    }
+    else if (i === "public") {
+      newData.push({ label: "Public Exploit Available", value: parseFloat(((obj[i] * 100) / data.length).toFixed(2)), color: "#eab308" });
     }
     else {
-      newData.push({label:"High Lateral Movement",value:parseFloat(((obj[i]*100)/data.length).toFixed(2)),color:"#f472b6"});
+      newData.push({ label: "High Lateral Movement", value: parseFloat(((obj[i] * 100) / data.length).toFixed(2)), color: "#f472b6" });
     }
   }
 
   return res.status(StatusCodes.OK).json({
-    data:newData
+    data: newData
   });
 
 });
