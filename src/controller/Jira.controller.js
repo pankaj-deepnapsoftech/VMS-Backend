@@ -6,7 +6,7 @@ import { NotFoundError } from '../utils/customError.js';
 import { convertExcelToJson } from '../utils/ExcelToJson.js';
 import { jiraModel } from '../models/jiraData.model.js';
 import { jsDateFromExcelSerial } from '../utils/excelSerialToDate.js';
-
+import mongoose from 'mongoose';
 const GetIssuesJira = AsyncHandler(async (req, res) => {
   const id = req.currentUser?._id;
   const find = await JiraConfigModule.findOne({ user_id: id });
@@ -62,8 +62,14 @@ const GetJIraConfig = AsyncHandler(async (req, res) => {
 });
 
 const JIraDataViaStatus = AsyncHandler(async (req, res) => {
-  const id = req.currentUser?._id;
-  const find = await jiraModel.find({});
+  // const id = req.currentUser?._id;
+  const id = req.query.userid;
+  let find;
+  if (id){
+    find = await jiraModel.find({ creator_id: new mongoose.Types.ObjectId(id) });
+  } else {
+    find = await jiraModel.find({});
+  }
   if (!find) {
     throw new NotFoundError('api not found', 'GetIssuesJira method');
   }
@@ -89,7 +95,15 @@ const JIraDataTargetsStatus = AsyncHandler(async (req, res) => {
   const futureDate = new Date(today);
   futureDate.setDate(today.getDate() + 7);
 
-  const data = await jiraModel.find({});
+  const id = req.query.userid;
+  let data;
+  if (id) {
+    data = await jiraModel.find({ creator_id: new mongoose.Types.ObjectId(id) });
+  } else {
+    data = await jiraModel.find({});
+  }
+
+
   if (!data) {
     throw new NotFoundError('api not found', 'GetIssuesJira method');
   }

@@ -9,5 +9,4 @@ routes.route('/get').get(Authentication, GetNotification);
 routes.route('/viewed/:id').patch(Authentication, NotificationViewed);
 routes.route('/orgnization-notification').post(Authentication, orginzationNotification);
 
-
 export default routes;
