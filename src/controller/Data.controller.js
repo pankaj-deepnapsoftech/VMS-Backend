@@ -997,7 +997,6 @@ const TopVulnerabilities = AsyncHandler(async (req, res) => {
   });
 });
 
-
 const GetAssetsOpenIssues = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const { Organization } = req.body;
@@ -1034,14 +1033,21 @@ const GetOrganization = AsyncHandler(async (_req, res) => {
 });
 
 const ExpectionApprove = AsyncHandler(async (req, res) => {
-  const Organization = req.currentUser?.Organization;
   const { page, limit } = req.query;
 
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 20;
   const skip = (pages - 1) * limits;
 
-  const data = await DataModel.find({ Organization, Status: 'Exception', client_Approve: false }).sort({ _id: -1 }).skip(skip).limit(limits);
+  let Organization;
+  if (req?.currentUser?.Organization) {
+    Organization = req?.currentUser?.Organization;
+  } else if (req?.currentUser?.owner) {
+    const data = await AuthModel.findById(req?.currentUser?.owner);
+    Organization = data?.Organization;
+  }
+
+  const data = await DataModel.find(Organization ? { Organization, Status: 'Exception', client_Approve: false } :{ Status: 'Exception', client_Approve: false } ).sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.ACCEPTED).json({
     data,
   });
@@ -1054,7 +1060,15 @@ const ExpectionVerify = AsyncHandler(async (req, res) => {
   const limits = parseInt(limit) || 20;
   const skip = (pages - 1) * limits;
 
-  const data = await DataModel.find({ Status: 'Exception', client_Approve: true }).sort({ _id: -1 }).skip(skip).limit(limits);
+  let Organization = "";
+  if (req?.currentUser?.Organization) {
+    Organization = req?.currentUser?.Organization;
+  } else if (req?.currentUser?.owner) {
+    const data = await AuthModel.findById(req?.currentUser?.owner);
+    Organization = data?.Organization;
+  }
+
+  const data = await DataModel.find(Organization ? { Status: 'Exception', client_Approve: true, Organization } : {Status: 'Exception', client_Approve: true}).sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.ACCEPTED).json({
     data,
   });
@@ -1144,6 +1158,13 @@ const AdminExpectionDataFiftyDays = AsyncHandler(async (req, res) => {
 });
 
 const ClientExpectionDataFiftyDays = AsyncHandler(async (req, res) => {
+  let Organization;
+  if (req?.currentUser?.Organization) {
+    Organization = req?.currentUser?.Organization;
+  } else if (req?.currentUser?.owner) {
+    const data = await AuthModel.findById(req?.currentUser?.owner);
+    Organization = data?.Organization;
+  }
   // Get the current date
   const currentDate = new Date();
 
@@ -1160,13 +1181,18 @@ const ClientExpectionDataFiftyDays = AsyncHandler(async (req, res) => {
   const nextMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 15);
 
   // Fetch the data for the date range between the first day of this month and the 15th day of the next month
-  const data = await DataModel.find({
+  const data = await DataModel.find(Organization ? {
     Expection_time: {
       $gte: firstDayOfMonth.toISOString(),
       $lte: nextMonthDate.toISOString(),
     },
-    Organization: req.currentUser?.Organization,
-  });
+    Organization: Organization,
+  } : {
+    Expection_time: {
+      $gte: firstDayOfMonth.toISOString(),
+      $lte: nextMonthDate.toISOString(),
+    }
+  } );
 
   // Initialize counters
   let one = 0;
@@ -1221,7 +1247,14 @@ const AdminRiskRating = AsyncHandler(async (_req, res) => {
 });
 
 const ClientRiskRating = AsyncHandler(async (req, res) => {
-  const data = await DataModel.find({ Status: 'Exception', Organization: req.currentUser?.Organization });
+  let Organization = "";
+  if (req?.currentUser?.Organization) {
+    Organization = req?.currentUser?.Organization;
+  } else if (req?.currentUser?.owner) {
+    const data = await AuthModel.findById(req?.currentUser?.owner);
+    Organization = data?.Organization;
+  }
+  const data = await DataModel.find(Organization ? { Status: 'Exception', Organization } : { Status: 'Exception' } );
   let monthlyData = {};
 
   for (let item of data) {
@@ -1262,7 +1295,14 @@ const AdminDeferredVulnerableItems = AsyncHandler(async (_req, res) => {
 });
 
 const ClientDeferredVulnerableItems = AsyncHandler(async (req, res) => {
-  const data = await DataModel.find({ Status: 'Exception', Organization: req.currentUser?.Organization });
+  let Organization = "";
+  if (req?.currentUser?.Organization) {
+    Organization = req?.currentUser?.Organization;
+  } else if (req?.currentUser?.owner) {
+    const data = await AuthModel.findById(req?.currentUser?.owner);
+    Organization = data?.Organization;
+  }
+  const data = await DataModel.find(Organization ? { Status: 'Exception', Organization } :  {Status: 'Exception' });
   let obj = {};
 
   for (let item of data) {
