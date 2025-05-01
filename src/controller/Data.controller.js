@@ -131,13 +131,20 @@ const updateOneData = AsyncHandler(async (req, res) => {
 });
 
 const DataCounsts = AsyncHandler(async (req, res) => {
+  let Organization;
+  if (req?.currentUser?.Organization) {
+    Organization = req?.currentUser?.Organization;
+  } else if (req?.currentUser?.owner) {
+    const data = await AuthModel.findById(req?.currentUser?.owner);
+    Organization = data?.Organization;
+  }
   const data = await DataModel.find(
-    req.currentUser?.Organization
-      ? { Organization: req.currentUser?.Organization }
+    Organization
+      ? { Organization }
       : {}
   ).exec();
 
-  const Infrastructure = (await InfraModel.find({})).length;
+  const Infrastructure = (await InfraModel.find(req?.currentUser?.role === "Admin" ? {} : { Severity: '0' })).length;
 
   const counts = data.reduce(
     (acc, item) => {
@@ -178,14 +185,18 @@ const vulnerableItems = AsyncHandler(async (req, res) => {
   const startDate = new Date(currentYear, currentMonth - 2, 1); // Beginning of month 2 months ago
   const endDate = new Date(currentYear, currentMonth + 1, 1); // Beginning of next month
 
-  const matchCondition = req.currentUser?.Organization
-    ? { Organization: req.currentUser.Organization }
-    : {};
+  let Organization = {};
+  if (req?.currentUser?.Organization) {
+    Organization = req?.currentUser?.Organization;
+  } else if (req?.currentUser?.owner) {
+    const data = await AuthModel.findById(req?.currentUser?.owner);
+    Organization = data?.Organization;
+  }
 
   const data = await DataModel.aggregate([
     {
       $match: {
-        ...matchCondition,
+        ...Organization,
         createdAt: {
           $gte: startDate,
           $lt: endDate,
@@ -237,14 +248,18 @@ const VulnerableRiskRating = AsyncHandler(async (req, res) => {
   past90Days.setDate(currentDate.getDate() - 90); // 90 days ago
 
   // Dynamic match condition for organization filter
-  const matchCondition = req.currentUser?.Organization
-    ? { Organization: req.currentUser.Organization }
-    : {};
+  let Organization = {};
+  if (req?.currentUser?.Organization) {
+    Organization = req?.currentUser?.Organization;
+  } else if (req?.currentUser?.owner) {
+    const data = await AuthModel.findById(req?.currentUser?.owner);
+    Organization = data?.Organization;
+  }
 
   const data = await DataModel.aggregate([
     {
       $match: {
-        ...matchCondition,
+        ...Organization,
         createdAt: { $gte: past90Days, $lte: currentDate }, // Last 90 days data
       },
     },
@@ -299,14 +314,18 @@ const VulnerableRiskRating = AsyncHandler(async (req, res) => {
 const NewAndCloseVulnerable = AsyncHandler(async (req, res) => {
   const currentYear = new Date().getFullYear();
 
-  const matchCondition = req.currentUser?.Organization
-    ? { Organization: req.currentUser.Organization }
-    : {};
+  let Organization = {};
+  if (req?.currentUser?.Organization) {
+    Organization = req?.currentUser?.Organization;
+  } else if (req?.currentUser?.owner) {
+    const data = await AuthModel.findById(req?.currentUser?.owner);
+    Organization = data?.Organization;
+  }
 
   const data = await DataModel.aggregate([
     {
       $match: {
-        ...matchCondition,
+        ...Organization,
         createdAt: {
           $gte: new Date(currentYear, 0, 1),
           $lt: new Date(currentYear + 1, 0, 1),
@@ -343,10 +362,16 @@ const ClosevulnerableItems = AsyncHandler(async (req, res) => {
   const futureDate = new Date(today);
   futureDate.setDate(today.getDate() + 7);
 
+  let Organization;
+  if (req?.currentUser?.Organization) {
+    Organization = req?.currentUser?.Organization;
+  } else if (req?.currentUser?.owner) {
+    const data = await AuthModel.findById(req?.currentUser?.owner);
+    Organization = data?.Organization;
+  }
+
   const data = await DataModel.find(
-    req.currentUser?.Organization
-      ? { Organization: req.currentUser?.Organization }
-      : {}
+    Organization ? { Organization } : {}
   );
 
   let TargetMet = 0;
@@ -927,9 +952,17 @@ const BulkAsignedTask = AsyncHandler(async (req, res) => {
 });
 
 const TopVulnerabilities = AsyncHandler(async (req, res) => {
+  let Organization;
+  if (req?.currentUser?.Organization) {
+    Organization = req?.currentUser?.Organization;
+  } else if (req?.currentUser?.owner) {
+    const data = await AuthModel.findById(req?.currentUser?.owner);
+    Organization = data?.Organization;
+  }
+
   const data = await DataModel.find(
-    req.currentUser?.Organization
-      ? { Organization: req.currentUser.Organization }
+  Organization
+      ? { Organization}
       : {}
   ).exec();
 
