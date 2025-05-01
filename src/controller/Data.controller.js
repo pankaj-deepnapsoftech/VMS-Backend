@@ -961,8 +961,8 @@ const TopVulnerabilities = AsyncHandler(async (req, res) => {
   }
 
   const data = await DataModel.find(
-  Organization
-      ? { Organization}
+    Organization
+      ? { Organization }
       : {}
   ).exec();
 
