@@ -1,4 +1,3 @@
-import { timeStamp } from 'console';
 import { Schema, model } from 'mongoose';
 
 const InfraSchema = new Schema(
@@ -11,6 +10,7 @@ const InfraSchema = new Schema(
     Description: { type: String, required: true },
     Impact: { type: String, required: true },
     Solution: { type: String, required: true },
+    CI: { type: String, required: true }
   },
   { timestamps: true },
 );

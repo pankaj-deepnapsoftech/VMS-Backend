@@ -16,17 +16,15 @@ const CreateInfra = AsyncHandler(async (req, res) => {
 });
 
 const Graph1CIClasses = AsyncHandler(async (req, res) => {
-  const data = await InfraModel.find({});
+  const data = await InfraModel.find({}).limit(10);
 
   let newData = {};
 
-  data.map((item) => {
-    if (!newData[item.CI]) {
-      newData[item.CI] = 1;
-    } else {
-      newData[item.CI] += 1;
+  for (let i of data) {
+    if (i.CI) {
+      newData[i.CI] = (newData[i.CI] || 0) + 1;
     }
-  });
+  }
 
   return res.status(StatusCodes.OK).json({
     data: newData,
