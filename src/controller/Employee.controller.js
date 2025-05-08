@@ -10,7 +10,7 @@ const GetEmployeeTasksData = AsyncHandler(async (req, res) => {
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
   const id = req.currentUser?._id;
-  const find = await DataModel.find({ Assigned_To: id }).populate({ path: 'creator_id', select: 'full_name' }).sort({ _id: -1 }).skip(skip).limit(limits);
+  const find = await DataModel.find({ $or:[{Assigned_To: id },{creator_id:id}]}).populate({ path: 'creator_id', select: 'full_name' }).sort({ _id: -1 }).skip(skip).limit(limits);
 
   const data = find.map((item) => ({
     _id: item._id,
