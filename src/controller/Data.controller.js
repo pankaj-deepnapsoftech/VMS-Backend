@@ -242,7 +242,6 @@ const vulnerableItems = AsyncHandler(async (req, res) => {
   });
 });
 
-
 const VulnerableRiskRating = AsyncHandler(async (req, res) => {
   const currentDate = new Date();
   const past90Days = new Date();
@@ -310,7 +309,6 @@ const VulnerableRiskRating = AsyncHandler(async (req, res) => {
 
   return res.status(StatusCodes.OK).json(response);
 });
-
 
 const NewAndCloseVulnerable = AsyncHandler(async (req, res) => {
   const currentYear = new Date().getFullYear();
