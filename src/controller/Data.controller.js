@@ -20,8 +20,11 @@ function convertKeysToUnderscore(obj) {
   for (const key in obj) {
     // eslint-disable-next-line no-prototype-builtins
     if (obj.hasOwnProperty(key)) {
-      const newKey = key.replace(/\s+/g, '_');
-      newObj[newKey] = obj[key];
+      const newKey = key.replace(/\s+/g, '_'); // Replace spaces with underscores
+      const value = obj[key];
+
+      // Trim only if value is a string (to avoid errors with non-string data)
+      newObj[newKey] = typeof(value) === 'string' ? value.trim() : value;
     }
   }
 
@@ -60,7 +63,8 @@ const AddNewData = AsyncHandler(async (req, res) => {
       throw new NotFoundError('all fileld is required', 'AddNewData method');
     }
   }
-  await DataModel.create({...data,creator_id: id});
+  const exploitability = await getExploitability(data.Title, data.Severity);
+  await DataModel.create({ ...data, creator_id: id, exploitability });
 
   return res.status(StatusCodes.OK).json({
     message: 'data created',
@@ -183,63 +187,74 @@ const vulnerableItems = AsyncHandler(async (req, res) => {
   const currentYear = now.getFullYear();
 
   // Calculate the start of the 2 months ago
-  const startDate = new Date(currentYear, currentMonth - 2, 1); // Beginning of month 2 months ago
+  const startMonth = currentMonth - 2;
+  const startYear = startMonth < 0 ? currentYear - 1 : currentYear; // Adjust year if month is negative
+  const startDate = new Date(startYear, startMonth < 0 ? 12 + startMonth : startMonth, 1); // Beginning of month 2 months ago
+  
+  // Calculate the start of the next month
   const endDate = new Date(currentYear, currentMonth + 1, 1); // Beginning of next month
-
+  
   let Organization = {};
   if (req?.currentUser?.Organization) {
-    Organization = req?.currentUser?.Organization;
+    Organization = {Organization:req?.currentUser?.Organization};
   } else if (req?.currentUser?.owner) {
     const data = await AuthModel.findById(req?.currentUser?.owner);
-    Organization = data?.Organization;
+    Organization = {Organization:data?.Organization};
   }
 
-  const data = await DataModel.aggregate([
-    {
-      $match: {
-        ...Organization,
-        createdAt: {
-          $gte: startDate,
-          $lt: endDate,
+  try {
+    const data = await DataModel.aggregate([
+      {
+        $match: {
+          ...Organization,
+          createdAt: {
+            $gte: startDate,
+            $lt: endDate,
+          },
         },
       },
-    },
-    {
-      $project: {
-        month: { $month: '$createdAt' },
-        year: { $year: '$createdAt' },
-        Severity: 1,
+      {
+        $project: {
+          month: { $month: '$createdAt' },
+          year: { $year: '$createdAt' },
+          Severity: 1,
+        },
       },
-    },
-    {
-      $group: {
-        _id: { month: '$month', year: '$year' },
-        name: { $push: '$Severity' },
+      {
+        $group: {
+          _id: { month: '$month', year: '$year' },
+          name: { $push: '$Severity' },
+        },
       },
-    },
-    {
-      $sort: { '_id.year': 1, '_id.month': 1 },
-    },
-  ]);
+      {
+        $sort: { '_id.year': 1, '_id.month': 1 },
+      },
+    ]);
 
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
 
-  const newData = data.map((item) => ({
-    month: months[item._id.month - 1],
-    year: item._id.year,
-    high: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('high')).length,
-    low: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('low')).length,
-    informational: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('informational')).length,
-    medium: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('medium')).length,
-    critical: item.name.filter((ite) => ite?.toLocaleLowerCase().includes('critical')).length,
-  }));
+    const newData = data.map((item) => ({
+      month: months[item._id.month - 1], // Adjust month index for 0-based array
+      year: item._id.year,
+      high: item.name.filter((severity) => severity?.toLocaleLowerCase().includes('high')).length,
+      low: item.name.filter((severity) => severity?.toLocaleLowerCase().includes('low')).length,
+      informational: item.name.filter((severity) => severity?.toLocaleLowerCase().includes('informational')).length,
+      medium: item.name.filter((severity) => severity?.toLocaleLowerCase().includes('medium')).length,
+      critical: item.name.filter((severity) => severity?.toLocaleLowerCase().includes('critical')).length,
+    }));
 
-  return res.status(StatusCodes.OK).json({
-    newData,
-  });
+    return res.status(StatusCodes.OK).json({
+      newData,
+    });
+  } catch (error) {
+    console.error("Error in aggregation:", error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      error: "An error occurred while fetching vulnerable items.",
+    });
+  }
 });
 
 const VulnerableRiskRating = AsyncHandler(async (req, res) => {
@@ -250,10 +265,10 @@ const VulnerableRiskRating = AsyncHandler(async (req, res) => {
   // Dynamic match condition for organization filter
   let Organization = {};
   if (req?.currentUser?.Organization) {
-    Organization = req?.currentUser?.Organization;
+    Organization = {Organization:req?.currentUser?.Organization};
   } else if (req?.currentUser?.owner) {
     const data = await AuthModel.findById(req?.currentUser?.owner);
-    Organization = data?.Organization;
+    Organization = {Organization:data?.Organization};
   }
 
   const data = await DataModel.aggregate([
@@ -315,10 +330,10 @@ const NewAndCloseVulnerable = AsyncHandler(async (req, res) => {
 
   let Organization = {};
   if (req?.currentUser?.Organization) {
-    Organization = req?.currentUser?.Organization;
+    Organization = {Organization:req?.currentUser?.Organization};
   } else if (req?.currentUser?.owner) {
     const data = await AuthModel.findById(req?.currentUser?.owner);
-    Organization = data?.Organization;
+    Organization = {Organization:data?.Organization};
   }
 
   const data = await DataModel.aggregate([
@@ -1046,7 +1061,7 @@ const ExpectionApprove = AsyncHandler(async (req, res) => {
     Organization = data?.Organization;
   }
 
-  const data = await DataModel.find(Organization ? { Organization, Status: 'Exception', client_Approve: false } :{ Status: 'Exception', client_Approve: false } ).sort({ _id: -1 }).skip(skip).limit(limits);
+  const data = await DataModel.find(Organization ? { Organization, Status: 'Exception', client_Approve: false } : { Status: 'Exception', client_Approve: false }).sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.ACCEPTED).json({
     data,
   });
@@ -1067,7 +1082,7 @@ const ExpectionVerify = AsyncHandler(async (req, res) => {
     Organization = data?.Organization;
   }
 
-  const data = await DataModel.find(Organization ? { Status: 'Exception', client_Approve: true, Organization } : {Status: 'Exception', client_Approve: true}).sort({ _id: -1 }).skip(skip).limit(limits);
+  const data = await DataModel.find(Organization ? { Status: 'Exception', client_Approve: true, Organization } : { Status: 'Exception', client_Approve: true }).sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.ACCEPTED).json({
     data,
   });
@@ -1191,7 +1206,7 @@ const ClientExpectionDataFiftyDays = AsyncHandler(async (req, res) => {
       $gte: firstDayOfMonth.toISOString(),
       $lte: nextMonthDate.toISOString(),
     }
-  } );
+  });
 
   // Initialize counters
   let one = 0;
@@ -1253,7 +1268,7 @@ const ClientRiskRating = AsyncHandler(async (req, res) => {
     const data = await AuthModel.findById(req?.currentUser?.owner);
     Organization = data?.Organization;
   }
-  const data = await DataModel.find(Organization ? { Status: 'Exception', Organization } : { Status: 'Exception' } );
+  const data = await DataModel.find(Organization ? { Status: 'Exception', Organization } : { Status: 'Exception' });
   let monthlyData = {};
 
   for (let item of data) {
@@ -1301,7 +1316,7 @@ const ClientDeferredVulnerableItems = AsyncHandler(async (req, res) => {
     const data = await AuthModel.findById(req?.currentUser?.owner);
     Organization = data?.Organization;
   }
-  const data = await DataModel.find(Organization ? { Status: 'Exception', Organization } :  {Status: 'Exception' });
+  const data = await DataModel.find(Organization ? { Status: 'Exception', Organization } : { Status: 'Exception' });
   let obj = {};
 
   for (let item of data) {

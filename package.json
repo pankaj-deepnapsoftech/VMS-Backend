@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "start": "pm2 start src/index.js --name vapt.backend",
+    "vapt-start": "pm2 start src/index.js --name vapt.backend",
     "stop": "pm2 stop src/index.js",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "swagger": "node src/swagger.js"
+    "swagger": "node src/swagger.js",
+    "securen-start":"pm2 start src/index.js --name securend-backend"
   },
   "keywords": [],
   "author": "nitin",

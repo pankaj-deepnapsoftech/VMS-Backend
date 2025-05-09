@@ -36,7 +36,7 @@ const GetEmployeeTasksData = AsyncHandler(async (req, res) => {
 
 const TasksCardData = AsyncHandler(async (req, res) => {
   const id = req.currentUser?._id;
-  const data = await DataModel.find({ Assigned_To: id });
+  const data = await DataModel.find({$or:[{Assigned_To: id },{creator_id:id}]});
 
   const totalData = data.length;
   const inProgress = data.filter((item) => item.Status?.toLocaleLowerCase().includes('open')).length;

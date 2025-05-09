@@ -3,6 +3,7 @@ import { DataModel } from '../models/Data.model.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
 import moment from 'moment';
 import { months } from './Data.controller.js';
+import { AuthModel } from '../models/Auth.model.js';
 
 const OrgnizationData = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
@@ -11,7 +12,15 @@ const OrgnizationData = AsyncHandler(async (req, res) => {
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
 
-  const find = await DataModel.find({ Organization: req.currentUser?.Organization }).sort({ id: -1 }).skip(skip).limit(limits);
+  let Organization;
+  if (req?.currentUser?.Organization) {
+    Organization = req?.currentUser?.Organization ;
+  } else if (req?.currentUser?.owner) {
+    const data = await AuthModel.findById(req?.currentUser?.owner);
+    Organization = data?.Organization ;
+  }
+
+  const find = await DataModel.find({ Organization:Organization }).sort({ id: -1 }).skip(skip).limit(limits);
 
   const data = find.map((item) => ({
     _id: item._id,
