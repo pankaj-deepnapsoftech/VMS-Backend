@@ -48,8 +48,8 @@ const LoginUser = AsyncHandler(async (req, res) => {
     throw new BadRequestError('You are not verify By Admin', 'LoginUser method');
   }
 
-  if(user.deactivate){
-    throw new NotFoundError("You account suspend by admin","LoginUser method");
+  if (user.deactivate) {
+    throw new NotFoundError("You account suspend by admin", "LoginUser method");
   }
 
   const isPasswordCurrect = await compare(password, user.password);
@@ -141,7 +141,7 @@ const LogoutUser = AsyncHandler(async (req, res) => {
 });
 
 const getlogedInUser = AsyncHandler(async (req, res) => {
-  const data = await AuthModel.findById(req?.currentUser._id).select('_id full_name email phone role Allowed_path email_verification Login_verification employee_approve owner allowed_paths');
+  const data = await AuthModel.findById(req?.currentUser._id).select('_id full_name email phone role Allowed_path email_verification Login_verification employee_approve owner allowed_paths mustChangePassword');
 
   return res.status(StatusCodes.OK).json({
     message: 'user Data',
@@ -168,7 +168,7 @@ const ChnagePassword = AsyncHandler(async (req, res) => {
   if (!isPasswordCurrect) {
     throw new BadRequestError('Wrong Password Try Again...', 'ChnagePassword method');
   }
-  await AuthModel.findByIdAndUpdate(user._id, { password: newPassword });
+  await AuthModel.findByIdAndUpdate(user._id, { password: newPassword, mustChangePassword: true });
   return res.status(StatusCodes.OK).json({
     message: 'New password created Successful',
   });
@@ -277,16 +277,16 @@ const getPathAccessById = AsyncHandler(async (req, res) => {
 
 const DeactivatePath = AsyncHandler(async (req, res) => {
   const { id } = req.params;
-  const {deactivate} = req.body;
+  const { deactivate } = req.body;
   const find = await AuthModel.findById(id);
   if (!find) {
-    throw new NotFoundError("User not found","DeactivatePath method");
+    throw new NotFoundError("User not found", "DeactivatePath method");
   }
 
-  await AuthModel.findByIdAndUpdate(id,{deactivate});
+  await AuthModel.findByIdAndUpdate(id, { deactivate });
 
   return res.status(StatusCodes.ACCEPTED).json({
-    message:"User Status Change"
+    message: "User Status Change"
   });
 
 });

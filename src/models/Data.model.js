@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose';
 
 const DataSchema = new Schema(
   {
-    Organization: { type: String },
+    Organization: { type: String, trim:true},
     Application_Name: { type: String },
     Title: { type: String },
     Vulnerability_Classification: { type: String },
