@@ -35,6 +35,7 @@ import {
   AdminDeferredVulnerableItems,
   ClientDeferredVulnerableItems,
   TopExploitability,
+  DeleteManyData,
 } from '../controller/Data.controller.js';
 import { upload } from '../config/multer.config.js';
 import { Authentication } from '../middleware/Authentication.js';
@@ -46,6 +47,7 @@ routes.route('/add-new').post(Authentication, AddNewData);
 routes.route('/get').get(Authentication, getAllData);
 routes.route('/assign/:id').patch(Authentication,AssignedTask);
 routes.route('/delete/:id').delete(Authentication, DeteleOneData);
+routes.route("/delete-many").post(Authentication,DeleteManyData);
 routes.route('/update/:id').patch(Authentication, updateOneData);
 routes.route('/total-data-count').get(Authentication, DataCounsts);
 routes.route('/vulnerableItems').get(Authentication, vulnerableItems);

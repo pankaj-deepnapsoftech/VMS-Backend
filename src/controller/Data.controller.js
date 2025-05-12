@@ -122,6 +122,18 @@ const DeteleOneData = AsyncHandler(async (req, res) => {
   });
 });
 
+const DeleteManyData = AsyncHandler(async (req,res) => {
+  const {ids} = req.body;
+  const find = await DataModel.find({_id:{$in:ids}});
+  if(!find){
+    throw new NotFoundError("data not found","DeleteManyData method()");
+  }
+  await DataModel.deleteMany({_id:{$in:ids}});
+  return res.status(200).json({
+    message:"Data deleted"
+  });
+});
+
 const updateOneData = AsyncHandler(async (req, res) => {
   const { id } = req.params;
   const update = req.body;
@@ -1386,6 +1398,7 @@ const TopExploitability = AsyncHandler(async (req, res) => {
 export {
   CreateData,
   getAllData,
+  DeleteManyData,
   DeteleOneData,
   updateOneData,
   DataCounsts,

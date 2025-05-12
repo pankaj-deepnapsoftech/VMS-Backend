@@ -26,9 +26,11 @@ app.use(
     origin: config.NODE_ENV !== 'development' ? config.CLIENT_URL : config.CLIENT_URL_LOCAL,
     methods: ['POST', 'PUT', 'PATCH', 'DELETE', 'GET', 'OPTIONS'],
     credentials: true,
+    preflightContinue:true
   }),
 );
 
+app.set('trust proxy', 1);
 app.get('/health', Health);
 app.use('/api/v1', MainRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
