@@ -5,7 +5,7 @@ import { DbConnection } from './connections/MongoDb.js';
 import { app } from './server.js';
 
 // securend port
-const SERVER_PORT = 8092;
+const SERVER_PORT = 8092; 
 
 //  vapt.deepmart.shop port
 // const SERVER_PORT = 8078;
