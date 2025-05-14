@@ -10,3 +10,26 @@ export const AddBookDemo = AsyncHandler(async (req, res) => {
     data:result
   });
 });
+
+
+
+export const getBookedDemo = AsyncHandler(async (req,res) => {
+  const {limit,page} = req.query;
+  const limits = parseInt(limit) || 10;
+  const pages = parseInt(page) || 1;
+  const skip = (pages -1 ) * limits;
+  const data = await BookDemoModal.find({}).sort({_id:-1}).skip(skip).limit(limits);
+  return res.status(StatusCodes.OK).json({
+    message:"data",
+    data
+  });
+    
+});
+
+
+
+
+
+
+
+

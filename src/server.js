@@ -26,7 +26,6 @@ app.use(
     origin: config.NODE_ENV !== 'development' ? config.CLIENT_URL : config.CLIENT_URL_LOCAL,
     methods: ['POST', 'PUT', 'PATCH', 'DELETE', 'GET', 'OPTIONS'],
     credentials: true,
-    preflightContinue:true
   }),
 );
 
