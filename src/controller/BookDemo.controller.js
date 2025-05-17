@@ -12,8 +12,6 @@ export const AddBookDemo = AsyncHandler(async (req, res) => {
   });
 });
 
-
-
 export const getBookedDemo = AsyncHandler(async (req, res) => {
   const { limit, page } = req.query;
   const limits = parseInt(limit) || 10;

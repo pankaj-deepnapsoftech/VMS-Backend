@@ -12,3 +12,24 @@ export const jsDateFromExcelSerial = (serial) => {
   const utc_value = utc_days * 86400;
   return new Date(utc_value * 1000);
 };
+
+
+export function convertKeysToUnderscore(obj) {
+  const newObj = {};
+
+  for (const key in obj) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (obj.hasOwnProperty(key)) {
+      const newKey = key.replace(/\s+/g, '_'); // Replace spaces with underscores
+      const value = obj[key];
+
+      // Trim only if value is a string (to avoid errors with non-string data)
+      newObj[newKey] = typeof(value) === 'string' ? value.trim() : value;
+    }
+  }
+
+  return newObj;
+}
+
+
+

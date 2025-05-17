@@ -6,7 +6,7 @@ import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { convertExcelToJson } from '../utils/ExcelToJson.js';
 import { DataModel } from '../models/Data.model.js';
 import { NotFoundError } from '../utils/customError.js';
-import { excelSerialToDate } from '../utils/excelSerialToDate.js';
+import { convertKeysToUnderscore, excelSerialToDate } from '../utils/excelSerialToDate.js';
 import { config } from '../config/env.config.js';
 import { InfraModel } from '../models/infra.model.js';
 import { getExploitability } from './OpenApi.controller.js';
@@ -14,22 +14,7 @@ import { AuthModel } from '../models/Auth.model.js';
 
 export const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-function convertKeysToUnderscore(obj) {
-  const newObj = {};
 
-  for (const key in obj) {
-    // eslint-disable-next-line no-prototype-builtins
-    if (obj.hasOwnProperty(key)) {
-      const newKey = key.replace(/\s+/g, '_'); // Replace spaces with underscores
-      const value = obj[key];
-
-      // Trim only if value is a string (to avoid errors with non-string data)
-      newObj[newKey] = typeof(value) === 'string' ? value.trim() : value;
-    }
-  }
-
-  return newObj;
-}
 
 const CreateData = AsyncHandler(async (req, res) => {
   const id = req.currentUser?._id;

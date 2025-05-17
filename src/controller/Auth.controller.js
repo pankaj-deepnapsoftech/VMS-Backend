@@ -291,6 +291,11 @@ const DeactivatePath = AsyncHandler(async (req, res) => {
 
 });
 
+const ContactSendMail = AsyncHandler(async (req,res) => {
+  const data = req.body;
+  SendMail("",data,{email:data.email,});
+});
+
 export {
   RegisterUser,
   LoginUser,
@@ -309,5 +314,6 @@ export {
   GetOrganizationData,
   AddPathsAccess,
   getPathAccessById,
-  DeactivatePath
+  DeactivatePath,
+  ContactSendMail
 };
