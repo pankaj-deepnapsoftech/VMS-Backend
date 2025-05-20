@@ -291,9 +291,22 @@ const DeactivatePath = AsyncHandler(async (req, res) => {
 
 });
 
-const ContactSendMail = AsyncHandler(async (req,res) => {
+const ContactSendMail = AsyncHandler(async (req, _res) => {
   const data = req.body;
-  SendMail("",data,{email:data.email,});
+  SendMail("", data, { email: data.email, });
+});
+
+const UpdateUserProfile = AsyncHandler(async (req, res) => {
+  const data = req.body;
+  const {id} = req.params;
+  const user = await AuthModel.findById(id);
+  if(!user){
+    throw new NotFoundError("Something Went Wrong","UpdateUserProfile method");
+  }
+  await AuthModel.findByIdAndUpdate(id,data);
+  return res.status(StatusCodes.ACCEPTED).json({
+    message:"User Profile Update"
+  });
 });
 
 export {
@@ -315,5 +328,6 @@ export {
   AddPathsAccess,
   getPathAccessById,
   DeactivatePath,
-  ContactSendMail
+  ContactSendMail,
+  UpdateUserProfile
 };

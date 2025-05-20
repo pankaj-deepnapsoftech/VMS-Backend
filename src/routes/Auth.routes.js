@@ -19,6 +19,7 @@ import {
   AddPathsAccess,
   getPathAccessById,
   DeactivatePath,
+  UpdateUserProfile,
 } from '../controller/Auth.controller.js';
 import { AdminAuthentication, Authentication } from '../middleware/Authentication.js';
 
@@ -28,6 +29,7 @@ routes.route('/create').post(RegistrationValidate, RegisterUser);
 routes.route('/login').post(LoginValidate, LoginUser);
 routes.route('/verify-otp').post(Authentication, VerifyOTP);
 routes.route('/verify-email').post(VerifyEmailValidate, VerifyEmail);
+routes.route("/update/:id").put(Authentication,UpdateUserProfile);
 routes.route('/reset-password/:token').post(ResetPasswordValidate, ResetPassword);
 routes.route('/logout').get(Authentication, LogoutUser);
 routes.route('/logedin-user').get(Authentication, getlogedInUser);

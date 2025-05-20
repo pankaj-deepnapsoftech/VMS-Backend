@@ -38,6 +38,7 @@ app.all('*', (_req, _res, next) => {
   next(new NotFoundError('Path Not Found ', 'server.js '));
 });
 
+
 app.use((error, _req, res, next) => {
   if (error.name === 'JsonWebTokenError') {
     res.status(StatusCodes.BAD_GATEWAY).json({ message: 'Invalid Token', status: 'error' });
