@@ -1,6 +1,5 @@
 import { Schema, model } from "mongoose";
 
-
 const AssertSchema = new Schema({
   Unit_ID: String,
   Custodian_name: String,
@@ -30,6 +29,3 @@ const AssertSchema = new Schema({
 });
 
 export const AssertModel = model("Assert",AssertSchema);
-
-
-
