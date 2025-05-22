@@ -11,6 +11,7 @@ import ReportRoutes from './Report.routes.js';
 import InfraRoutes from './infra.routes.js';
 import OpenAiRoutes from "./OpenApi.routes.js";
 import BookDemoRoutes from "./BookDemo.routes.js";
+import AssertInventry from "./AssetEnventry.routes.js";
 
 const routes = Router();
 
@@ -25,5 +26,6 @@ routes.use('/report', ReportRoutes);
 routes.use('/infra', InfraRoutes);
 routes.use("/open-api",OpenAiRoutes);
 routes.use("/book-demo",BookDemoRoutes);
+routes.use("/assert",AssertInventry);
 
 export default routes;

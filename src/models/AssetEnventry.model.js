@@ -25,6 +25,7 @@ const AssertSchema = new Schema({
   GLBA:String,
   GDPR:String,
   CUI:String,
+  "800_171":String,
   Creator:{type:Schema.Types.ObjectId,ref:"User"},
 });
 

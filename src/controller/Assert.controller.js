@@ -23,3 +23,4 @@ export const CreateAssert = AsyncHandler(async (req,res)=>{
     message: 'Data created Successful'
   });
 });
+
