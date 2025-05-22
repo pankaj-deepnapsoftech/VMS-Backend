@@ -1,7 +1,7 @@
 import fs from "fs";
 import { StatusCodes } from "http-status-codes";
 
-import { AssertModel } from "../models/AssetEnventry.model.js";
+import { AssertModel } from "../models/AssetInventory.model.js";
 import { AsyncHandler } from "../utils/AsyncHandler.js";
 import { NotFoundError } from "../utils/customError.js";
 import { convertKeysToUnderscore } from "../utils/excelSerialToDate.js";
