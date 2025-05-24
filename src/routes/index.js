@@ -12,6 +12,8 @@ import InfraRoutes from './infra.routes.js';
 import OpenAiRoutes from "./OpenApi.routes.js";
 import BookDemoRoutes from "./BookDemo.routes.js";
 import AssertInventry from "./AssetEnventry.routes.js";
+import DeviceRoutes from "./Device.routes.js";
+import AssetDataRoutes from "./AssetData.routes.js";
 
 const routes = Router();
 
@@ -24,8 +26,11 @@ routes.use('/notification', NotificationRoutes);
 routes.use('/org', OrginizationRoutes);
 routes.use('/report', ReportRoutes);
 routes.use('/infra', InfraRoutes);
-routes.use("/open-api",OpenAiRoutes);
-routes.use("/book-demo",BookDemoRoutes);
-routes.use("/assert",AssertInventry);
+routes.use("/open-api", OpenAiRoutes);
+routes.use("/book-demo", BookDemoRoutes);
+routes.use("/assert", AssertInventry);
+routes.use("/device", DeviceRoutes);
+routes.use("/asset-data",AssetDataRoutes);
+
 
 export default routes;

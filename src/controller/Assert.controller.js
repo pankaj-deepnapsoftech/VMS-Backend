@@ -60,7 +60,7 @@ export const UpdateAssertData = AsyncHandler(async (req, res) => {
 });
 
 export const DeleteAssertData = AsyncHandler(async (req, res) => {
-  const { id } = req.body;
+  const { id } = req.params;
   const find = await AssertModel.findById(id);
   if (!find) {
     throw new NotFoundError("Data is Already deleted", "UpdateAssertData");
