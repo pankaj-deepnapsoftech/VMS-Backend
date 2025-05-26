@@ -7,7 +7,9 @@ const AssetRiskRatingSchema = new Schema({
   PII:String,
   business_sensitive:String,
   regulation:String,
-  security_category:String,
+  security_confidentiality:String,
+  security_integrity:String,
+  security_availability:String,
   overall_risk_rating:String,
 });
 
