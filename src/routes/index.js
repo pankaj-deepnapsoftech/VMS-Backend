@@ -14,6 +14,7 @@ import BookDemoRoutes from "./BookDemo.routes.js";
 import AssertInventry from "./AssetEnventry.routes.js";
 import DeviceRoutes from "./Device.routes.js";
 import AssetDataRoutes from "./AssetData.routes.js";
+import AssertRiskRatingRoutes from "./AssetRiskRating.routes.js";
 
 const routes = Router();
 
@@ -31,6 +32,7 @@ routes.use("/book-demo", BookDemoRoutes);
 routes.use("/assert", AssertInventry);
 routes.use("/device", DeviceRoutes);
 routes.use("/asset-data",AssetDataRoutes);
+routes.use("/asset-risk-rating",AssertRiskRatingRoutes);
 
 
 export default routes;
