@@ -4,6 +4,7 @@ import { ReportModel } from '../models/Report.model.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { NotFoundError } from '../utils/customError.js';
 import fs from 'fs';
+import { AuthModel } from '../models/Auth.model.js';
 
 const CreateReport = AsyncHandler(async (req, res) => {
   if (!req?.file) {
@@ -89,11 +90,18 @@ const UpdateReport = AsyncHandler(async (req, res) => {
 const OrganizationReport = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
 
+  let Organization;
+  if (req?.currentUser?.Organization) {
+    Organization = req?.currentUser?._id;
+  } else if (!req?.currentUser?.Organization) {
+    Organization = req?.currentUser?.owner;
+  }
+
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
 
-  const data = await ReportModel.find({ Organization: req.currentUser?._id }).populate({ path: 'creator', select: 'full_name role' }).sort({ _id: -1 }).skip(skip).limit(limits);
+  const data = await ReportModel.find({Organization}).populate({ path: 'creator', select: 'full_name role' }).sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     data,
   });
