@@ -185,6 +185,7 @@ const ResendOtp = AsyncHandler(async (req, res) => {
   await AuthModel.findByIdAndUpdate(req?.currentUser._id, {
     otp,
     otp_expire: expiresAt,
+    email_verification:false
   });
 
   await SendMail('EmailVerification.ejs', { userName: result.full_name, otpCode: otp }, { email: result.email, subject: 'Email Verification' });
@@ -291,19 +292,23 @@ const DeactivatePath = AsyncHandler(async (req, res) => {
 
 });
 
-const ContactSendMail = AsyncHandler(async (req, _res) => {
-  const data = req.body;
-  SendMail("", data, { email: data.email, });
-});
-
 const UpdateUserProfile = AsyncHandler(async (req, res) => {
   const data = req.body;
   const {id} = req.params;
+
+  const date = Date.now();
+  if (date > req?.currentUser.otp_expire) {
+    throw new BadRequestError('OTP is expire', 'UpdateUserProfile method');
+  }
+  if (data.otp !== req?.currentUser.otp) {
+    throw new BadRequestError('Wrong OTP', 'UpdateUserProfile method');
+  }
+
   const user = await AuthModel.findById(id);
   if(!user){
     throw new NotFoundError("Something Went Wrong","UpdateUserProfile method");
   }
-  await AuthModel.findByIdAndUpdate(id,data);
+  await AuthModel.findByIdAndUpdate(id,{...data,otp:null,otp_expire:null,email_verification:true});
   return res.status(StatusCodes.ACCEPTED).json({
     message:"User Profile Update"
   });
@@ -328,6 +333,5 @@ export {
   AddPathsAccess,
   getPathAccessById,
   DeactivatePath,
-  ContactSendMail,
   UpdateUserProfile
 };
