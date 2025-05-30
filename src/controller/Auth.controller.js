@@ -176,6 +176,8 @@ const ChnagePassword = AsyncHandler(async (req, res) => {
 
 const ResendOtp = AsyncHandler(async (req, res) => {
   const { otp, expiresAt } = generateOTP();
+  
+  const email = req.body.email ;
 
   const result = await AuthModel.findById(req?.currentUser._id);
   if (!result) {
@@ -188,10 +190,10 @@ const ResendOtp = AsyncHandler(async (req, res) => {
     email_verification:false
   });
 
-  await SendMail('EmailVerification.ejs', { userName: result.full_name, otpCode: otp }, { email: result.email, subject: 'Email Verification' });
+  await SendMail('EmailVerification.ejs', { userName: result.full_name, otpCode: otp }, { email: email, subject: 'Email Verification' });
 
   return res.status(StatusCodes.OK).json({
-    message: 'OTP send again Your E-mail',
+    message: 'OTP send in Your E-mail',
   });
 });
 
@@ -297,22 +299,10 @@ const UpdateUserProfile = AsyncHandler(async (req, res) => {
   const {id} = req.params;
 
   const date = Date.now();
-  const { otp, expiresAt } = generateOTP();
-
-  if(date > req?.currentUser.otp_expire || !req?.currentUser.otp_expire){
-    await AuthModel.findByIdAndUpdate(req?.currentUser._id, {
-      otp,
-      otp_expire: expiresAt,
-      email_verification:false
-    });
-
-    await SendMail('EmailVerification.ejs', { userName: data.email, otpCode: otp }, { email: data.email, subject: 'Email Verification' });
-
-    return res.status(StatusCodes.OK).json({
-      message: 'OTP send again Your E-mail',
-    });
-  };
-
+  if (date > req?.currentUser.otp_expire) {
+    throw new BadRequestError('OTP is expire', 'VerifyOTP method');
+  }
+ 
 
   if (data.otp !== req?.currentUser.otp) {
     throw new BadRequestError('Wrong OTP', 'UpdateUserProfile method');
@@ -345,7 +335,7 @@ const ResetPasswordByQuestions = AsyncHandler(async(req,res)=>{
   const token = PasswordSignToken({ email });
 
   const resetLink = `${config.NODE_ENV !== "development" ? config.CLIENT_URL : config.CLIENT_URL_LOCAL}/reset-password?token=${token}&verification=true&testing=true`;
-  res.redirect(resetLink);
+  return res.redirect(resetLink);
 });
 
 export {
