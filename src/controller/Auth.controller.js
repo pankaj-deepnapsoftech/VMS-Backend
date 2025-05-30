@@ -297,9 +297,23 @@ const UpdateUserProfile = AsyncHandler(async (req, res) => {
   const {id} = req.params;
 
   const date = Date.now();
-  if (date > req?.currentUser.otp_expire) {
-    throw new BadRequestError('OTP is expire', 'UpdateUserProfile method');
-  }
+  const { otp, expiresAt } = generateOTP();
+
+  if(date > req?.currentUser.otp_expire || !req?.currentUser.otp_expire){
+    await AuthModel.findByIdAndUpdate(req?.currentUser._id, {
+      otp,
+      otp_expire: expiresAt,
+      email_verification:false
+    });
+
+    await SendMail('EmailVerification.ejs', { userName: data.email, otpCode: otp }, { email: data.email, subject: 'Email Verification' });
+
+    return res.status(StatusCodes.OK).json({
+      message: 'OTP send again Your E-mail',
+    });
+  };
+
+
   if (data.otp !== req?.currentUser.otp) {
     throw new BadRequestError('Wrong OTP', 'UpdateUserProfile method');
   }
@@ -318,12 +332,20 @@ const ResetPasswordByQuestions = AsyncHandler(async(req,res)=>{
   const data = req.body;
   const {email} = req.params;
   const user = await AuthModel.findOne({email});
+
   if(!user){
     throw new NotFoundError("User Not Found","ResetPasswordByQuestions method");
   };
-  const filter = user.security_questions.find((item) => item === data);
-  console.log(filter);
-  
+  const filter = user.security_questions.find((item) => item.question.includes(data.question) && item.answer === data.answer);
+
+  if(!filter){
+    throw new NotFoundError("Wrong Answer","ResetPasswordByQuestions method");
+  }
+
+  const token = PasswordSignToken({ email });
+
+  const resetLink = `${config.NODE_ENV !== "development" ? config.CLIENT_URL : config.CLIENT_URL_LOCAL}/reset-password?token=${token}&verification=true&testing=true`;
+  res.redirect(resetLink);
 });
 
 export {
