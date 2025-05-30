@@ -314,6 +314,18 @@ const UpdateUserProfile = AsyncHandler(async (req, res) => {
   });
 });
 
+const ResetPasswordByQuestions = AsyncHandler(async(req,res)=>{
+  const data = req.body;
+  const {email} = req.params;
+  const user = await AuthModel.findOne({email});
+  if(!user){
+    throw new NotFoundError("User Not Found","ResetPasswordByQuestions method");
+  };
+  const filter = user.security_questions.find((item) => item === data);
+  console.log(filter);
+  
+});
+
 export {
   RegisterUser,
   LoginUser,
@@ -333,5 +345,6 @@ export {
   AddPathsAccess,
   getPathAccessById,
   DeactivatePath,
-  UpdateUserProfile
+  UpdateUserProfile,
+  ResetPasswordByQuestions
 };

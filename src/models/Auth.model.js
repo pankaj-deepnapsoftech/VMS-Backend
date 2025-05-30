@@ -6,6 +6,11 @@ const pathsSchema = new Schema({
   value:{type:String}
 });
 
+const securityQuestion = new Schema({
+  question:{type:String,required:true},
+  answer:{type:String,required:true}
+});
+
 const AuthSchema = new Schema({
   full_name: { type: String, trim: true, required: true },
   email: { type: String, trim: true, required: true },
@@ -21,7 +26,8 @@ const AuthSchema = new Schema({
   email_verification: { type: Boolean, required: true, default: false },
   allowed_paths:{type:[pathsSchema]},
   deactivate:{type:Boolean,required:true,default:false},
-  mustChangePassword:{type:Boolean,required:true,default:false}
+  mustChangePassword:{type:Boolean,required:true,default:false},
+  security_questions:{type:[securityQuestion]}
 });
 
 AuthSchema.pre('save', async function (next) {
