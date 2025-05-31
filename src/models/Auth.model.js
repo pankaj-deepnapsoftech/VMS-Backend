@@ -49,4 +49,16 @@ AuthSchema.pre('findOneAndUpdate', async function (next) {
   }
 });
 
+
+
 export const AuthModel = model('User', AuthSchema);
+
+
+const PasswordHistory = new Schema({
+  user_id:{type:Schema.Types.ObjectId,ref:"User",required:true},
+  password:{type:String,required:true}
+},{
+  timestamps:true
+});
+
+export const PasswordHistoryModel = model("PasswordHistory",PasswordHistory);

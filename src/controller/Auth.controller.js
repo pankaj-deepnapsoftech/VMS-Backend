@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import { AuthModel } from '../models/Auth.model.js';
+import { AuthModel, PasswordHistoryModel } from '../models/Auth.model.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { BadRequestError, NotFoundError } from '../utils/customError.js';
 import { generateOTP } from '../utils/otpGenerater.js';
@@ -25,6 +25,9 @@ const RegisterUser = AsyncHandler(async (req, res) => {
     otp_expire: expiresAt,
     Organization: data?.Organization || '',
   });
+
+  await PasswordHistoryModel.create({ user_id: result._id, password: result.password });
+
   result.password = null;
   result.otp = null;
   const token = SignToken({ email: result.email, id: result._id });
@@ -123,7 +126,8 @@ const ResetPassword = AsyncHandler(async (req, res) => {
 
   const { password } = req.body;
   const { email } = VerifyToken(token);
-  await AuthModel.findOneAndUpdate({ email }, { password });
+  const result = await AuthModel.findOneAndUpdate({ email }, { $set: { password } }, { new: true });
+  await PasswordHistoryModel.create({ user_id: result._id, password: result.password });
   return res.status(StatusCodes.OK).json({
     message: 'Password reset successful',
   });
@@ -168,7 +172,8 @@ const ChnagePassword = AsyncHandler(async (req, res) => {
   if (!isPasswordCurrect) {
     throw new BadRequestError('Wrong Password Try Again...', 'ChnagePassword method');
   }
-  await AuthModel.findByIdAndUpdate(user._id, { password: newPassword, mustChangePassword: true });
+  const result = await AuthModel.findByIdAndUpdate(user._id, {password: newPassword, mustChangePassword: true}, { new: true });
+  await PasswordHistoryModel.create({ user_id: result._id, password: result.password });
   return res.status(StatusCodes.OK).json({
     message: 'New password created Successful',
   });
@@ -176,8 +181,8 @@ const ChnagePassword = AsyncHandler(async (req, res) => {
 
 const ResendOtp = AsyncHandler(async (req, res) => {
   const { otp, expiresAt } = generateOTP();
-  
-  const email = req.body.email ;
+
+  const email = req.body.email;
 
   const result = await AuthModel.findById(req?.currentUser._id);
   if (!result) {
@@ -187,7 +192,7 @@ const ResendOtp = AsyncHandler(async (req, res) => {
   await AuthModel.findByIdAndUpdate(req?.currentUser._id, {
     otp,
     otp_expire: expiresAt,
-    email_verification:false
+    email_verification: false
   });
 
   await SendMail('EmailVerification.ejs', { userName: result.full_name, otpCode: otp }, { email: email, subject: 'Email Verification' });
@@ -296,46 +301,49 @@ const DeactivatePath = AsyncHandler(async (req, res) => {
 
 const UpdateUserProfile = AsyncHandler(async (req, res) => {
   const data = req.body;
-  const {id} = req.params;
+  const { id } = req.params;
 
   const date = Date.now();
   if (date > req?.currentUser.otp_expire) {
     throw new BadRequestError('OTP is expire', 'VerifyOTP method');
   }
- 
+
 
   if (data.otp !== req?.currentUser.otp) {
     throw new BadRequestError('Wrong OTP', 'UpdateUserProfile method');
   }
 
   const user = await AuthModel.findById(id);
-  if(!user){
-    throw new NotFoundError("Something Went Wrong","UpdateUserProfile method");
+  if (!user) {
+    throw new NotFoundError("Something Went Wrong", "UpdateUserProfile method");
   }
-  await AuthModel.findByIdAndUpdate(id,{...data,otp:null,otp_expire:null,email_verification:true});
+  await AuthModel.findByIdAndUpdate(id, { ...data, otp: null, otp_expire: null, email_verification: true });
   return res.status(StatusCodes.ACCEPTED).json({
-    message:"User Profile Update"
+    message: "User Profile Update"
   });
 });
 
-const ResetPasswordByQuestions = AsyncHandler(async(req,res)=>{
+const ResetPasswordByQuestions = AsyncHandler(async (req, res) => {
   const data = req.body;
-  const {email} = req.params;
-  const user = await AuthModel.findOne({email});
+  const { email } = req.params;
+  const user = await AuthModel.findOne({ email });
 
-  if(!user){
-    throw new NotFoundError("User Not Found","ResetPasswordByQuestions method");
+  if (!user) {
+    throw new NotFoundError("User Not Found", "ResetPasswordByQuestions method");
   };
   const filter = user.security_questions.find((item) => item.question.includes(data.question) && item.answer === data.answer);
 
-  if(!filter){
-    throw new NotFoundError("Wrong Answer","ResetPasswordByQuestions method");
+  if (!filter) {
+    throw new NotFoundError("Wrong Answer", "ResetPasswordByQuestions method");
   }
 
   const token = PasswordSignToken({ email });
 
   const resetLink = `${config.NODE_ENV !== "development" ? config.CLIENT_URL : config.CLIENT_URL_LOCAL}/reset-password?token=${token}&verification=true&testing=true`;
-  return res.redirect(resetLink);
+
+  return res.status(StatusCodes.OK).json({
+    resetLink
+  });
 });
 
 export {
