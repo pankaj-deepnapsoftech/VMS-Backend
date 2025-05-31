@@ -7,6 +7,7 @@ import { PasswordSignToken, SignToken, VerifyToken } from '../utils/jwtTokens.js
 import { SendMail } from '../utils/SendMain.js';
 import { compare } from 'bcrypt';
 import { config } from '../config/env.config.js';
+import { AlreadyUsePassword } from '../helper/AlreadyUsedPassword.js';
 
 const RegisterUser = AsyncHandler(async (req, res) => {
   const data = req.body;
@@ -15,6 +16,10 @@ const RegisterUser = AsyncHandler(async (req, res) => {
 
   if (existUser) {
     throw new BadRequestError('User already exist', 'RegisterUser method');
+  }
+
+  if(data.password.toLowerCase().includes(data.full_name.toLowerCase())){
+    throw new BadRequestError('Password Do not Contain your name', 'RegisterUser method');
   }
 
   const { otp, expiresAt } = generateOTP();
@@ -126,7 +131,13 @@ const ResetPassword = AsyncHandler(async (req, res) => {
 
   const { password } = req.body;
   const { email } = VerifyToken(token);
-  const result = await AuthModel.findOneAndUpdate({ email }, { $set: { password } }, { new: true });
+  const user = await AuthModel.findOne({email});
+  
+  const alreadyUsed = await AlreadyUsePassword(user._id,password);
+  if(alreadyUsed){
+    throw new BadRequestError('This password is Already Used', 'ChnagePassword method');
+  }
+  const result = await AuthModel.findOneAndUpdate({ email }, { password }, { new: true });
   await PasswordHistoryModel.create({ user_id: result._id, password: result.password });
   return res.status(StatusCodes.OK).json({
     message: 'Password reset successful',
@@ -171,6 +182,11 @@ const ChnagePassword = AsyncHandler(async (req, res) => {
   const isPasswordCurrect = await compare(oldPassword, user.password);
   if (!isPasswordCurrect) {
     throw new BadRequestError('Wrong Password Try Again...', 'ChnagePassword method');
+  }
+
+  const alreadyUsed = await AlreadyUsePassword(req?.currentUser._id,newPassword);
+  if(alreadyUsed){
+    throw new BadRequestError('This password is Already Used', 'ChnagePassword method');
   }
   const result = await AuthModel.findByIdAndUpdate(user._id, {password: newPassword, mustChangePassword: true}, { new: true });
   await PasswordHistoryModel.create({ user_id: result._id, password: result.password });

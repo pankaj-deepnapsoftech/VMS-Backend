@@ -2,6 +2,7 @@
 // local imports
 import { config } from './config/env.config.js';
 import { DbConnection } from './connections/MongoDb.js';
+import { AlreadyUsePassword } from './helper/AlreadyUsedPassword.js';
 import { app } from './server.js';
 
 // securend port
@@ -18,3 +19,4 @@ const startServer = async () => {
 };
 
 startServer();
+
