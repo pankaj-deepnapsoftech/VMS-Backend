@@ -21,6 +21,7 @@ import {
   DeactivatePath,
   UpdateUserProfile,
   ResetPasswordByQuestions,
+  DeleteUser,
 } from '../controller/Auth.controller.js';
 import { AdminAuthentication, Authentication } from '../middleware/Authentication.js';
 
@@ -46,5 +47,6 @@ routes.route("/path-access/:id").put(AdminAuthentication,AddPathsAccess);
 routes.route("/get-access-path/:id").get(AdminAuthentication,getPathAccessById);
 routes.route("/deactivate/:id").put(Authentication,DeactivatePath);
 routes.route("/reset-password-question/:email").put(ResetPasswordByQuestions);
+routes.route("/delete-user/:id").put(Authentication,DeleteUser);
 
 export default routes;

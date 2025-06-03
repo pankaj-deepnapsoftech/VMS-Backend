@@ -11,15 +11,15 @@ const CreateReport = AsyncHandler(async (req, res) => {
     throw new NotFoundError('File is Required Field', 'Create Report method');
   }
   let file = req.file;
-  const { Organization } = req.body;
+  const { Organization,Type_Of_Assesment } = req.body;
 
-  if (!Organization?.trim()) {
+  if (!Organization?.trim() || !Type_Of_Assesment?.trim()) {
     fs.unlinkSync(file.path);
-    throw new NotFoundError(' Select Organization', 'Create Report method');
+    throw new NotFoundError('data not be empty', 'Create Report method');
   }
 
   file = config.NODE_ENV !== 'development' ? `${config.FILE_URL}/file/${file.filename}` : `${config.FILE_URL_LOCAL}/file/${file.filename}`;
-  await ReportModel.create({ file, creator: req.currentUser?._id, Organization });
+  await ReportModel.create({ file, creator: req.currentUser?._id, Organization,Type_Of_Assesment });
   return res.status(StatusCodes.CREATED).json({
     message: 'Report Upload Successful',
   });

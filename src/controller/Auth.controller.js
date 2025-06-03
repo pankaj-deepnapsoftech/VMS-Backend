@@ -258,10 +258,16 @@ const GetAllCISO = AsyncHandler(async (req, res) => {
 const getAllSME = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
 
+  let owner;
+  if(req.currentUser?.role === "ClientCISO"){
+    owner = req.currentUser?._id;
+  }
+
+
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
-  const find = await AuthModel.find({ owner: req.currentUser?._id }).select('full_name email phone role Allowed_path employee_approve').sort({ _id: -1 }).skip(skip).limit(limits);
+  const find = await AuthModel.find(owner ? {owner} : {role:"ClientSME"}).select('full_name email phone role Allowed_path employee_approve owner').populate({path:"owner",select:"Organization"}).sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     data: find,
   });
@@ -362,6 +368,19 @@ const ResetPasswordByQuestions = AsyncHandler(async (req, res) => {
   });
 });
 
+const DeleteUser = AsyncHandler(async(req,res) => {
+  const {id} = req.params;
+  const user = await AuthModel.findById(id);
+  if(!user){
+    throw new BadRequestError("User is alrady deleted","DeleteUser method");
+  };
+  await AuthModel.findByIdAndDelete(id);
+  await PasswordHistoryModel.deleteMany({user_id:id});
+  return res.status(StatusCodes.OK).json({
+    message:""
+  });
+});
+
 export {
   RegisterUser,
   LoginUser,
@@ -382,5 +401,6 @@ export {
   getPathAccessById,
   DeactivatePath,
   UpdateUserProfile,
-  ResetPasswordByQuestions
+  ResetPasswordByQuestions,
+  DeleteUser
 };
