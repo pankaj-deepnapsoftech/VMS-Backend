@@ -377,9 +377,23 @@ const DeleteUser = AsyncHandler(async(req,res) => {
   await AuthModel.findByIdAndDelete(id);
   await PasswordHistoryModel.deleteMany({user_id:id});
   return res.status(StatusCodes.OK).json({
-    message:""
+    message:"User Deleted Successful"
   });
 });
+
+const NewUser = AsyncHandler(async (req,res) => {
+  const {page,limit} = req.query;
+  const pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 10;
+  const skip = (pages - 1) * limit;
+  const users = await AuthModel.find({role:""}).select("full_name email phone ").sort({_id:-1}).skip(skip).limit(limits);
+  return res.status(StatusCodes.OK).json({
+    message:"data",
+    data:users
+  });
+
+});
+
 
 export {
   RegisterUser,
@@ -402,5 +416,6 @@ export {
   DeactivatePath,
   UpdateUserProfile,
   ResetPasswordByQuestions,
-  DeleteUser
+  DeleteUser,
+  NewUser
 };
