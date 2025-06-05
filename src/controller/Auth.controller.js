@@ -18,7 +18,7 @@ const RegisterUser = AsyncHandler(async (req, res) => {
     throw new BadRequestError('User already exist', 'RegisterUser method');
   }
 
-  if(data.password.toLowerCase().includes(data.full_name.toLowerCase())){
+  if (data.password.toLowerCase().includes(data.full_name.toLowerCase())) {
     throw new BadRequestError('Password Do not Contain your name', 'RegisterUser method');
   }
 
@@ -57,7 +57,7 @@ const LoginUser = AsyncHandler(async (req, res) => {
   }
 
   if (user.deactivate) {
-    throw new NotFoundError("You account suspend by admin", "LoginUser method");
+    throw new NotFoundError('You account suspend by admin', 'LoginUser method');
   }
 
   const isPasswordCurrect = await compare(password, user.password);
@@ -131,10 +131,10 @@ const ResetPassword = AsyncHandler(async (req, res) => {
 
   const { password } = req.body;
   const { email } = VerifyToken(token);
-  const user = await AuthModel.findOne({email});
-  
-  const alreadyUsed = await AlreadyUsePassword(user._id,password);
-  if(alreadyUsed){
+  const user = await AuthModel.findOne({ email });
+
+  const alreadyUsed = await AlreadyUsePassword(user._id, password);
+  if (alreadyUsed) {
     throw new BadRequestError('This password is Already Used', 'ChnagePassword method');
   }
   const result = await AuthModel.findOneAndUpdate({ email }, { password }, { new: true });
@@ -156,7 +156,9 @@ const LogoutUser = AsyncHandler(async (req, res) => {
 });
 
 const getlogedInUser = AsyncHandler(async (req, res) => {
-  const data = await AuthModel.findById(req?.currentUser._id).select('_id full_name email phone role Allowed_path email_verification Login_verification employee_approve owner allowed_paths mustChangePassword');
+  const data = await AuthModel.findById(req?.currentUser._id).select(
+    '_id full_name email phone role Allowed_path email_verification Login_verification employee_approve owner allowed_paths mustChangePassword',
+  );
 
   return res.status(StatusCodes.OK).json({
     message: 'user Data',
@@ -184,11 +186,11 @@ const ChnagePassword = AsyncHandler(async (req, res) => {
     throw new BadRequestError('Wrong Password Try Again...', 'ChnagePassword method');
   }
 
-  const alreadyUsed = await AlreadyUsePassword(req?.currentUser._id,newPassword);
-  if(alreadyUsed){
+  const alreadyUsed = await AlreadyUsePassword(req?.currentUser._id, newPassword);
+  if (alreadyUsed) {
     throw new BadRequestError('This password is Already Used', 'ChnagePassword method');
   }
-  const result = await AuthModel.findByIdAndUpdate(user._id, {password: newPassword, mustChangePassword: true}, { new: true });
+  const result = await AuthModel.findByIdAndUpdate(user._id, { password: newPassword, mustChangePassword: true }, { new: true });
   await PasswordHistoryModel.create({ user_id: result._id, password: result.password });
   return res.status(StatusCodes.OK).json({
     message: 'New password created Successful',
@@ -208,7 +210,7 @@ const ResendOtp = AsyncHandler(async (req, res) => {
   await AuthModel.findByIdAndUpdate(req?.currentUser._id, {
     otp,
     otp_expire: expiresAt,
-    email_verification: false
+    email_verification: false,
   });
 
   await SendMail('EmailVerification.ejs', { userName: result.full_name, otpCode: otp }, { email: email, subject: 'Email Verification' });
@@ -225,7 +227,11 @@ const GetAllEmployee = AsyncHandler(async (req, res) => {
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
   // const users = await AuthModel.find({ role: 'Assessor' }).select('full_name email phone role Allowed_path employee_approve deactivate').sort({ _id: -1 }).skip(skip).limit(limits);
-  const users = await AuthModel.find({}).select('full_name email phone role Allowed_path employee_approve deactivate').sort({ _id: -1 }).skip(skip).limit(limits);
+  const users = await AuthModel.find({ role: { $ne: 'Admin' } })
+    .select('full_name email phone role Allowed_path employee_approve deactivate')
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limits);
   return res.status(StatusCodes.OK).json({
     message: 'all customer',
     users,
@@ -260,15 +266,19 @@ const getAllSME = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
 
   let owner;
-  if(req.currentUser?.role === "ClientCISO"){
+  if (req.currentUser?.role === 'ClientCISO') {
     owner = req.currentUser?._id;
   }
-
 
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
-  const find = await AuthModel.find(owner ? {owner} : {role:"ClientSME"}).select('full_name email phone role Allowed_path employee_approve owner').populate({path:"owner",select:"Organization"}).sort({ _id: -1 }).skip(skip).limit(limits);
+  const find = await AuthModel.find(owner ? { owner } : { role: 'ClientSME' })
+    .select('full_name email phone role Allowed_path employee_approve owner')
+    .populate({ path: 'owner', select: 'Organization' })
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limits);
   return res.status(StatusCodes.OK).json({
     data: find,
   });
@@ -286,11 +296,11 @@ const AddPathsAccess = AsyncHandler(async (req, res) => {
   const { id } = req.params;
   const user = await AuthModel.findById(id);
   if (!user) {
-    throw new NotFoundError("user not found", "AddPathsAccess method");
-  };
+    throw new NotFoundError('user not found', 'AddPathsAccess method');
+  }
   await AuthModel.updateMany({ $or: [{ _id: id }, { owner: id }] }, { allowed_paths: data });
   return res.status(StatusCodes.CREATED).json({
-    message: "path allowed"
+    message: 'path allowed',
   });
 });
 
@@ -298,11 +308,11 @@ const getPathAccessById = AsyncHandler(async (req, res) => {
   const { id } = req.params;
   const user = await AuthModel.findById(id);
   if (!user) {
-    throw new NotFoundError("User not Exist", "getPathAccessById method");
+    throw new NotFoundError('User not Exist', 'getPathAccessById method');
   }
 
   return res.status(StatusCodes.OK).json({
-    data: user.allowed_paths
+    data: user.allowed_paths,
   });
 });
 
@@ -311,15 +321,14 @@ const DeactivatePath = AsyncHandler(async (req, res) => {
   const { deactivate } = req.body;
   const find = await AuthModel.findById(id);
   if (!find) {
-    throw new NotFoundError("User not found", "DeactivatePath method");
+    throw new NotFoundError('User not found', 'DeactivatePath method');
   }
 
   await AuthModel.findByIdAndUpdate(id, { deactivate });
 
   return res.status(StatusCodes.ACCEPTED).json({
-    message: "User Status Change"
+    message: 'User Status Change',
   });
-
 });
 
 const UpdateUserProfile = AsyncHandler(async (req, res) => {
@@ -331,18 +340,17 @@ const UpdateUserProfile = AsyncHandler(async (req, res) => {
     throw new BadRequestError('OTP is expire', 'VerifyOTP method');
   }
 
-
   if (data.otp !== req?.currentUser.otp) {
     throw new BadRequestError('Wrong OTP', 'UpdateUserProfile method');
   }
 
   const user = await AuthModel.findById(id);
   if (!user) {
-    throw new NotFoundError("Something Went Wrong", "UpdateUserProfile method");
+    throw new NotFoundError('Something Went Wrong', 'UpdateUserProfile method');
   }
   await AuthModel.findByIdAndUpdate(id, { ...data, otp: null, otp_expire: null, email_verification: true });
   return res.status(StatusCodes.ACCEPTED).json({
-    message: "User Profile Update"
+    message: 'User Profile Update',
   });
 });
 
@@ -352,49 +360,47 @@ const ResetPasswordByQuestions = AsyncHandler(async (req, res) => {
   const user = await AuthModel.findOne({ email });
 
   if (!user) {
-    throw new NotFoundError("User Not Found", "ResetPasswordByQuestions method");
-  };
+    throw new NotFoundError('User Not Found', 'ResetPasswordByQuestions method');
+  }
   const filter = user.security_questions.find((item) => item.question.includes(data.question) && item.answer === data.answer);
 
   if (!filter) {
-    throw new NotFoundError("Wrong Answer", "ResetPasswordByQuestions method");
+    throw new NotFoundError('Wrong Answer', 'ResetPasswordByQuestions method');
   }
 
   const token = PasswordSignToken({ email });
 
-  const resetLink = `${config.NODE_ENV !== "development" ? config.CLIENT_URL : config.CLIENT_URL_LOCAL}/reset-password?token=${token}&verification=true&testing=true`;
+  const resetLink = `${config.NODE_ENV !== 'development' ? config.CLIENT_URL : config.CLIENT_URL_LOCAL}/reset-password?token=${token}&verification=true&testing=true`;
 
   return res.status(StatusCodes.OK).json({
-    resetLink
+    resetLink,
   });
 });
 
-const DeleteUser = AsyncHandler(async(req,res) => {
-  const {id} = req.params;
+const DeleteUser = AsyncHandler(async (req, res) => {
+  const { id } = req.params;
   const user = await AuthModel.findById(id);
-  if(!user){
-    throw new BadRequestError("User is alrady deleted","DeleteUser method");
-  };
+  if (!user) {
+    throw new BadRequestError('User is alrady deleted', 'DeleteUser method');
+  }
   await AuthModel.findByIdAndDelete(id);
-  await PasswordHistoryModel.deleteMany({user_id:id});
+  await PasswordHistoryModel.deleteMany({ user_id: id });
   return res.status(StatusCodes.OK).json({
-    message:"User Deleted Successful"
+    message: 'User Deleted Successful',
   });
 });
 
-const NewUser = AsyncHandler(async (req,res) => {
-  const {page,limit} = req.query;
+const NewUser = AsyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limit;
-  const users = await AuthModel.find({role:""}).select("full_name email phone ").sort({_id:-1}).skip(skip).limit(limits);
+  const users = await AuthModel.find({ role: '' }).select('full_name email phone ').sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
-    message:"data",
-    data:users
+    message: 'data',
+    data: users,
   });
-
 });
-
 
 export {
   RegisterUser,
@@ -418,5 +424,5 @@ export {
   UpdateUserProfile,
   ResetPasswordByQuestions,
   DeleteUser,
-  NewUser
+  NewUser,
 };
