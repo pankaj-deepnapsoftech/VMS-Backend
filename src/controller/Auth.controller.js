@@ -224,7 +224,8 @@ const GetAllEmployee = AsyncHandler(async (req, res) => {
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
-  const users = await AuthModel.find({ role: 'Assessor' }).select('full_name email phone role Allowed_path employee_approve deactivate').sort({ _id: -1 }).skip(skip).limit(limits);
+  // const users = await AuthModel.find({ role: 'Assessor' }).select('full_name email phone role Allowed_path employee_approve deactivate').sort({ _id: -1 }).skip(skip).limit(limits);
+  const users = await AuthModel.find({}).select('full_name email phone role Allowed_path employee_approve deactivate').sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     message: 'all customer',
     users,

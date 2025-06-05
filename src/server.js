@@ -9,7 +9,7 @@ import { Health } from './controller/health.controller.js';
 import MainRoutes from './routes/index.js';
 import { CustomError, NotFoundError } from './utils/customError.js';
 import swaggerUi from 'swagger-ui-express';
-import swaggerDocument from './swagger.json' assert { type: 'json' };
+import swaggerDocument from './swagger.json' with { type: 'json' };
 import helmet from 'helmet';
 import hpp from 'hpp';
 
