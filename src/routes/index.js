@@ -16,6 +16,7 @@ import DeviceRoutes from "./Device.routes.js";
 import AssetDataRoutes from "./AssetData.routes.js";
 import AssertRiskRatingRoutes from "./AssetRiskRating.routes.js";
 import TanentRoutes from "./Tenant.routes.js";
+import RoleRoutes from "./Role.Routes.js" ;
 import { Authentication } from '../middleware/Authentication.js';
 
 const routes = Router();
@@ -36,6 +37,7 @@ routes.use("/device", DeviceRoutes);
 routes.use("/asset-data",AssetDataRoutes);
 routes.use("/asset-risk-rating",AssertRiskRatingRoutes);
 routes.use("/tenant",Authentication,TanentRoutes);
+routes.use("/role",Authentication,RoleRoutes);
 
 
 export default routes;

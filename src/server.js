@@ -9,7 +9,6 @@ import { Health } from './controller/health.controller.js';
 import MainRoutes from './routes/index.js';
 import { CustomError, NotFoundError } from './utils/customError.js';
 import swaggerUi from 'swagger-ui-express';
-import swaggerDocument from './swagger.json' with { type: 'json' };
 import helmet from 'helmet';
 import hpp from 'hpp';
 
@@ -32,7 +31,6 @@ app.use(
 app.set('trust proxy', 1);
 app.get('/health', Health);
 app.use('/api/v1', MainRoutes);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/file', express.static(path.join(__dirname, '../', 'public/temp')));
 app.all('*', (_req, _res, next) => {
   next(new NotFoundError('Path Not Found ', 'server.js '));

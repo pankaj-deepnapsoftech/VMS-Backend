@@ -38,7 +38,6 @@ export const UpdateTenant = AsyncHandler(async (req, res) => {
   });
 });
 
-
 export const DeleteTenant = AsyncHandler(async (req, res) => {
   const { id } = req.params;
 

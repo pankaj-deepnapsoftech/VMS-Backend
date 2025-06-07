@@ -22,25 +22,12 @@ const RegisterUser = AsyncHandler(async (req, res) => {
     throw new BadRequestError('Password Do not Contain your name', 'RegisterUser method');
   }
 
-  const { otp, expiresAt } = generateOTP();
-
-  const result = await AuthModel.create({
-    ...data,
-    otp,
-    otp_expire: expiresAt,
-    Organization: data?.Organization || '',
-  });
+  const result = await AuthModel.create(data);
 
   await PasswordHistoryModel.create({ user_id: result._id, password: result.password });
 
-  result.password = null;
-  result.otp = null;
-  const token = SignToken({ email: result.email, id: result._id });
-  SendMail('EmailVerification.ejs', { userName: result.full_name, otpCode: otp }, { email: result.email, subject: 'Email Verification' });
   return res.status(StatusCodes.OK).json({
     message: 'User created Successful',
-    result,
-    token,
   });
 });
 

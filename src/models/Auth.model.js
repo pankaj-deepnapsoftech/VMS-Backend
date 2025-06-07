@@ -1,10 +1,7 @@
 import { Schema, model } from 'mongoose';
 import { hash } from 'bcrypt';
 
-const pathsSchema = new Schema({
-  name:{type:String},
-  value:{type:String}
-});
+
 
 const securityQuestion = new Schema({
   question:{type:String,required:true},
@@ -12,22 +9,19 @@ const securityQuestion = new Schema({
 });
 
 const AuthSchema = new Schema({
-  full_name: { type: String, trim: true, required: true },
-  email: { type: String, trim: true, required: true },
+  fname: { type: String, trim: true, required: true },
+  lname: { type: String, trim: true, required: true },
   phone: { type: String, trim: true, required: true },
-  password: { type: String, required: true },
-  role: { type: String, enum: ['ClientCISO', 'Assessor', 'Admin', 'ClientSME',""] },
-  otp: { type: Number },
-  employee_approve: { type: Boolean, required: true, default: false },
-  otp_expire: { type: Number },
-  department: { type: String },
-  Organization: { type: String },
-  owner: { type: Schema.Types.ObjectId, ref: 'User' },
+  email: { type: String, trim: true, required: true },
+  password: { type: String },
+  tenant: { type: Schema.Types.ObjectId, ref: 'Tenant' },
   email_verification: { type: Boolean, required: true, default: false },
-  allowed_paths:{type:[pathsSchema]},
   deactivate:{type:Boolean,required:true,default:false},
   mustChangePassword:{type:Boolean,required:true,default:false},
-  security_questions:{type:[securityQuestion]}
+  security_questions:{type:[securityQuestion]},
+  profile:{type:String},
+  isPasswordSet:{type:Boolean,required:true,default:false}
+
 });
 
 AuthSchema.pre('save', async function (next) {
@@ -52,6 +46,8 @@ AuthSchema.pre('findOneAndUpdate', async function (next) {
 
 
 export const AuthModel = model('User', AuthSchema);
+
+
 
 
 const PasswordHistory = new Schema({

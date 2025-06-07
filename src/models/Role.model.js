@@ -1,0 +1,16 @@
+
+import { Schema,model } from "mongoose";
+
+const pathsSchema = new Schema({
+  name:{type:String},
+  value:{type:String}
+});
+
+const RoleSchema = new Schema({
+  role:{type:String,required:true},
+  allowed_path:{type:[pathsSchema],required:true},
+});
+
+export const RoleModels = model("Role",RoleSchema);
+
+
