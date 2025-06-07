@@ -18,13 +18,11 @@ const RegisterUser = AsyncHandler(async (req, res) => {
     throw new BadRequestError('User already exist', 'RegisterUser method');
   }
 
-  if (data.password.toLowerCase().includes(data.full_name.toLowerCase())) {
+  if (data.password.toLowerCase().includes(data.fname.toLowerCase() || data.lname.toLowerCase())) {
     throw new BadRequestError('Password Do not Contain your name', 'RegisterUser method');
   }
 
-  const result = await AuthModel.create(data);
-
-  await PasswordHistoryModel.create({ user_id: result._id, password: result.password });
+  await AuthModel.create(data);
 
   return res.status(StatusCodes.OK).json({
     message: 'User created Successful',
