@@ -18,45 +18,52 @@ const RegisterUser = AsyncHandler(async (req, res) => {
     throw new BadRequestError('User already exist', 'RegisterUser method');
   }
 
-  if (data.password.toLowerCase().includes(data.fname.toLowerCase() || data.lname.toLowerCase())) {
+  if (data?.password?.toLowerCase().includes(data?.fname?.toLowerCase() || data?.lname?.toLowerCase())) {
     throw new BadRequestError('Password Do not Contain your name', 'RegisterUser method');
   }
 
   await AuthModel.create(data);
+
+  SendMail("RegisterEmail.ejs", { fullName: `${data?.fname} ${data?.lname}`, email: data.email, password: data.password, loginLink: config.NODE_ENV !== "development" ? config.CLIENT_URL + "/sign-in" : config.CLIENT_URL_LOCAL + "/sign-in" }, { email: data.email, subject: "Registeration Successful" });
 
   return res.status(StatusCodes.OK).json({
     message: 'User created Successful',
   });
 });
 
-const LoginUser = AsyncHandler(async (req, res) => {
+const LoginUser = AsyncHandler(async (req, res) => { 
   const { email, password } = req.body;
 
-  const user = await AuthModel.findOne({ email });
-  if (!user) {
-    throw new NotFoundError('User not exist', 'LoginUser method');
+  const query = req.query;
+  let data;
+
+  if (query?.token) {
+    const { email } = VerifyToken(query.token);
+    if (email) {
+      data = { email_verification: true };
+    }
   }
 
-  if (!user.employee_approve && user.role === 'Assessor') {
-    throw new BadRequestError('You are not verify By Admin', 'LoginUser method');
+  const user = await AuthModel.findOne({ email }).select("-security_questions");
+
+  if (!user) {
+    throw new NotFoundError('User not exist', 'LoginUser method');
   }
 
   if (user.deactivate) {
     throw new NotFoundError('You account suspend by admin', 'LoginUser method');
   }
-
   const isPasswordCurrect = await compare(password, user.password);
   if (!isPasswordCurrect) {
     throw new BadRequestError('Wrong Password Try Again...', 'LoginUser method');
   }
+  user.password = null;
 
-  // if (!user.email_verification) {
-  //   throw new NotFoundError('User email not Verifyed', 'LoginUser method');
-  // }
+  if (query?.token) {
+    await AuthModel.findByIdAndUpdate(user._id, data);
+  }
 
   const token = SignToken({ email: user.email, id: user._id });
-  user.password = null;
-  user.otp = null;
 
   res.cookie('tok', 'token', {
     httpOnly: true,
@@ -141,23 +148,20 @@ const LogoutUser = AsyncHandler(async (req, res) => {
 });
 
 const getlogedInUser = AsyncHandler(async (req, res) => {
-  const data = await AuthModel.findById(req?.currentUser._id).select(
-    '_id full_name email phone role Allowed_path email_verification Login_verification employee_approve owner allowed_paths mustChangePassword',
+  const user = await AuthModel.findById(req?.currentUser._id).select(
+    '_id fname lname email phone email_verification mustChangePassword deactivate profile security_questions',
   );
 
-  return res.status(StatusCodes.OK).json({
-    message: 'user Data',
-    data,
-  });
-});
+  if (!user) {
+    return res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found' });
+  }
 
-const UpdateUserPath = AsyncHandler(async (req, res) => {
-  const data = req.body;
-  await AuthModel.findByIdAndUpdate(req?.currentUser._id, {
-    Allowed_path: data,
-  });
+  const userObj = user.toObject();
+  userObj.security_questions = user.security_questions?.length || 0;
+
   return res.status(StatusCodes.OK).json({
-    message: 'Paths added Successful',
+    message: 'User Data',
+    data: userObj,
   });
 });
 
@@ -202,102 +206,6 @@ const ResendOtp = AsyncHandler(async (req, res) => {
 
   return res.status(StatusCodes.OK).json({
     message: 'OTP send in Your E-mail',
-  });
-});
-
-const GetAllEmployee = AsyncHandler(async (req, res) => {
-  const { page, limit } = req.query;
-
-  const pages = parseInt(page) || 1;
-  const limits = parseInt(limit) || 10;
-  const skip = (pages - 1) * limits;
-  // const users = await AuthModel.find({ role: 'Assessor' }).select('full_name email phone role Allowed_path employee_approve deactivate').sort({ _id: -1 }).skip(skip).limit(limits);
-  const users = await AuthModel.find({ role: { $ne: 'Admin' } })
-    .select('full_name email phone role Allowed_path employee_approve deactivate')
-    .sort({ _id: -1 })
-    .skip(skip)
-    .limit(limits);
-  return res.status(StatusCodes.OK).json({
-    message: 'all customer',
-    users,
-  });
-});
-
-const employeeVerification = AsyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const user = await AuthModel.findById(id);
-  if (!user) {
-    throw new BadRequestError('User not found', 'employeeVerification method');
-  }
-  await AuthModel.findByIdAndUpdate(id, { employee_approve: true });
-  return res.status(StatusCodes.OK).json({
-    message: 'Employee Approve Successful',
-  });
-});
-
-const GetAllCISO = AsyncHandler(async (req, res) => {
-  const { page, limit } = req.query;
-
-  const pages = parseInt(page) || 1;
-  const limits = parseInt(limit) || 10;
-  const skip = (pages - 1) * limits;
-  const find = await AuthModel.find({ role: 'ClientCISO' }).select('full_name email phone role Allowed_path employee_approve Organization').sort({ _id: -1 }).skip(skip).limit(limits);
-  return res.status(StatusCodes.OK).json({
-    data: find,
-  });
-});
-
-const getAllSME = AsyncHandler(async (req, res) => {
-  const { page, limit } = req.query;
-
-  let owner;
-  if (req.currentUser?.role === 'ClientCISO') {
-    owner = req.currentUser?._id;
-  }
-
-  const pages = parseInt(page) || 1;
-  const limits = parseInt(limit) || 10;
-  const skip = (pages - 1) * limits;
-  const find = await AuthModel.find(owner ? { owner } : { role: 'ClientSME' })
-    .select('full_name email phone role Allowed_path employee_approve owner')
-    .populate({ path: 'owner', select: 'Organization' })
-    .sort({ _id: -1 })
-    .skip(skip)
-    .limit(limits);
-  return res.status(StatusCodes.OK).json({
-    data: find,
-  });
-});
-
-const GetOrganizationData = AsyncHandler(async (_req, res) => {
-  const find = await AuthModel.find({ role: 'ClientCISO' }).select('Organization');
-  return res.status(StatusCodes.OK).json({
-    data: find,
-  });
-});
-
-const AddPathsAccess = AsyncHandler(async (req, res) => {
-  const data = req.body;
-  const { id } = req.params;
-  const user = await AuthModel.findById(id);
-  if (!user) {
-    throw new NotFoundError('user not found', 'AddPathsAccess method');
-  }
-  await AuthModel.updateMany({ $or: [{ _id: id }, { owner: id }] }, { allowed_paths: data });
-  return res.status(StatusCodes.CREATED).json({
-    message: 'path allowed',
-  });
-});
-
-const getPathAccessById = AsyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const user = await AuthModel.findById(id);
-  if (!user) {
-    throw new NotFoundError('User not Exist', 'getPathAccessById method');
-  }
-
-  return res.status(StatusCodes.OK).json({
-    data: user.allowed_paths,
   });
 });
 
@@ -375,17 +283,14 @@ const DeleteUser = AsyncHandler(async (req, res) => {
   });
 });
 
-const NewUser = AsyncHandler(async (req, res) => {
-  const { page, limit } = req.query;
-  const pages = parseInt(page) || 1;
-  const limits = parseInt(limit) || 10;
-  const skip = (pages - 1) * limit;
-  const users = await AuthModel.find({ role: '' }).select('full_name email phone ').sort({ _id: -1 }).skip(skip).limit(limits);
+const GetAllUsers = AsyncHandler(async (_req, res) => {
+  const data = await AuthModel.find({}).select("-password -security_questions -mustChangePassword");
   return res.status(StatusCodes.OK).json({
-    message: 'data',
-    data: users,
+    message: "all users Data",
+    data
   });
 });
+
 
 export {
   RegisterUser,
@@ -395,19 +300,11 @@ export {
   ResetPassword,
   LogoutUser,
   getlogedInUser,
-  UpdateUserPath,
   ChnagePassword,
   ResendOtp,
-  employeeVerification,
-  GetAllEmployee,
-  GetAllCISO,
-  getAllSME,
-  GetOrganizationData,
-  AddPathsAccess,
-  getPathAccessById,
   DeactivatePath,
   UpdateUserProfile,
   ResetPasswordByQuestions,
   DeleteUser,
-  NewUser,
+  GetAllUsers
 };

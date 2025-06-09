@@ -4,8 +4,8 @@ import { hash } from 'bcrypt';
 
 
 const securityQuestion = new Schema({
-  question:{type:String,required:true},
-  answer:{type:String,required:true}
+  question: { type: String, required: true },
+  answer: { type: String, required: true }
 });
 
 const AuthSchema = new Schema({
@@ -13,15 +13,14 @@ const AuthSchema = new Schema({
   lname: { type: String, trim: true, required: true },
   phone: { type: String, trim: true, required: true },
   email: { type: String, trim: true, required: true },
-  password: { type: String },
+  password: { type: String, required: true },
   tenant: { type: Schema.Types.ObjectId, ref: 'Tenant' },
   email_verification: { type: Boolean, required: true, default: false },
-  deactivate:{type:Boolean,required:true,default:false},
-  mustChangePassword:{type:Boolean,required:true,default:false},
-  security_questions:{type:[securityQuestion]},
-  profile:{type:String},
-  isPasswordSet:{type:Boolean,required:true,default:false},
-  role:{type:Schema.Types.ObjectId,ref:"Role"}
+  deactivate: { type: Boolean, required: true, default: false },
+  mustChangePassword: { type: Boolean, required: true, default: false },
+  security_questions: { type: [securityQuestion] },
+  profile: { type: String },
+  role: { type: Schema.Types.ObjectId, ref: "Role" }
 });
 
 AuthSchema.pre('save', async function (next) {
@@ -51,10 +50,10 @@ export const AuthModel = model('User', AuthSchema);
 
 
 const PasswordHistory = new Schema({
-  user_id:{type:Schema.Types.ObjectId,ref:"User",required:true},
-  password:{type:String,required:true}
-},{
-  timestamps:true
+  user_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  password: { type: String, required: true }
+}, {
+  timestamps: true
 });
 
-export const PasswordHistoryModel = model("PasswordHistory",PasswordHistory);
+export const PasswordHistoryModel = model("PasswordHistory", PasswordHistory);

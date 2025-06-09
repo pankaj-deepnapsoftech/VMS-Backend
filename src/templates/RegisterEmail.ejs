@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome to securend.ai</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    .email-container {
+      max-width: 600px;
+      background: #fff;
+      margin: 40px auto;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .email-header {
+      background-color: #007bff;
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .email-body {
+      padding: 30px;
+    }
+    .email-body h2 {
+      margin-top: 0;
+      font-size: 24px;
+      color: #222;
+    }
+    .info-block {
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .info-block p {
+      margin: 8px 0;
+    }
+    .info-block span {
+      font-weight: bold;
+      color: #000;
+    }
+    .login-btn {
+      display: inline-block;
+      margin-top: 20px;
+      background-color: #28a745;
+      color: white;
+      padding: 12px 24px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .footer {
+      padding: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #888;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="email-header">
+      <h1>Welcome to Secure&</h1>
+      <p>Your registration was successful!</p>
+    </div>
+    <div class="email-body">
+      <h2>Hello, <%= fullName %> 👋</h2>
+      <p>We're excited to have you on board. Here are your login details:</p>
+
+      <div class="info-block">
+        <p><span>Email:</span> <%= email %></p>
+        <p><span>Temporary Password:</span> <%= password %></p>
+      </div>
+
+      <p>Click below to log in and get started:</p>
+      <a class="login-btn" href="<%= loginLink %>">Login Now</a>
+
+      <p style="margin-top: 20px;">For security reasons, please change your password after your first login.</p>
+    </div>
+    <div class="footer">
+      &copy; <%= new Date().getFullYear() %> securend.ai. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>
