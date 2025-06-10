@@ -36,7 +36,7 @@ export const UpdatePartner = AsyncHandler(async (req, res) => {
   };
 
   await PartnersModel.findByIdAndUpdate(id, data);
-  return res.Status(StatusCodes.OK).json({
+  return res.status(StatusCodes.OK).json({
     message: "Partner data Updated"
   });
 });
