@@ -53,6 +53,14 @@ export const DeleteTenant = AsyncHandler(async (req, res) => {
 
 });
 
+export const GetAllTanent = AsyncHandler(async (_req,res) => {
+  const data = await TenantModel.find({}).select("company_name");
+  return res.status(StatusCodes.OK).json({
+    message:"data",
+    data
+  });
+});
+
 
 
 

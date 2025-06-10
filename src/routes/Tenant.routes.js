@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { CreateTenant, DeleteTenant, GetTenant, UpdateTenant } from "../controller/Tenant.controller.js";
+import { CreateTenant, DeleteTenant, GetAllTanent, GetTenant, UpdateTenant } from "../controller/Tenant.controller.js";
 import { Validater } from "../helper/checkValidation.js";
 import { tenantValidator } from "../validation/Tenant.Validation.js";
 
@@ -9,6 +9,7 @@ routes.route("/create").post(Validater(tenantValidator),CreateTenant);
 routes.route("/get").get(GetTenant);
 routes.route("/update/:id").put(UpdateTenant);
 routes.route("/delete/:id").delete(DeleteTenant);
+routes.route("/get-all").get(GetAllTanent);
 
 
 export default routes;

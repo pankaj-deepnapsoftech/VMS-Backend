@@ -283,8 +283,8 @@ const DeleteUser = AsyncHandler(async (req, res) => {
   });
 });
 
-const GetAllUsers = AsyncHandler(async (_req, res) => {
-  const data = await AuthModel.find({}).select("-password -security_questions -mustChangePassword");
+const GetAllUsers = AsyncHandler(async (req, res) => {
+  const data = await AuthModel.find({_id:{$ne:req?.currentUser?._id}}).select("-password -security_questions -mustChangePassword");
   return res.status(StatusCodes.OK).json({
     message: "all users Data",
     data
