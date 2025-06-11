@@ -228,6 +228,9 @@ const UpdateUserProfile = AsyncHandler(async (req, res) => {
   const data = req.body;
   const { id } = req.params;
 
+  const file = req.file;
+
+
   const date = Date.now();
   if (date > req?.currentUser.otp_expire) {
     throw new BadRequestError('OTP is expire', 'VerifyOTP method');
@@ -305,12 +308,14 @@ const UpdateUserByAdmin = AsyncHandler(async (req,res) => {
 });
 
 
+
+
 export {
   RegisterUser,
   LoginUser,
   VerifyOTP,
   VerifyEmail,
-  ResetPassword,
+  ResetPassword,  
   LogoutUser,
   getlogedInUser,
   ChnagePassword,
@@ -320,5 +325,5 @@ export {
   ResetPasswordByQuestions,
   DeleteUser,
   GetAllUsers,
-  UpdateUserByAdmin
+  UpdateUserByAdmin,
 };

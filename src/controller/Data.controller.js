@@ -17,7 +17,7 @@ export const months = ['January', 'February', 'March', 'April', 'May', 'June', '
 
 
 const CreateData = AsyncHandler(async (req, res) => {
-  const id = req.currentUser?._id;
+  const id = req.currentUser?.tenant;
   const file = req.file;
   if (!file) {
     throw new NotFoundError('File is reqired', 'CreateData method');
