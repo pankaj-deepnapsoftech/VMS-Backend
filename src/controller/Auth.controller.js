@@ -291,6 +291,19 @@ const GetAllUsers = AsyncHandler(async (req, res) => {
   });
 });
 
+const UpdateUserByAdmin = AsyncHandler(async (req,res) => {
+  const data = req.body;
+  const {id} = req.params;
+  const find = await AuthModel.findById(id);
+  if(!find){
+    throw new NotFoundError("Data not found","UpdateUserByAdmin method");
+  };
+  await AuthModel.findByIdAndUpdate(id,data);
+  return res.status(StatusCodes.OK).json({
+    message:"User Updated Successful"
+  });
+});
+
 
 export {
   RegisterUser,
@@ -306,5 +319,6 @@ export {
   UpdateUserProfile,
   ResetPasswordByQuestions,
   DeleteUser,
-  GetAllUsers
+  GetAllUsers,
+  UpdateUserByAdmin
 };

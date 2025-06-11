@@ -15,6 +15,7 @@ import {
   ResetPasswordByQuestions,
   DeleteUser,
   GetAllUsers,
+  UpdateUserByAdmin,
 } from '../controller/Auth.controller.js';
 import {  Authentication } from '../middleware/Authentication.js';
 
@@ -34,5 +35,6 @@ routes.route("/deactivate/:id").put(Authentication,DeactivatePath);
 routes.route("/reset-password-question/:email").put(ResetPasswordByQuestions);
 routes.route("/delete-user/:id").delete(Authentication,DeleteUser);
 routes.route("/all-users").get(Authentication,GetAllUsers);
+routes.route("/update-user/:id").put(Authentication,UpdateUserByAdmin);
 
 export default routes;
