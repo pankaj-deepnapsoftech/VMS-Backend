@@ -284,7 +284,7 @@ const DeleteUser = AsyncHandler(async (req, res) => {
 });
 
 const GetAllUsers = AsyncHandler(async (req, res) => {
-  const data = await AuthModel.find({_id:{$ne:req?.currentUser?._id}}).select("-password -security_questions -mustChangePassword");
+  const data = await AuthModel.find({_id:{$ne:req?.currentUser?._id}}).select("-password -security_questions -mustChangePassword").populate([{path:"tenant",select:"company_name"},{path:"role",select:"role"}]);
   return res.status(StatusCodes.OK).json({
     message: "all users Data",
     data
