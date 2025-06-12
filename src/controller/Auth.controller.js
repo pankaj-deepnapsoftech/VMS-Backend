@@ -228,8 +228,13 @@ const UpdateUserProfile = AsyncHandler(async (req, res) => {
   const data = req.body;
   const { id } = req.params;
 
-  const file = req.file;
+  const file = req.file; 
+  
+  let profile ;
 
+  if(file){
+    profile = config.NODE_ENV !== 'development' ? `${config.FILE_URL}/file/${file.filename}` : `${config.FILE_URL_LOCAL}/file/${file.filename}`;
+  }
 
   const date = Date.now();
   if (date > req?.currentUser.otp_expire) {
@@ -244,7 +249,7 @@ const UpdateUserProfile = AsyncHandler(async (req, res) => {
   if (!user) {
     throw new NotFoundError('Something Went Wrong', 'UpdateUserProfile method');
   }
-  await AuthModel.findByIdAndUpdate(id, { ...data, otp: null, otp_expire: null, email_verification: true });
+  await AuthModel.findByIdAndUpdate(id, { ...data, otp: null, otp_expire: null, email_verification: true ,profile});
   return res.status(StatusCodes.ACCEPTED).json({
     message: 'User Profile Update',
   });
@@ -287,7 +292,11 @@ const DeleteUser = AsyncHandler(async (req, res) => {
 });
 
 const GetAllUsers = AsyncHandler(async (req, res) => {
-  const data = await AuthModel.find({_id:{$ne:req?.currentUser?._id}}).select("-password -security_questions -mustChangePassword").populate([{path:"tenant",select:"company_name"},{path:"role",select:"role"}]);
+  const {page,limit} = req.query;
+  const pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 10;
+  const skip = (pages -1) * limits;
+  const data = await AuthModel.find({_id:{$ne:req?.currentUser?._id}}).select("-password -security_questions -mustChangePassword").populate([{path:"tenant",select:"company_name"},{path:"role",select:"role"}]).sort({_id:-1}).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     message: "all users Data",
     data
