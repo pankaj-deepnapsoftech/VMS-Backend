@@ -18,7 +18,7 @@ export const GetPartner = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
-  const skip = (pages - 1) * 10;
+  const skip = (pages - 1) * limits;
   const data = await PartnersModel.find({}).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     message: "data",

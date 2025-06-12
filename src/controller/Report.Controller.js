@@ -4,7 +4,6 @@ import { ReportModel } from '../models/Report.model.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { NotFoundError } from '../utils/customError.js';
 import fs from 'fs';
-import { AuthModel } from '../models/Auth.model.js';
 
 const CreateReport = AsyncHandler(async (req, res) => {
   if (!req?.file) {
