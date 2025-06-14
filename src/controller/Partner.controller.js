@@ -50,10 +50,19 @@ export const DeletePartner = AsyncHandler(async (req, res) => {
   };
   await PartnersModel.findByIdAndDelete(id);
   return res.status(StatusCodes.OK).json({
-    message:"Partner deleted Successful"
+    message: "Partner deleted Successful"
   });
 });
 
+
+
+export const AllPartner = AsyncHandler(async (_req, res) => {
+  const data = await PartnersModel.find({}).sort({ _id: -1 }).select("company_name");
+  return res.status(StatusCodes.OK).json({
+    message: "data",
+    data
+  });
+});
 
 
 

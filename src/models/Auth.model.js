@@ -20,7 +20,8 @@ const AuthSchema = new Schema({
   mustChangePassword: { type: Boolean, required: true, default: false },
   security_questions: { type: [securityQuestion] },
   profile: { type: String },
-  role: { type: Schema.Types.ObjectId, ref: "Role" }
+  role: { type: Schema.Types.ObjectId, ref: "Role" },
+  partner:{type:Schema.Types.ObjectId,ref:"Partner"}
 });
 
 AuthSchema.pre('save', async function (next) {
