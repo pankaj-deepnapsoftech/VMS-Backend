@@ -5,7 +5,7 @@ import { NotFoundError } from "../utils/customError.js";
 
 export const CreateRole = AsyncHandler(async (req, res) => {
   const data = req.body;
-  await RoleModels.create(data);
+  await RoleModels.create({...data,creator:req?.currentUser?._id});
   return res.status(StatusCodes.CREATED).json({
     message: "Role Added Successful"
   });
@@ -18,7 +18,7 @@ export const GetRole = AsyncHandler(async (req, res) => {
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
-  const data = await RoleModels.find({}).sort({ _id: -1 }).skip(skip).limit(limits);
+  const data = await RoleModels.find({creator:req?.currentUser?._id}).sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     message: "data",
     data
@@ -53,8 +53,8 @@ export const DeleteRole = AsyncHandler(async (req, res) => {
 });
 
 
-export const GetAllRols = AsyncHandler(async (_req, res) => {
-  const data = await RoleModels.find({}).select("role");
+export const GetAllRols = AsyncHandler(async (req, res) => {
+  const data = await RoleModels.find({creator:req?.currentUser?._id}).select("role");
   return res.status(StatusCodes.OK).json({
     message: "data",
     data

@@ -9,6 +9,7 @@ const pathsSchema = new Schema({
 const RoleSchema = new Schema({
   role:{type:String,required:true},
   allowed_path:{type:[pathsSchema],required:true},
+  creator:{type:Schema.Types.ObjectId,required:true}
 });
 
 export const RoleModels = model("Role",RoleSchema);
