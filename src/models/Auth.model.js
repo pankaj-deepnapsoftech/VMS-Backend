@@ -22,7 +22,7 @@ const AuthSchema = new Schema({
   profile: { type: String },
   role: { type: Schema.Types.ObjectId, ref: "Role" },
   partner:{type:Schema.Types.ObjectId,ref:"Partner"}
-});
+},{timestamps:true});
 
 AuthSchema.pre('save', async function (next) {
   if (!this.isModified('password')) next();

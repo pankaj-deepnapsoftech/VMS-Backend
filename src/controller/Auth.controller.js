@@ -149,8 +149,8 @@ const LogoutUser = AsyncHandler(async (req, res) => {
 
 const getlogedInUser = AsyncHandler(async (req, res) => {
   const user = await AuthModel.findById(req?.currentUser._id).select(
-    '_id fname lname email phone email_verification mustChangePassword deactivate profile security_questions',
-  );
+    '_id fname lname email phone email_verification mustChangePassword deactivate profile security_questions createdAt',
+  ).populate([{path:"tenant"},{path:"role"},{path:"partner"}]);
 
   if (!user) {
     return res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found' });
@@ -161,7 +161,7 @@ const getlogedInUser = AsyncHandler(async (req, res) => {
 
   return res.status(StatusCodes.OK).json({
     message: 'User Data',
-    data: userObj,
+    data: {...userObj,tenant:user?.tenant && user?.tenant?.company_name,role:user?.role && user?.role?.role,allowed_path:user?.role && user?.role?.allowed_path  },
   });
 });
 

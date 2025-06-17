@@ -8,7 +8,6 @@ import { config } from './config/env.config.js';
 import { Health } from './controller/health.controller.js';
 import MainRoutes from './routes/index.js';
 import { CustomError, NotFoundError } from './utils/customError.js';
-import swaggerUi from 'swagger-ui-express';
 import helmet from 'helmet';
 import hpp from 'hpp';
 
@@ -19,7 +18,7 @@ const app = express();
 app.use(json({ limit: '20mb' }));
 app.use(urlencoded({ limit: '20mb', extended: true }));
 app.use(hpp());
-app.use(helmet());
+app.use(helmet({crossOriginResourcePolicy: { policy: 'cross-origin' },}));
 app.use(
   cors({
     origin: config.NODE_ENV !== 'development' ? config.CLIENT_URL : config.CLIENT_URL_LOCAL,
