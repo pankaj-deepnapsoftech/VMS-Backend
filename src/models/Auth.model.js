@@ -21,7 +21,8 @@ const AuthSchema = new Schema({
   security_questions: { type: [securityQuestion] },
   profile: { type: String },
   role: { type: Schema.Types.ObjectId, ref: "Role" },
-  partner:{type:Schema.Types.ObjectId,ref:"Partner"}
+  partner:{type:Schema.Types.ObjectId,ref:"Partner"},
+  part_securend:{type:Boolean,required:true,default:false},
 },{timestamps:true});
 
 AuthSchema.pre('save', async function (next) {
