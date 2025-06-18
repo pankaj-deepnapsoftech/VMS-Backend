@@ -29,7 +29,7 @@ const CreateData = AsyncHandler(async (req, res) => {
   }));
 
 
-  const newdata = newData.map((item) => convertKeysToUnderscore({ ...item, creator_id: id }));
+  const newdata = newData.map((item) => convertKeysToUnderscore(id ? { ...item, creator_id: id } : item));
   const result = await DataModel.create(newdata);
 
   fs.unlinkSync(file.path);
@@ -63,7 +63,10 @@ const getAllData = AsyncHandler(async (req, res) => {
   const limits = parseInt(limit) || 20;
   const skip = (pages - 1) * limits;
 
-  const getAllData = await DataModel.find({})
+  const creator_id = req.currentUser?.tenant;
+
+
+  const getAllData = await DataModel.find(creator_id ? { creator_id } : {})
     .populate([
       { path: 'Assigned_To', select: 'full_name' },
       { path: 'creator_id', select: 'full_name' },
@@ -107,15 +110,15 @@ const DeteleOneData = AsyncHandler(async (req, res) => {
   });
 });
 
-const DeleteManyData = AsyncHandler(async (req,res) => {
-  const {ids} = req.body;
-  const find = await DataModel.find({_id:{$in:ids}});
-  if(!find){
-    throw new NotFoundError("data not found","DeleteManyData method()");
+const DeleteManyData = AsyncHandler(async (req, res) => {
+  const { ids } = req.body;
+  const find = await DataModel.find({ _id: { $in: ids } });
+  if (!find) {
+    throw new NotFoundError("data not found", "DeleteManyData method()");
   }
-  await DataModel.deleteMany({_id:{$in:ids}});
+  await DataModel.deleteMany({ _id: { $in: ids } });
   return res.status(200).json({
-    message:"Data deleted"
+    message: "Data deleted"
   });
 });
 
@@ -133,18 +136,14 @@ const updateOneData = AsyncHandler(async (req, res) => {
 });
 
 const DataCounsts = AsyncHandler(async (req, res) => {
-  let Organization;
-  if (req?.currentUser?.Organization) {
-    Organization = req?.currentUser?.Organization;
-  } else if (req?.currentUser?.owner) {
-    const data = await AuthModel.findById(req?.currentUser?.owner);
-    Organization = data?.Organization;
-  }
+  let creator_id = req.query?.creator_id || req?.currentUser?.tenant;
+
   const data = await DataModel.find(
-    Organization
-      ? { Organization }
+    creator_id
+      ? { creator_id }
       : {}
   ).exec();
+
 
   const Infrastructure = (await InfraModel.find(req?.currentUser?.role === "Admin" ? {} : { Severity: '0' })).length;
 
@@ -187,23 +186,17 @@ const vulnerableItems = AsyncHandler(async (req, res) => {
   const startMonth = currentMonth - 2;
   const startYear = startMonth < 0 ? currentYear - 1 : currentYear; // Adjust year if month is negative
   const startDate = new Date(startYear, startMonth < 0 ? 12 + startMonth : startMonth, 1); // Beginning of month 2 months ago
-  
+
   // Calculate the start of the next month
   const endDate = new Date(currentYear, currentMonth + 1, 1); // Beginning of next month
-  
-  let Organization = {};
-  if (req?.currentUser?.Organization) {
-    Organization = {Organization:req?.currentUser?.Organization};
-  } else if (req?.currentUser?.owner) {
-    const data = await AuthModel.findById(req?.currentUser?.owner);
-    Organization = {Organization:data?.Organization};
-  }
+
+  let tenant = req.currentUser?.tenant;
 
   try {
     const data = await DataModel.aggregate([
       {
         $match: {
-          ...Organization,
+          tenant,
           createdAt: {
             $gte: startDate,
             $lt: endDate,
@@ -262,10 +255,10 @@ const VulnerableRiskRating = AsyncHandler(async (req, res) => {
   // Dynamic match condition for organization filter
   let Organization = {};
   if (req?.currentUser?.Organization) {
-    Organization = {Organization:req?.currentUser?.Organization};
+    Organization = { Organization: req?.currentUser?.Organization };
   } else if (req?.currentUser?.owner) {
     const data = await AuthModel.findById(req?.currentUser?.owner);
-    Organization = {Organization:data?.Organization};
+    Organization = { Organization: data?.Organization };
   }
 
   const data = await DataModel.aggregate([
@@ -327,10 +320,10 @@ const NewAndCloseVulnerable = AsyncHandler(async (req, res) => {
 
   let Organization = {};
   if (req?.currentUser?.Organization) {
-    Organization = {Organization:req?.currentUser?.Organization};
+    Organization = { Organization: req?.currentUser?.Organization };
   } else if (req?.currentUser?.owner) {
     const data = await AuthModel.findById(req?.currentUser?.owner);
-    Organization = {Organization:data?.Organization};
+    Organization = { Organization: data?.Organization };
   }
 
   const data = await DataModel.aggregate([
