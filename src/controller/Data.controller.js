@@ -10,7 +10,9 @@ import { convertKeysToUnderscore, excelSerialToDate } from '../utils/excelSerial
 import { config } from '../config/env.config.js';
 import { InfraModel } from '../models/infra.model.js';
 import { getExploitability } from './OpenApi.controller.js';
-import { AuthModel } from '../models/Auth.model.js';
+import { AuthModel } from '../models/Auth.model.js'; 
+import mongoose from 'mongoose';
+
 
 export const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -190,13 +192,18 @@ const vulnerableItems = AsyncHandler(async (req, res) => {
   // Calculate the start of the next month
   const endDate = new Date(currentYear, currentMonth + 1, 1); // Beginning of next month
 
-  let tenant = req.currentUser?.tenant;
+  let queryData = req.query.creator_id;
+  let creator_id = req.currentUser?.tenant;
+
+  // eslint-disable-next-line no-undef
+  creator_id = queryData ? {creator_id:new mongoose.Types.ObjectId(queryData)}  : creator_id ? {creator_id} :  "";
+
 
   try {
     const data = await DataModel.aggregate([
       {
         $match: {
-          tenant,
+          ...creator_id,
           createdAt: {
             $gte: startDate,
             $lt: endDate,
@@ -366,16 +373,11 @@ const ClosevulnerableItems = AsyncHandler(async (req, res) => {
   const futureDate = new Date(today);
   futureDate.setDate(today.getDate() + 7);
 
-  let Organization;
-  if (req?.currentUser?.Organization) {
-    Organization = req?.currentUser?.Organization;
-  } else if (req?.currentUser?.owner) {
-    const data = await AuthModel.findById(req?.currentUser?.owner);
-    Organization = data?.Organization;
-  }
+  
+  let creator_id = req.query.creator_id || req.currentUser?.tenant;
 
   const data = await DataModel.find(
-    Organization ? { Organization } : {}
+    creator_id ? { creator_id } : {}
   );
 
   let TargetMet = 0;
@@ -488,10 +490,13 @@ const CriticalHighVulnerable = AsyncHandler(async (req, res) => {
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the current month
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  const matchCondition = req.currentUser?.Organization
-    ? { Organization: req.currentUser.Organization }
-    : {};
-  const data = await DataModel.find({ ...matchCondition, createdAt: { $gte: startOfMonth, $lte: endOfMonth }, $or: [{ Severity: 'High' }, { Severity: 'Critical' }] });
+  
+  const querydata = req.query?.creator_id;
+  const tenant = req.currentUser?.tenant;
+  
+  const creator_id = querydata ? {creator_id: new mongoose.Types.ObjectId(querydata)} : tenant ? {creator_id:tenant} : "";
+
+  const data = await DataModel.find({ ...creator_id, createdAt: { $gte: startOfMonth, $lte: endOfMonth }, $or: [{ Severity: 'High' }, { Severity: 'Critical' }] });
 
   let webApplication = 0;
   let mobileApplication = 0;
@@ -1323,14 +1328,9 @@ const ClientDeferredVulnerableItems = AsyncHandler(async (req, res) => {
 });
 
 const TopExploitability = AsyncHandler(async (req, res) => {
-  let Organization;
-  if (req?.currentUser?.Organization) {
-    Organization = req?.currentUser?.Organization;
-  } else if (req?.currentUser?.owner) {
-    const data = await AuthModel.findById(req?.currentUser?.owner);
-    Organization = data?.Organization;
-  }
-  const data = await DataModel.find(Organization ? { Organization } : {});
+  
+  const creator_id = req.query.creator_id || req.currentUser?.tenant;
+  const data = await DataModel.find(creator_id ? { creator_id } : {});
   const obj = {
     easy: 0,
     network: 0,
