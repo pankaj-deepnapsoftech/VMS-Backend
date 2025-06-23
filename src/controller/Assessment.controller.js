@@ -21,19 +21,18 @@ const createAssessment = AsyncHandler(async (req, res) => {
 });
 
 const getAssessment = AsyncHandler(async (req, res) => {
-  const { page, limit } = req.query;
+  const { page, limit,finder_id } = req.query;
 
   // Parse pagination values
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
-
-
+  const Tenant_id = finder_id || req.currentUser?.tenant;
  
-  const data = await AssessmentModel.find(req?.currentUser.role === "ClientCISO" ? {Orgenization_id:req?.currentUser?._id} : req?.currentUser.role === "ClientSME" ? {creator_id:req?.currentUser?._id} : {} ).populate([
-    { path: 'Orgenization_id', select: 'Organization' }, 
+  const data = await AssessmentModel.find(Tenant_id ? {Tenant_id} : {}).populate([
+    { path: 'Tenant_id', select: 'company_name' }, 
     { path: 'Select_Tester', select: 'full_name' },
-    { path: 'creator_id', select: 'full_name' },
+    { path: 'creator_id', select: 'fname lname' },
   ])
     .sort({ _id: -1 })
     .skip(skip)
@@ -43,12 +42,12 @@ const getAssessment = AsyncHandler(async (req, res) => {
   const newData = data.map((item) => ({
     _id: item._id,
     Type_Of_Assesment: item.Type_Of_Assesment,
-    Orgenization: item.Orgenization_id.Organization, // Ensure this is correct
+    Orgenization: item.Tenant_id.company_name, // Ensure this is correct
     code_Upload: item.code_Upload,
     Data_Classification: item.Data_Classification,
-    Tester: item.Select_Tester.full_name,
+    // Tester: item.Select_Tester.full_name,
     MFA_Enabled: item.MFA_Enabled,
-    creator: item.creator_id.full_name,
+    creator: item.creator_id.fname +" " + item.creator_id.lname,
     task_start: item.task_start,
     task_end: item.task_end,
   }));

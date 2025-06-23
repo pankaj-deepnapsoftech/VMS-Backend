@@ -51,7 +51,7 @@ const AddNewData = AsyncHandler(async (req, res) => {
     }
   }
   const exploitability = await getExploitability(data.Title, data.Severity);
-  await DataModel.create({ ...data, creator_id: id, exploitability });
+  await DataModel.create({ ...data, exploitability });
 
   return res.status(StatusCodes.OK).json({
     message: 'data created',
@@ -260,18 +260,15 @@ const VulnerableRiskRating = AsyncHandler(async (req, res) => {
   past90Days.setDate(currentDate.getDate() - 90); // 90 days ago
 
   // Dynamic match condition for organization filter
-  let Organization = {};
-  if (req?.currentUser?.Organization) {
-    Organization = { Organization: req?.currentUser?.Organization };
-  } else if (req?.currentUser?.owner) {
-    const data = await AuthModel.findById(req?.currentUser?.owner);
-    Organization = { Organization: data?.Organization };
-  }
+  const querydata = req.query?.creator_id;
+  const tenant = req.currentUser?.tenant;
+  
+  const creator_id = querydata ? {creator_id: new mongoose.Types.ObjectId(querydata)} : tenant ? {creator_id:tenant} : "";
 
   const data = await DataModel.aggregate([
     {
       $match: {
-        ...Organization,
+        ...creator_id,
         createdAt: { $gte: past90Days, $lte: currentDate }, // Last 90 days data
       },
     },
@@ -325,18 +322,15 @@ const VulnerableRiskRating = AsyncHandler(async (req, res) => {
 const NewAndCloseVulnerable = AsyncHandler(async (req, res) => {
   const currentYear = new Date().getFullYear();
 
-  let Organization = {};
-  if (req?.currentUser?.Organization) {
-    Organization = { Organization: req?.currentUser?.Organization };
-  } else if (req?.currentUser?.owner) {
-    const data = await AuthModel.findById(req?.currentUser?.owner);
-    Organization = { Organization: data?.Organization };
-  }
+  const querydata = req.query?.creator_id;
+  const tenant = req.currentUser?.tenant;
+  
+  const creator_id = querydata ? {creator_id: new mongoose.Types.ObjectId(querydata)} : tenant ? {creator_id:tenant} : "";
 
   const data = await DataModel.aggregate([
     {
       $match: {
-        ...Organization,
+        ...creator_id,
         createdAt: {
           $gte: new Date(currentYear, 0, 1),
           $lt: new Date(currentYear + 1, 0, 1),
@@ -527,10 +521,11 @@ const CriticalHighVulnerableOverdue = AsyncHandler(async (req, res) => {
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the current month
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  const matchCondition = req.currentUser?.Organization
-    ? { Organization: req.currentUser.Organization }
-    : {};
-  const data = await DataModel.find({ ...matchCondition, createdAt: { $gte: startOfMonth, $lte: endOfMonth }, $or: [{ Severity: 'High' }, { Severity: 'Critical' }] });
+  const querydata = req.query?.creator_id;
+  const tenant = req.currentUser?.tenant;
+  
+  const creator_id = querydata ? {creator_id: new mongoose.Types.ObjectId(querydata)} : tenant ? {creator_id:tenant} : "";
+  const data = await DataModel.find({ ...creator_id, createdAt: { $gte: startOfMonth, $lte: endOfMonth }, $or: [{ Severity: 'High' }, { Severity: 'Critical' }] });
 
   let webApplication = 0;
   let mobileApplication = 0;
