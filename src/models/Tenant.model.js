@@ -1,5 +1,9 @@
 import { Schema,model } from "mongoose";
 
+const PartnersSchema = new Schema({
+  value:{type:Schema.Types.ObjectId,ref:"Partner",required:true},
+  name:{type:String,required:true}
+});
 
 const TenantSchema = new Schema({
   company_name:{type:String,required:true},
@@ -10,6 +14,7 @@ const TenantSchema = new Schema({
   City:{type:String,required:true},
   Industry:{type:String,required:true},
   Risk_Apetite:{type:String,required:true},
+  Partner:[PartnersSchema]
 });
 
 export const TenantModel = model("Tenant",TenantSchema);

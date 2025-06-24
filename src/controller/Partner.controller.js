@@ -69,3 +69,4 @@ export const AllPartner = AsyncHandler(async (_req, res) => {
 
 
 
+

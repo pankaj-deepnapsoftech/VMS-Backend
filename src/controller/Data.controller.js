@@ -44,7 +44,6 @@ const CreateData = AsyncHandler(async (req, res) => {
 
 const AddNewData = AsyncHandler(async (req, res) => {
   const data = req.body;
-  const id = req.currentUser?._id;
   for (let item in data) {
     if (!data[item]) {
       throw new NotFoundError('all fileld is required', 'AddNewData method');

@@ -70,4 +70,3 @@ export const GetAllTanent = AsyncHandler(async (_req,res) => {
 
 
 
-
