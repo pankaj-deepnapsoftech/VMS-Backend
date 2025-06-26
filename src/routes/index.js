@@ -11,14 +11,14 @@ import ReportRoutes from './Report.routes.js';
 import InfraRoutes from './infra.routes.js';
 import OpenAiRoutes from "./OpenApi.routes.js";
 import BookDemoRoutes from "./BookDemo.routes.js";
-import AssertInventry from "./AssetEnventry.routes.js";
-import DeviceRoutes from "./Device.routes.js";
-import AssetDataRoutes from "./AssetData.routes.js";
-import AssertRiskRatingRoutes from "./AssetRiskRating.routes.js";
 import TanentRoutes from "./Tenant.routes.js";
 import RoleRoutes from "./Role.Routes.js" ;
 import PartnerRoutes from "./Partner.routes.js";
 import { Authentication } from '../middleware/Authentication.js';
+import InfraStructureAssetRoutes from "./InfraStructureAsset.routes.js";
+import BusinessApplicationRoutes from "./BussinessApp.routes.js";
+import { upload } from '../config/multer.config.js';
+import { BulkCreateInfraAsset } from '../controller/InfraStructureAsset.controller.js';
 
 const routes = Router();
 
@@ -33,13 +33,11 @@ routes.use('/report', ReportRoutes);
 routes.use('/infra', InfraRoutes);
 routes.use("/open-api", OpenAiRoutes);
 routes.use("/book-demo", BookDemoRoutes);
-routes.use("/assert", AssertInventry);
-routes.use("/device", DeviceRoutes);
-routes.use("/asset-data",AssetDataRoutes);
-routes.use("/asset-risk-rating",AssertRiskRatingRoutes);
 routes.use("/tenant",Authentication,TanentRoutes);
 routes.use("/role",Authentication,RoleRoutes);
 routes.use("/partner",Authentication,PartnerRoutes);
+routes.use("/infraStructureAsset",Authentication,InfraStructureAssetRoutes);
+routes.use("/BusinessApplication",Authentication,BusinessApplicationRoutes);
 
 
 export default routes;
