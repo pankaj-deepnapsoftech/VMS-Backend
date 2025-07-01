@@ -44,55 +44,32 @@ const CreateData = AsyncHandler(async (req, res) => {
 
 const AddNewData = AsyncHandler(async (req, res) => {
   const data = req.body;
-  for (let item in data) {
-    if (!data[item]) {
-      throw new NotFoundError('all fileld is required', 'AddNewData method');
-    }
-  }
-  const exploitability = await getExploitability(data.Title, data.Severity);
-  await DataModel.create({ ...data, exploitability });
+
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+
+  await DataModel.create({...data,creator});
 
   return res.status(StatusCodes.OK).json({
     message: 'data created',
+    data
   });
 });
 
-const getAllData = AsyncHandler(async (req, res) => {
+const getApplicationData = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
 
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 20;
   const skip = (pages - 1) * limits;
 
-  const creator_id = req.currentUser?.tenant;
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
 
 
-  const getAllData = await DataModel.find(creator_id ? { creator_id } : {})
-    .populate([
-      { path: 'Assigned_To', select: 'full_name' },
-      { path: 'creator_id', select: 'full_name' },
-    ]).sort({ _id: -1 })
+  const data = await DataModel.find(creator ? { creator,asset_type:"Application" } : {asset_type:"Application"}).sort({ _id: -1 }).populate([{path:"BusinessApplication",select:"name"},{path:"creator",select:"company_name"}])
     .skip(skip)
     .limit(limits)
     .exec();
-  const data = getAllData.map((item) => ({
-    _id: item._id,
-    Organization: item?.Organization,
-    Application_Name: item?.Application_Name,
-    Title: item?.Title,
-    Assigned_To: item?.Assigned_To,
-    Vulnerability_Classification: item?.Vulnerability_Classification,
-    Scan_Type: item?.Scan_Type,
-    Severity: item?.Severity,
-    Priority: item?.Priority,
-    Status: item?.Status,
-    Remediated_Date: item?.Remediated_Date,
-    Ageing: item?.Ageing,
-    Remediate_Upcoming_Time_Line: item?.Remediate_Upcoming_Time_Line,
-    creator: item?.creator_id?.full_name,
-    detailed_Report: item?.docs,
-    Exception_time: item?.Expection_time,
-  }));
+ 
   return res.status(StatusCodes.OK).json({
     message: 'Data Found',
     data,
@@ -1369,7 +1346,7 @@ const TopExploitability = AsyncHandler(async (req, res) => {
 
 export {
   CreateData,
-  getAllData,
+  getApplicationData,
   DeleteManyData,
   DeteleOneData,
   updateOneData,

@@ -84,7 +84,8 @@ export const DeleteBusinessApp = AsyncHandler(async (req, res) => {
 
 
 export const GetAllBusinessApp = AsyncHandler(async (req, res) => {
-  const data = await ApplicationModel.find({creator:req?.currentUser?._id});
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  const data = await ApplicationModel.find(creator ? {creator}: {}).sort({ _id: -1 }).select("name");
   return res.status(StatusCodes.OK).json({
     message: "data",
     data

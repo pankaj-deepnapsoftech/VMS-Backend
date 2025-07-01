@@ -9,7 +9,6 @@ import fs from 'fs';
 
 export const CreateInfraAsset = AsyncHandler(async (req, res) => {
   const data = req.body;
-  console.log(data);
   await InfraStructureAssetModel.create(data);
   return res.status(StatusCodes.CREATED).json({
     message: "InfraStructure Assert Added Successful"
@@ -89,7 +88,8 @@ export const DeleteInfraAsset = AsyncHandler(async (req, res) => {
 
 
 export const GetAllInfraAsset = AsyncHandler(async (req, res) => {
-  const data = await InfraStructureAssetModel.find({ creator: req?.currentUser?._id });
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  const data = await InfraStructureAssetModel.find(creator ? { creator } : {}).sort({ _id: -1 });
   return res.status(StatusCodes.OK).json({
     message: "data",
     data
