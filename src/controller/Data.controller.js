@@ -76,6 +76,27 @@ const getApplicationData = AsyncHandler(async (req, res) => {
   });
 });
 
+const getInfrastructureData = AsyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+
+  const pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 20;
+  const skip = (pages - 1) * limits;
+
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+
+
+  const data = await DataModel.find(creator ? { creator,asset_type:"Infrastructure" } : {asset_type:"Infrastructure"}).sort({ _id: -1 }).populate([{path:"InfraStructureAsset",select:"name"},{path:"creator",select:"company_name"}])
+    .skip(skip)
+    .limit(limits)
+    .exec();
+ 
+  return res.status(StatusCodes.OK).json({
+    message: 'Data Found',
+    data,
+  });
+});
+
 const DeteleOneData = AsyncHandler(async (req, res) => {
   const { id } = req.params;
   const data = await DataModel.findById(id).exec();
@@ -1380,4 +1401,5 @@ export {
   AdminDeferredVulnerableItems,
   ClientDeferredVulnerableItems,
   TopExploitability,
+  getInfrastructureData
 };
