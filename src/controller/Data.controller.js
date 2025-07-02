@@ -10,8 +10,9 @@ import { convertKeysToUnderscore, excelSerialToDate } from '../utils/excelSerial
 import { config } from '../config/env.config.js';
 import { InfraModel } from '../models/infra.model.js';
 import { getExploitability } from './OpenApi.controller.js';
-import { AuthModel } from '../models/Auth.model.js'; 
+import { AuthModel } from '../models/Auth.model.js';
 import mongoose from 'mongoose';
+import { EPSS, ExploitDetails, getCveId } from '../utils/ThirdPartHandler.js';
 
 
 export const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -47,7 +48,18 @@ const AddNewData = AsyncHandler(async (req, res) => {
 
   const creator = req?.currentUser?.tenant || req.query?.tenant;
 
-  await DataModel.create({...data,creator});
+  let Exploit_Availale = "", Exploit_Details = "", EPSSData = "";
+
+  if (data?.CVE_ID) {
+    Exploit_Availale = await getCveId(data?.CVE_ID);
+    if (Exploit_Availale) {
+      Exploit_Details = await ExploitDetails(data?.CVE_ID);
+    }
+    EPSSData = await EPSS(data?.CVE_ID);
+  }
+
+
+  await DataModel.create({ ...data, creator, EPSS: EPSSData, Exploit_Details, Exploit_Availale });
 
   return res.status(StatusCodes.OK).json({
     message: 'data created',
@@ -65,11 +77,11 @@ const getApplicationData = AsyncHandler(async (req, res) => {
   const creator = req?.currentUser?.tenant || req.query?.tenant;
 
 
-  const data = await DataModel.find(creator ? { creator,asset_type:"Application" } : {asset_type:"Application"}).sort({ _id: -1 }).populate([{path:"BusinessApplication",select:"name"},{path:"creator",select:"company_name"}])
+  const data = await DataModel.find(creator ? { creator, asset_type: "Application" } : { asset_type: "Application" }).sort({ _id: -1 }).populate([{ path: "BusinessApplication", select: "name" }, { path: "creator", select: "company_name" }])
     .skip(skip)
     .limit(limits)
     .exec();
- 
+
   return res.status(StatusCodes.OK).json({
     message: 'Data Found',
     data,
@@ -86,11 +98,11 @@ const getInfrastructureData = AsyncHandler(async (req, res) => {
   const creator = req?.currentUser?.tenant || req.query?.tenant;
 
 
-  const data = await DataModel.find(creator ? { creator,asset_type:"Infrastructure" } : {asset_type:"Infrastructure"}).sort({ _id: -1 }).populate([{path:"InfraStructureAsset",select:"name"},{path:"creator",select:"company_name"}])
+  const data = await DataModel.find(creator ? { creator, asset_type: "Infrastructure" } : { asset_type: "Infrastructure" }).sort({ _id: -1 }).populate([{ path: "InfraStructureAsset", select: "name" }, { path: "creator", select: "company_name" }])
     .skip(skip)
     .limit(limits)
     .exec();
- 
+
   return res.status(StatusCodes.OK).json({
     message: 'Data Found',
     data,
@@ -193,7 +205,7 @@ const vulnerableItems = AsyncHandler(async (req, res) => {
   let creator_id = req.currentUser?.tenant;
 
   // eslint-disable-next-line no-undef
-  creator_id = queryData ? {creator_id:new mongoose.Types.ObjectId(queryData)}  : creator_id ? {creator_id} :  "";
+  creator_id = queryData ? { creator_id: new mongoose.Types.ObjectId(queryData) } : creator_id ? { creator_id } : "";
 
 
   try {
@@ -259,8 +271,8 @@ const VulnerableRiskRating = AsyncHandler(async (req, res) => {
   // Dynamic match condition for organization filter
   const querydata = req.query?.creator_id;
   const tenant = req.currentUser?.tenant;
-  
-  const creator_id = querydata ? {creator_id: new mongoose.Types.ObjectId(querydata)} : tenant ? {creator_id:tenant} : "";
+
+  const creator_id = querydata ? { creator_id: new mongoose.Types.ObjectId(querydata) } : tenant ? { creator_id: tenant } : "";
 
   const data = await DataModel.aggregate([
     {
@@ -321,8 +333,8 @@ const NewAndCloseVulnerable = AsyncHandler(async (req, res) => {
 
   const querydata = req.query?.creator_id;
   const tenant = req.currentUser?.tenant;
-  
-  const creator_id = querydata ? {creator_id: new mongoose.Types.ObjectId(querydata)} : tenant ? {creator_id:tenant} : "";
+
+  const creator_id = querydata ? { creator_id: new mongoose.Types.ObjectId(querydata) } : tenant ? { creator_id: tenant } : "";
 
   const data = await DataModel.aggregate([
     {
@@ -364,7 +376,7 @@ const ClosevulnerableItems = AsyncHandler(async (req, res) => {
   const futureDate = new Date(today);
   futureDate.setDate(today.getDate() + 7);
 
-  
+
   let creator_id = req.query.creator_id || req.currentUser?.tenant;
 
   const data = await DataModel.find(
@@ -481,11 +493,11 @@ const CriticalHighVulnerable = AsyncHandler(async (req, res) => {
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the current month
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  
+
   const querydata = req.query?.creator_id;
   const tenant = req.currentUser?.tenant;
-  
-  const creator_id = querydata ? {creator_id: new mongoose.Types.ObjectId(querydata)} : tenant ? {creator_id:tenant} : "";
+
+  const creator_id = querydata ? { creator_id: new mongoose.Types.ObjectId(querydata) } : tenant ? { creator_id: tenant } : "";
 
   const data = await DataModel.find({ ...creator_id, createdAt: { $gte: startOfMonth, $lte: endOfMonth }, $or: [{ Severity: 'High' }, { Severity: 'Critical' }] });
 
@@ -520,8 +532,8 @@ const CriticalHighVulnerableOverdue = AsyncHandler(async (req, res) => {
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
   const querydata = req.query?.creator_id;
   const tenant = req.currentUser?.tenant;
-  
-  const creator_id = querydata ? {creator_id: new mongoose.Types.ObjectId(querydata)} : tenant ? {creator_id:tenant} : "";
+
+  const creator_id = querydata ? { creator_id: new mongoose.Types.ObjectId(querydata) } : tenant ? { creator_id: tenant } : "";
   const data = await DataModel.find({ ...creator_id, createdAt: { $gte: startOfMonth, $lte: endOfMonth }, $or: [{ Severity: 'High' }, { Severity: 'Critical' }] });
 
   let webApplication = 0;
@@ -1320,7 +1332,7 @@ const ClientDeferredVulnerableItems = AsyncHandler(async (req, res) => {
 });
 
 const TopExploitability = AsyncHandler(async (req, res) => {
-  
+
   const creator_id = req.query.creator_id || req.currentUser?.tenant;
   const data = await DataModel.find(creator_id ? { creator_id } : {});
   const obj = {

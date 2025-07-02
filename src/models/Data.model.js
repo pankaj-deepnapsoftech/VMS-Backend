@@ -11,7 +11,7 @@ const DataSchema = new Schema({
   threat_type: { type: String, required: true, enum: ["Vulnerability", "Misconfiguration"] },
   CVE: { type: String, required: true, enum: ["Yes", "No"] },
   CVE_ID: { type: String },
-  Exploit_Availale: { type: String},
+  Exploit_Availale: { type: Boolean,required:true,default:false},
   Exploit_Details: { type: [String]},
   EPSS: { type: String },
   exploit_complexity: { type: String, enum: ["Without Authentication", "Low Privilege Require", "Full Privilege Required"] },
