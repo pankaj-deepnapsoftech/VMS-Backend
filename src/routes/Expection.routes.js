@@ -1,10 +1,13 @@
 import { Router } from "express";
-import { CreateExpection } from "../controller/Expection.controller.js";
+import { CreateExpection, DeleteExpection, GetExpection, UpdateExpection } from "../controller/Expection.controller.js";
 
 
 const router  = Router();
 
 router.route("/create").post(CreateExpection);
+router.route("/get").get(GetExpection);
+router.route("/delete/:id").delete(DeleteExpection);
+router.route("/update/:id").delete(UpdateExpection);
 
 
 
