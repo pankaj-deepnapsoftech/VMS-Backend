@@ -1,5 +1,6 @@
 import { Router } from 'express';
 // local imports
+import { Authentication } from '../middleware/Authentication.js';
 import AuthRoutes from './Auth.routes.js';
 import DataRoutes from './data.routes.js';
 import JiraRoutes from './Jira.routes.js';
@@ -14,11 +15,9 @@ import BookDemoRoutes from "./BookDemo.routes.js";
 import TanentRoutes from "./Tenant.routes.js";
 import RoleRoutes from "./Role.Routes.js" ;
 import PartnerRoutes from "./Partner.routes.js";
-import { Authentication } from '../middleware/Authentication.js';
 import InfraStructureAssetRoutes from "./InfraStructureAsset.routes.js";
 import BusinessApplicationRoutes from "./BussinessApp.routes.js";
-import { upload } from '../config/multer.config.js';
-import { BulkCreateInfraAsset } from '../controller/InfraStructureAsset.controller.js';
+import ExpectionRoutes from "./Expection.routes.js";
 
 const routes = Router();
 
@@ -38,6 +37,7 @@ routes.use("/role",Authentication,RoleRoutes);
 routes.use("/partner",Authentication,PartnerRoutes);
 routes.use("/infraStructureAsset",Authentication,InfraStructureAssetRoutes);
 routes.use("/BusinessApplication",Authentication,BusinessApplicationRoutes);
+routes.use("/expection",Authentication,ExpectionRoutes);
 
 
 export default routes;
