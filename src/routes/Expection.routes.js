@@ -4,7 +4,7 @@ import { CreateExpection } from "../controller/Expection.controller.js";
 
 const router  = Router();
 
-router.route("/create").post(CreateExpection)
+router.route("/create").post(CreateExpection);
 
 
 
