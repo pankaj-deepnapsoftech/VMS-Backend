@@ -21,7 +21,7 @@ export const GetExpection = AsyncHandler(async (req, res) => {
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
 
-  const data = await ExpectionModel.find({}).sort({_id:-1}).skip(skip).limit(limits);
+  const data = await ExpectionModel.find({}).populate("vulnerable_data").sort({_id:-1}).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     message:"data",
     data
