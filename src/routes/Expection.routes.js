@@ -7,7 +7,7 @@ const router  = Router();
 router.route("/create").post(CreateExpection);
 router.route("/get").get(GetExpection);
 router.route("/delete/:id").delete(DeleteExpection);
-router.route("/update/:id").delete(UpdateExpection);
+router.route("/update/:id").put(UpdateExpection);
 
 
 

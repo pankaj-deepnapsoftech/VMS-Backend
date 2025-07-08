@@ -1,5 +1,10 @@
 import {Schema,model} from "mongoose";
 
+const ApprovalSchema = new Schema({
+  approver:{type:Schema.Types.ObjectId,ref:"Tenant",required:true},
+  status:{type:String,required:true,enum:['Pending','Approved','Rejected'],default:"Pending"},
+});
+
 
 const ExpectionSchema = new Schema({
   exception_start_data:{type:Date,required:true},
@@ -9,7 +14,10 @@ const ExpectionSchema = new Schema({
   detail:{type:String,required:true},
   proof:{type:String},
   creator:{type:Schema.Types.ObjectId,ref:"User",required:true},
-  vulnerable_data:{type:Schema.Types.ObjectId,ref:"Data",required:true}
+  vulnerable_data:{type:Schema.Types.ObjectId,ref:"Data",required:true},
+  aprove_1:ApprovalSchema,
+  aprove_2:ApprovalSchema,
+  aprove_3:ApprovalSchema, 
 });
 
 
