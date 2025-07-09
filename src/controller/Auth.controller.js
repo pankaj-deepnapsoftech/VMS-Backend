@@ -316,6 +316,15 @@ const UpdateUserByAdmin = AsyncHandler(async (req,res) => {
   });
 });
 
+const getAllUserByTenant = AsyncHandler(async(req,res)=>{
+  const tenant = req?.currentUser?.tenant || req.query?.tenant;
+  const data = await AuthModel.find({tenant}).select("fname lname email");
+  return res.status(StatusCodes.OK).json({
+    message: "All User Data",
+    data
+  });
+});
+
 
 
 
@@ -335,4 +344,5 @@ export {
   DeleteUser,
   GetAllUsers,
   UpdateUserByAdmin,
+  getAllUserByTenant
 };

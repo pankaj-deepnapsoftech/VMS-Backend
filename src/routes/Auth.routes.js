@@ -16,6 +16,7 @@ import {
   DeleteUser,
   GetAllUsers,
   UpdateUserByAdmin,
+  getAllUserByTenant,
 } from '../controller/Auth.controller.js';
 import {  Authentication } from '../middleware/Authentication.js';
 import { upload } from '../config/multer.config.js';
@@ -37,5 +38,6 @@ routes.route("/reset-password-question/:email").put(ResetPasswordByQuestions);
 routes.route("/delete-user/:id").delete(Authentication,DeleteUser);
 routes.route("/all-users").get(Authentication,GetAllUsers);
 routes.route("/update-user/:id").put(Authentication,UpdateUserByAdmin);
+routes.route("/user-by-tenant").get(Authentication,getAllUserByTenant);
 
 export default routes;

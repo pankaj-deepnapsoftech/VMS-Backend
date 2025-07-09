@@ -76,11 +76,47 @@ const getApplicationData = AsyncHandler(async (req, res) => {
 
   const creator = req?.currentUser?.tenant || req.query?.tenant;
 
-
-  const data = await DataModel.find(creator ? { creator, asset_type: "Application" } : { asset_type: "Application" }).sort({ _id: -1 }).populate([{ path: "BusinessApplication", select: "name" }, { path: "creator", select: "company_name" }])
-    .skip(skip)
+  const data = await DataModel.aggregate([
+    {
+      $match:creator ? { creator:new mongoose.Types.ObjectId(creator), asset_type: "Application" } : { asset_type: "Application" } 
+    },
+    {
+      $lookup:{
+        from:"expections",
+        foreignField:"vulnerable_data",
+        localField:"_id",
+        as:"Expection"
+      }
+    },
+    {
+      $lookup:{
+        from:"businessapplications",
+        localField:"BusinessApplication",
+        foreignField:"_id",
+        as:"BusinessApplication"
+      }
+    },
+    {
+      $lookup:{
+        from:"tenants",
+        localField:"creator",
+        foreignField:"_id",
+        as:"creator"
+      } 
+    },
+    
+    {
+      $addFields:{
+        BusinessApplication: { $arrayElemAt: ["$BusinessApplication", 0] },
+        creator: { $arrayElemAt: ["$creator", 0] },
+        Expection: { $arrayElemAt: ["$Expection", 0] },
+      }
+    }
+  ]).skip(skip)
     .limit(limits)
-    .exec();
+    .exec(); 
+  
+   
 
   return res.status(StatusCodes.OK).json({
     message: 'Data Found',
@@ -98,10 +134,46 @@ const getInfrastructureData = AsyncHandler(async (req, res) => {
   const creator = req?.currentUser?.tenant || req.query?.tenant;
 
 
-  const data = await DataModel.find(creator ? { creator, asset_type: "Infrastructure" } : { asset_type: "Infrastructure" }).sort({ _id: -1 }).populate([{ path: "InfraStructureAsset", select: "name" }, { path: "creator", select: "company_name" }])
-    .skip(skip)
+  const data = await DataModel.aggregate([
+    {
+      $match:creator ? { creator:new mongoose.Types.ObjectId(creator), asset_type: "Infrastructure" } : { asset_type: "Infrastructure" } 
+    },
+    {
+      $lookup:{
+        from:"expections",
+        foreignField:"vulnerable_data",
+        localField:"_id",
+        as:"Expection"
+      }
+    },
+    {
+      $lookup:{
+        from:"infrastructureassets",
+        localField:"InfraStructureAsset",
+        foreignField:"_id",
+        as:"InfraStructureAsset"
+      }
+    },
+    {
+      $lookup:{
+        from:"tenants",
+        localField:"creator",
+        foreignField:"_id",
+        as:"creator"
+      } 
+    },
+    
+    {
+      $addFields:{
+        // InfraStructureAsset: { $arrayElemAt: ["$InfraStructureAsset", 0] },
+        creator: { $arrayElemAt: ["$creator", 0] },
+        Expection: { $arrayElemAt: ["$Expection", 0] },
+      }
+    }
+  ]).skip(skip)
     .limit(limits)
     .exec();
+    
 
   return res.status(StatusCodes.OK).json({
     message: 'Data Found',
