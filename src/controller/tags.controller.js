@@ -52,6 +52,15 @@ export const UpdateTag = AsyncHandler(async (req, res) => {
 });
 
 
+export const AllTag = AsyncHandler(async (req, res) => {
+  const tags = await TagModel.find({}).select("tag_color tag_name");
+  return res.status(200).json({
+    message: "Tags fetched successfully",
+    data: tags,
+  });
+});
+
+
 
 
 
