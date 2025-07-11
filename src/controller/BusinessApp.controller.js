@@ -48,7 +48,7 @@ export const GetBusinessApp = AsyncHandler(async (req, res) => {
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
-  const data = await ApplicationModel.find(creator ? {creator} : {}).sort({ _id: -1 }).skip(skip).limit(limits);
+  const data = await ApplicationModel.find(creator ? {creator} : {}).select("tages").sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     message: "data",
     data
