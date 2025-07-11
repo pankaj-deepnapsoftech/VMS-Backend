@@ -9,7 +9,7 @@ const router = Router();
 router.route("/create").post(Validater(TagValidation),CraeteTags);
 router.route("/get-tags").get(GetAllTags);
 router.route("/delete/:id").delete(deleteTag);
-router.route("/UpdateTag/:id").delete(UpdateTag);
+router.route("/update-tag/:id").put(UpdateTag);
 
 
 

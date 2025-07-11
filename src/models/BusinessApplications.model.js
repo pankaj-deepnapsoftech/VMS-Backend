@@ -9,8 +9,8 @@ const applicationSchema = new Schema({
   type: {type: String,enum: ['Mobile', 'Web', 'Microservice', 'APIs'],required: true,trim: true  },
   applicationUrl: {type: String,trim: true},
   modifyCriticality: {type: String,enum: ['Critical', 'High', 'Medium', 'Low'],required: true,trim: true },
-  creator:{type:Schema.Types.ObjectId,ref:"Tenant",required:true}
-
+  creator:{type:Schema.Types.ObjectId,ref:"Tenant",required:true},
+  tages: [{ type:Schema.Types.ObjectId, ref: "Tag", required: true }],
 }, { timestamps: true });
 
 
