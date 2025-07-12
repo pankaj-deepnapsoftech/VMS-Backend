@@ -10,6 +10,7 @@ const applicationSchema = new Schema({
   applicationUrl: {type: String,trim: true},
   modifyCriticality: {type: String,enum: ['Critical', 'High', 'Medium', 'Low'],required: true,trim: true },
   creator:{type:Schema.Types.ObjectId,ref:"Tenant",required:true},
+  asset:{type:Schema.Types.ObjectId,ref:"InfraStructureAsset",required:true},
   tages: [{ type:Schema.Types.ObjectId, ref: "Tag", required: true }],
 }, { timestamps: true });
 
