@@ -2,6 +2,9 @@ import { StatusCodes } from "http-status-codes";
 import { TenantModel } from "../models/Tenant.model.js";
 import { AsyncHandler } from "../utils/AsyncHandler.js";
 import { NotFoundError } from "../utils/customError.js";
+import { AuthModel } from "../models/Auth.model.js";
+import { SendMail } from "../utils/SendMain.js";
+import { config } from "../config/env.config.js";
 
 
 
@@ -58,6 +61,22 @@ export const GetAllTanent = AsyncHandler(async (_req,res) => {
   return res.status(StatusCodes.OK).json({
     message:"data",
     data
+  });
+});
+
+export const AssignPartner = AsyncHandler(async(req,res) => {
+  const {Partner} = req.body;
+  const { id } = req.params;
+  const exist = await TenantModel.findById(id);
+  const user  = await AuthModel.find({$or:[{partner:Partner},{tenant:id}]}).populate([{path:"tenant"},{path:"role"}]);
+  
+  SendMail("PartnerMail.ejs",{User :user[0]?.fname + " " + user[0]?.lname,loginUrl:config.CLIENT_URL ,Tenant :user[0].tenant?.company_name},{subject:"this is just tesing",email:user[0].email});
+  if (!exist) {
+    throw new NotFoundError("Data not found", "UpdtaeTenant method");
+  }
+  await TenantModel.findByIdAndUpdate(id, {Partner});
+  return res.status(StatusCodes.OK).json({
+    message: "Tenant update Successful"
   });
 });
 

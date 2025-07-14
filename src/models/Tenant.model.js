@@ -1,5 +1,6 @@
 import { Schema,model } from "mongoose";
 
+
 const TenantSchema = new Schema({
   company_name:{type:String,required:true},
   Website_url:{type:String,required:true},
