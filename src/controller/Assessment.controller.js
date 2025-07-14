@@ -21,13 +21,13 @@ const createAssessment = AsyncHandler(async (req, res) => {
 });
 
 const getAssessment = AsyncHandler(async (req, res) => {
-  const { page, limit,finder_id } = req.query;
+  const { page, limit,tenant } = req.query;
 
   // Parse pagination values
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
-  const Tenant_id = finder_id || req.currentUser?.tenant;
+  const Tenant_id = tenant || req.currentUser?.tenant;
  
   const data = await AssessmentModel.find(Tenant_id ? {Tenant_id} : {}).populate([
     { path: 'Tenant_id', select: 'company_name' }, 
