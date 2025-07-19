@@ -17,6 +17,7 @@ import {
   GetAllUsers,
   UpdateUserByAdmin,
   getAllUserByTenant,
+  Verifycaptcha,
 } from '../controller/Auth.controller.js';
 import {  Authentication } from '../middleware/Authentication.js';
 import { upload } from '../config/multer.config.js';
@@ -25,6 +26,7 @@ const routes = Router();
 
 routes.route('/create').post(RegistrationValidate, RegisterUser);
 routes.route('/login').post(LoginValidate, LoginUser);
+routes.route('/verify-recaptcha').post(Verifycaptcha);
 routes.route('/verify-otp').post(Authentication, VerifyOTP);
 routes.route('/verify-email').post(VerifyEmailValidate, VerifyEmail);
 routes.route("/update/:id").put(Authentication,upload.single("profile"),UpdateUserProfile);

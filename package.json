@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "vapt-start": "pm2 start src/index.js --name vapt.backend",
+    "demo-start": "pm2 start src/index.js --name demo.securend.ai",
     "stop": "pm2 stop src/index.js",
     "format": "prettier --write .",
     "lint": "eslint .",

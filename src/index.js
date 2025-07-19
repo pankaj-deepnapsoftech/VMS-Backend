@@ -10,6 +10,10 @@ import { app } from './server.js';
 //  vapt.deepmart.shop port
 const SERVER_PORT = 8078;
 
+// demo.securend.ai
+// const SERVER_PORT = 8095;
+
+
 
 const startServer = async () => {
   app.listen(SERVER_PORT);

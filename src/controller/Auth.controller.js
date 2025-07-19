@@ -8,6 +8,7 @@ import { SendMail } from '../utils/SendMain.js';
 import { compare } from 'bcrypt';
 import { config } from '../config/env.config.js';
 import { AlreadyUsePassword } from '../helper/AlreadyUsedPassword.js';
+import axios from 'axios';
 
 const RegisterUser = AsyncHandler(async (req, res) => {
   const data = req.body;
@@ -31,7 +32,7 @@ const RegisterUser = AsyncHandler(async (req, res) => {
   });
 });
 
-const LoginUser = AsyncHandler(async (req, res) => { 
+const LoginUser = AsyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   const query = req.query;
@@ -150,7 +151,7 @@ const LogoutUser = AsyncHandler(async (req, res) => {
 const getlogedInUser = AsyncHandler(async (req, res) => {
   const user = await AuthModel.findById(req?.currentUser._id).select(
     '_id fname lname email phone email_verification mustChangePassword deactivate profile security_questions createdAt',
-  ).populate([{path:"tenant"},{path:"role"},{path:"partner"}]);
+  ).populate([{ path: "tenant" }, { path: "role" }, { path: "partner" }]);
 
   if (!user) {
     return res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found' });
@@ -161,7 +162,7 @@ const getlogedInUser = AsyncHandler(async (req, res) => {
 
   return res.status(StatusCodes.OK).json({
     message: 'User Data',
-    data: {...userObj,tenant:user?.tenant && user?.tenant?.company_name,role:user?.role && user?.role?.role,allowed_path:user?.role && user?.role?.allowed_path  },
+    data: { ...userObj, tenant: user?.tenant && user?.tenant?.company_name, role: user?.role && user?.role?.role, allowed_path: user?.role && user?.role?.allowed_path },
   });
 });
 
@@ -228,11 +229,11 @@ const UpdateUserProfile = AsyncHandler(async (req, res) => {
   const data = req.body;
   const { id } = req.params;
 
-  const file = req.file; 
-  
-  let profile ;
+  const file = req.file;
 
-  if(file){
+  let profile;
+
+  if (file) {
     profile = config.NODE_ENV !== 'development' ? `${config.FILE_URL}/file/${file.filename}` : `${config.FILE_URL_LOCAL}/file/${file.filename}`;
   }
 
@@ -249,7 +250,7 @@ const UpdateUserProfile = AsyncHandler(async (req, res) => {
   if (!user) {
     throw new NotFoundError('Something Went Wrong', 'UpdateUserProfile method');
   }
-  await AuthModel.findByIdAndUpdate(id, { ...data, otp: null, otp_expire: null, email_verification: true ,profile});
+  await AuthModel.findByIdAndUpdate(id, { ...data, otp: null, otp_expire: null, email_verification: true, profile });
   return res.status(StatusCodes.ACCEPTED).json({
     message: 'User Profile Update',
   });
@@ -292,36 +293,50 @@ const DeleteUser = AsyncHandler(async (req, res) => {
 });
 
 const GetAllUsers = AsyncHandler(async (req, res) => {
-  const {page,limit} = req.query;
+  const { page, limit } = req.query;
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
-  const skip = (pages -1) * limits;
-  const data = await AuthModel.find({_id:{$ne:req?.currentUser?._id}}).select("-password -security_questions -mustChangePassword").populate([{path:"tenant",select:"company_name"},{path:"role",select:"role"},{path:"partner",select:"company_name"}]).sort({_id:-1}).skip(skip).limit(limits);
+  const skip = (pages - 1) * limits;
+  const data = await AuthModel.find({ _id: { $ne: req?.currentUser?._id } }).select("-password -security_questions -mustChangePassword").populate([{ path: "tenant", select: "company_name" }, { path: "role", select: "role" }, { path: "partner", select: "company_name" }]).sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     message: "all users Data",
     data
   });
 });
 
-const UpdateUserByAdmin = AsyncHandler(async (req,res) => {
+const UpdateUserByAdmin = AsyncHandler(async (req, res) => {
   const data = req.body;
-  const {id} = req.params;
+  const { id } = req.params;
   const find = await AuthModel.findById(id);
-  if(!find){
-    throw new NotFoundError("Data not found","UpdateUserByAdmin method");
+  if (!find) {
+    throw new NotFoundError("Data not found", "UpdateUserByAdmin method");
   };
-  await AuthModel.findByIdAndUpdate(id,data);
+  await AuthModel.findByIdAndUpdate(id, data);
   return res.status(StatusCodes.OK).json({
-    message:"User Updated Successful"
+    message: "User Updated Successful"
   });
 });
 
-const getAllUserByTenant = AsyncHandler(async(req,res)=>{
+const getAllUserByTenant = AsyncHandler(async (req, res) => {
   const tenant = req?.currentUser?.tenant || req.query?.tenant;
-  const data = await AuthModel.find({tenant}).select("fname lname email");
+  const data = await AuthModel.find({ tenant }).select("fname lname email");
   return res.status(StatusCodes.OK).json({
     message: "All User Data",
     data
+  });
+});
+
+
+const Verifycaptcha = AsyncHandler(async (req,res) => {
+  const {token} = req.body;
+  const data = await axios.post("https://www.google.com/recaptcha/api/siteverify", null, {
+    params: {
+      secret: config.RECAPTCHA_SECRET,
+      response: token,
+    },
+  });
+  return res.status(StatusCodes.OK).json({
+    success:data.data.success
   });
 });
 
@@ -333,7 +348,7 @@ export {
   LoginUser,
   VerifyOTP,
   VerifyEmail,
-  ResetPassword,  
+  ResetPassword,
   LogoutUser,
   getlogedInUser,
   ChnagePassword,
@@ -344,5 +359,6 @@ export {
   DeleteUser,
   GetAllUsers,
   UpdateUserByAdmin,
-  getAllUserByTenant
+  getAllUserByTenant,
+  Verifycaptcha
 };
