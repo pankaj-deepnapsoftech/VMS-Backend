@@ -5,6 +5,8 @@ const tagSchema = new Schema({
   tag_description:{type:String},
   tag_score:{type:Number, default:0,required:true},
   tag_color:{type:String, default:'#000000'},
+  related :{type:String,required:true},
+  amount:{type:Number}
 });
 
 export const TagModel = model('Tag', tagSchema);
