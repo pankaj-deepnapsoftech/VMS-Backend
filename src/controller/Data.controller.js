@@ -78,35 +78,35 @@ const getApplicationData = AsyncHandler(async (req, res) => {
 
   const data = await DataModel.aggregate([
     {
-      $match:creator ? { creator:new mongoose.Types.ObjectId(creator), asset_type: "Application" } : { asset_type: "Application" } 
+      $match: creator ? { creator: new mongoose.Types.ObjectId(creator), asset_type: "Application" } : { asset_type: "Application" }
     },
     {
-      $lookup:{
-        from:"expections",
-        foreignField:"vulnerable_data",
-        localField:"_id",
-        as:"Expection"
+      $lookup: {
+        from: "expections",
+        foreignField: "vulnerable_data",
+        localField: "_id",
+        as: "Expection"
       }
     },
     {
-      $lookup:{
-        from:"businessapplications",
-        localField:"BusinessApplication",
-        foreignField:"_id",
-        as:"BusinessApplication"
+      $lookup: {
+        from: "businessapplications",
+        localField: "BusinessApplication",
+        foreignField: "_id",
+        as: "BusinessApplication"
       }
     },
     {
-      $lookup:{
-        from:"tenants",
-        localField:"creator",
-        foreignField:"_id",
-        as:"creator"
-      } 
+      $lookup: {
+        from: "tenants",
+        localField: "creator",
+        foreignField: "_id",
+        as: "creator"
+      }
     },
-    
+
     {
-      $addFields:{
+      $addFields: {
         BusinessApplication: { $arrayElemAt: ["$BusinessApplication", 0] },
         creator: { $arrayElemAt: ["$creator", 0] },
         Expection: { $arrayElemAt: ["$Expection", 0] },
@@ -114,9 +114,9 @@ const getApplicationData = AsyncHandler(async (req, res) => {
     }
   ]).skip(skip)
     .limit(limits)
-    .exec(); 
-  
-   
+    .exec();
+
+
 
   return res.status(StatusCodes.OK).json({
     message: 'Data Found',
@@ -136,36 +136,62 @@ const getInfrastructureData = AsyncHandler(async (req, res) => {
 
   const data = await DataModel.aggregate([
     {
-      $match:creator ? { creator:new mongoose.Types.ObjectId(creator), asset_type: "Infrastructure" } : { asset_type: "Infrastructure" } 
+      $match: creator ? { creator: new mongoose.Types.ObjectId(creator), asset_type: "Infrastructure" } : { asset_type: "Infrastructure" }
     },
     {
-      $lookup:{
-        from:"expections",
-        foreignField:"vulnerable_data",
-        localField:"_id",
-        as:"Expection"
+      $lookup: {
+        from: "expections",
+        foreignField: "vulnerable_data",
+        localField: "_id",
+        as: "Expection"
       }
     },
     {
-      $lookup:{
-        from:"infrastructureassets",
-        localField:"InfraStructureAsset",
-        foreignField:"_id",
-        as:"InfraStructureAsset"
+      $lookup: {
+        from: "infrastructureassets",
+        localField: "InfraStructureAsset",
+        foreignField: "_id",
+        as: "InfraStructureAsset",
+        pipeline: [
+          {
+            $lookup: {
+              from: "tags",
+              localField: "service_role",
+              foreignField: "_id",
+              as: "service_role",
+            }
+          },
+          {
+            $addFields: {
+              service_role_score_total: {
+                $sum: "$service_role.tag_score"
+              }
+            }
+          },
+          {
+            $project:{
+              asset_class:1,
+              exposure:1,
+              hosting:1,
+              service_role_score_total:1,
+              
+            }
+          }
+        ]
       }
     },
     {
-      $lookup:{
-        from:"tenants",
-        localField:"creator",
-        foreignField:"_id",
-        as:"creator"
-      } 
+      $lookup: {
+        from: "tenants",
+        localField: "creator",
+        foreignField: "_id",
+        as: "creator"
+      }
     },
-    
+
     {
-      $addFields:{
-        // InfraStructureAsset: { $arrayElemAt: ["$InfraStructureAsset", 0] },
+      $addFields: {
+        InfraStructureAsset: { $arrayElemAt: ["$InfraStructureAsset", 0] },
         creator: { $arrayElemAt: ["$creator", 0] },
         Expection: { $arrayElemAt: ["$Expection", 0] },
       }
@@ -173,7 +199,10 @@ const getInfrastructureData = AsyncHandler(async (req, res) => {
   ]).skip(skip)
     .limit(limits)
     .exec();
-    
+
+
+  console.log(data);
+
 
   return res.status(StatusCodes.OK).json({
     message: 'Data Found',
@@ -207,7 +236,8 @@ const DeleteManyData = AsyncHandler(async (req, res) => {
 
 const updateOneData = AsyncHandler(async (req, res) => {
   const { id } = req.params;
-  const update = req.body;
+  let update = req.body;
+
 
   const data = await DataModel.findById(id).exec();
   if (!data) {
@@ -223,8 +253,8 @@ const updateOneData = AsyncHandler(async (req, res) => {
     }
     EPSSData = await EPSS(update?.CVE_ID);
   }
- 
-  await DataModel.findByIdAndUpdate(id, {...update,Exploit_Availale,Exploit_Details,EPSS:EPSSData}).exec();
+
+  await DataModel.findByIdAndUpdate(id, { ...update, Exploit_Availale, Exploit_Details, EPSS: EPSSData }).exec();
   return res.status(StatusCodes.OK).json({
     message: 'data updated Successful',
   });

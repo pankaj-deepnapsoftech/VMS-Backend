@@ -6,10 +6,11 @@ const InfraStructureAssetSchema = new Schema({
   asset_hostname: { type: String, required: true },
   modify_criticality: { type: String, required: true, enum: ["Critical", "High", "Medium", "Low"] },
   creator: { type: Schema.Types.ObjectId, ref: "Tenant", required: true },
-  asset_class: {type:Number,required:true},
+  asset_class: {type:Number,required:true,default:0},
   service_role: {type:[Schema.Types.ObjectId],ref:"Tag"},
-  exposure: {type:Number,required:true},
-  hosting: {type:Number,required:true},
+  exposure: {type:Number,required:true,default:0},
+  hosting: {type:Number,required:true,default:0},
+  data_sensitivity:{type:Number,required:true,default:0}
 });
 
 
