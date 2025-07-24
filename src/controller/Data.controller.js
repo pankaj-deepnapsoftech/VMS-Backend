@@ -201,8 +201,6 @@ const getInfrastructureData = AsyncHandler(async (req, res) => {
     .exec();
 
 
-  console.log(data);
-
 
   return res.status(StatusCodes.OK).json({
     message: 'Data Found',
