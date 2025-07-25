@@ -37,6 +37,7 @@ import {
   TopExploitability,
   DeleteManyData,
   getInfrastructureData,
+  getAllVulnerabilityData,
 } from '../controller/Data.controller.js';
 import { upload } from '../config/multer.config.js';
 import { Authentication } from '../middleware/Authentication.js';
@@ -79,5 +80,6 @@ routes.route('/ClientRiskRating').get(Authentication, ClientRiskRating);
 routes.route('/AdminDeferredVulnerableItems').get(Authentication, AdminDeferredVulnerableItems);
 routes.route('/ClientDeferredVulnerableItems').get(Authentication, ClientDeferredVulnerableItems);
 routes.route('/TopExploitability').get(Authentication, TopExploitability);
+routes.route("/risk-quantification").get(Authentication,getAllVulnerabilityData);
 
 export default routes;

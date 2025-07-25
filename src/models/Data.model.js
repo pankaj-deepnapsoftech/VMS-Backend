@@ -1,8 +1,8 @@
 import { Schema, model } from 'mongoose';
 
 const proofConcept = new Schema({
-  test: { type: String, required: true },
-  image: { type: String, required: true },
+  test: { type: String, },
+  image: { type: String},
 });
 
 const DataSchema = new Schema({
@@ -23,7 +23,7 @@ const DataSchema = new Schema({
   Reference_URL: { type: String, required: true },
   BusinessApplication: { type: Schema.Types.ObjectId, ref: "BusinessApplication",  },
   InfraStructureAsset: { type: Schema.Types.ObjectId, ref: "InfraStructureAsset", },
-  Proof_of_Concept: [proofConcept],
+  Proof_of_Concept:[proofConcept],
   creator: { type: Schema.Types.ObjectId, ref: "Tenant", required: true },
 },
 { timestamps: true },

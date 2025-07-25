@@ -10,7 +10,7 @@ const InfraStructureAssetSchema = new Schema({
   service_role: {type:[Schema.Types.ObjectId],ref:"Tag"},
   exposure: {type:Number,required:true,default:0},
   hosting: {type:Number,required:true,default:0},
-  data_sensitivity:{type:Number,required:true,default:0}
+  data_sensitivity:{type:Schema.Types.ObjectId,ref:"Tag",required:true}
 });
 
 
