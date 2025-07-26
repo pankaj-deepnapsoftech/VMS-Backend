@@ -154,6 +154,14 @@ const getInfrastructureData = AsyncHandler(async (req, res) => {
           {
             $lookup: {
               from: "tags",
+              localField: "data_sensitivity",
+              foreignField: "_id",
+              as: "data_sensitivity",
+            }
+          },
+          {
+            $lookup: {
+              from: "tags",
               localField: "service_role",
               foreignField: "_id",
               as: "service_role",
@@ -163,7 +171,8 @@ const getInfrastructureData = AsyncHandler(async (req, res) => {
             $addFields: {
               service_role_score_total: {
                 $sum: "$service_role.tag_score"
-              }
+              },
+              data_sensitivity: { $arrayElemAt: ["$data_sensitivity.tag_score", 0] }
             }
           },
           {
@@ -207,7 +216,11 @@ const getInfrastructureData = AsyncHandler(async (req, res) => {
 });
 
 const getAllVulnerabilityData = AsyncHandler(async (req, res) => {
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
   const data = await DataModel.aggregate([
+    {
+      $match: creator ? { creator: new mongoose.Types.ObjectId(creator), } : { }
+    },
     {
       $lookup: {
         from: "businessapplications",
@@ -231,10 +244,18 @@ const getAllVulnerabilityData = AsyncHandler(async (req, res) => {
                   }
                 },
                 {
+                  $lookup: {
+                    from: "tags",
+                    localField: "data_sensitivity",
+                    foreignField: "_id",
+                    as: "data_sensitivity",
+                  }
+                },
+                {
                   $addFields: {
-                    service_role_score_total: {
-                      $sum: "$service_role.tag_score"
-                    },
+                    service_role_score_total: { $sum: "$service_role.tag_score" },
+                    data_sensitivity: { $arrayElemAt: ["$data_sensitivity.tag_score", 0] },
+                    amount: { $arrayElemAt: ["$data_sensitivity.amount", 0] }
 
                   }
                 }
@@ -249,7 +270,7 @@ const getAllVulnerabilityData = AsyncHandler(async (req, res) => {
               hosting: { $arrayElemAt: ["$asset.hosting", 0] },
               data_sensitivity: { $arrayElemAt: ["$asset.data_sensitivity", 0] },
               service_role_score_total: { $arrayElemAt: ["$asset.service_role_score_total", 0] },
-
+              amount: { $arrayElemAt: ["$asset.amount", 0] },
             }
           },
           {
@@ -260,7 +281,8 @@ const getAllVulnerabilityData = AsyncHandler(async (req, res) => {
               exposure: 1,
               hosting: 1,
               data_sensitivity: 1,
-              service_role_score_total: 1
+              service_role_score_total: 1,
+              amount: 1
             }
           }
 
@@ -283,10 +305,18 @@ const getAllVulnerabilityData = AsyncHandler(async (req, res) => {
             }
           },
           {
+            $lookup: {
+              from: "tags",
+              localField: "data_sensitivity",
+              foreignField: "_id",
+              as: "data_sensitivity",
+            }
+          },
+          {
             $addFields: {
-              service_role_score_total: {
-                $sum: "$service_role.tag_score"
-              }
+              service_role_score_total: { $sum: "$service_role.tag_score" },
+              data_sensitivity: { $arrayElemAt: ["$data_sensitivity.tag_score", 0] },
+              amount: { $arrayElemAt: ["$data_sensitivity.amount", 0] }
             }
           },
           {
@@ -296,7 +326,8 @@ const getAllVulnerabilityData = AsyncHandler(async (req, res) => {
               exposure: 1,
               hosting: 1,
               data_sensitivity: 1,
-              service_role_score_total: 1
+              service_role_score_total: 1,
+              amount:1
             }
           }
         ]
@@ -434,7 +465,7 @@ const vulnerableItems = AsyncHandler(async (req, res) => {
   let queryData = req.query.creator_id;
   let creator_id = req.currentUser?.tenant;
 
-  // eslint-disable-next-line no-undef
+   
   creator_id = queryData ? { creator_id: new mongoose.Types.ObjectId(queryData) } : creator_id ? { creator_id } : "";
 
 
