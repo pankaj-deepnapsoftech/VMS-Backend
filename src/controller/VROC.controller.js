@@ -9,7 +9,7 @@ export const GetRiskScoreData = AsyncHandler(async (req, res) => {
   const creator = req?.currentUser?.tenant || req.query?.tenant;
   const data = await DataModel.aggregate([
     {
-      $match: { creator: new mongoose.Types.ObjectId(creator), } 
+      $match: { creator: new mongoose.Types.ObjectId(creator), }
     },
     {
       $lookup: {
@@ -142,18 +142,16 @@ export const GetRiskScoreData = AsyncHandler(async (req, res) => {
     }
   ]);
 
-  let riskScore = 0 ;
+  let riskScore = 0;
+  let financial = 0;
   data.map((item) => {
     riskScore += parseInt(calculateARS(item));
-  });
-
-  let financial = 0;
-  data.map((item)=>{
     financial += calculateALE(item);
   });
 
+
   return res.status(StatusCodes.OK).json({
-    risk_score:((riskScore/data.length)*1000)/100,
-    financial 
+    risk_score: ((riskScore / data.length) * 1000) / 100,
+    financial,
   });
 });

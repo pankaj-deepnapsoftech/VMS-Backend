@@ -181,7 +181,8 @@ const getInfrastructureData = AsyncHandler(async (req, res) => {
               exposure: 1,
               hosting: 1,
               service_role_score_total: 1,
-              data_sensitivity: 1
+              data_sensitivity: 1,
+              asset_hostname:1
             }
           }
         ]

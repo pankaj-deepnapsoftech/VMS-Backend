@@ -15,6 +15,7 @@ const DataSchema = new Schema({
   Exploit_Details: { type: [String]},
   EPSS: { type: String },
   exploit_complexity: { type: String, enum: ["Without Authentication", "Low Privilege Require", "Full Privilege Required"] },
+  status:{type:String,required:true,enum:["Open","Closed","Re-Open","False Positive"],default:"Open"},
   Location: { type: String, required: true },
   Title: { type: String, required: true },
   Description: { type: String },
