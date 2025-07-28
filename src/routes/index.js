@@ -19,7 +19,8 @@ import InfraStructureAssetRoutes from "./InfraStructureAsset.routes.js";
 import BusinessApplicationRoutes from "./BussinessApp.routes.js";
 import ExpectionRoutes from "./Expection.routes.js";
 import TagRouter  from "./Tags.routes.js";
-import { getAllVulnerabilityData } from '../controller/Data.controller.js';
+import VROCRouter from "./vroc.routes.js";
+import { GetRiskScoreData } from '../controller/VROC.controller.js';
 
 const routes = Router();
 
@@ -41,7 +42,8 @@ routes.use("/infraStructureAsset",Authentication,InfraStructureAssetRoutes);
 routes.use("/BusinessApplication",Authentication,BusinessApplicationRoutes);
 routes.use("/expection",Authentication,ExpectionRoutes);
 routes.use("/tags",Authentication,TagRouter);
-routes.get("/test",getAllVulnerabilityData);
+routes.use("/vroc",Authentication,VROCRouter);
+routes.get("/test",GetRiskScoreData);
 
 
 export default routes;

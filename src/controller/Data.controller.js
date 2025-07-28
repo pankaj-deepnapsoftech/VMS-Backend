@@ -216,6 +216,10 @@ const getInfrastructureData = AsyncHandler(async (req, res) => {
 });
 
 const getAllVulnerabilityData = AsyncHandler(async (req, res) => {
+  const {page,limit} = req.query;
+  const Pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 10;
+  const skip = (Pages - 1 ) * limits;
   const creator = req?.currentUser?.tenant || req.query?.tenant;
   const data = await DataModel.aggregate([
     {
@@ -350,7 +354,7 @@ const getAllVulnerabilityData = AsyncHandler(async (req, res) => {
         BusinessApplication: 1
       }
     }
-  ]);
+  ]).sort({_id:-1}).skip(skip).limit(limits);
 
   return res.status(StatusCodes.OK).json({
     data
