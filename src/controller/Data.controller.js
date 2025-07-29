@@ -391,12 +391,13 @@ const updateOneData = AsyncHandler(async (req, res) => {
   let update = req.body;
 
 
+
   const data = await DataModel.findById(id).exec();
   if (!data) {
     throw new NotFoundError('data not Found', 'DeleteOneData method');
   }
 
-  let Exploit_Availale = "", Exploit_Details = "", EPSSData = "";
+  let Exploit_Availale = false, Exploit_Details = "", EPSSData = "";
 
   if (update?.CVE_ID) {
     Exploit_Availale = await getCveId(update?.CVE_ID);
