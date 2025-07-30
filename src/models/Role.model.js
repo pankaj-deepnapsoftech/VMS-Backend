@@ -3,7 +3,8 @@ import { Schema,model } from "mongoose";
 
 const pathsSchema = new Schema({
   name:{type:String},
-  value:{type:String}
+  value:{type:String},
+  permission:[String]
 });
 
 const RoleSchema = new Schema({
@@ -13,5 +14,6 @@ const RoleSchema = new Schema({
 });
 
 export const RoleModels = model("Role",RoleSchema);
+
 
 
