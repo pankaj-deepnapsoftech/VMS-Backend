@@ -11,7 +11,8 @@
     "format": "prettier --write .",
     "lint": "eslint .",
     "swagger": "node src/swagger.js",
-    "securen-start": "pm2 start src/index.js --name securend-backend"
+    "securen-start": "pm2 start src/index.js --name securend-backend",
+    "git":"node github.runner.js"
   },
   "keywords": [],
   "author": "nitin",
