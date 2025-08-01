@@ -16,7 +16,7 @@ export const CreateRole = AsyncHandler(async (req, res) => {
 export const GetRole = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const pages = parseInt(page) || 1;
-  const limits = parseInt(limit) || 10;
+  const limits = parseInt(limit) || 5;
   const skip = (pages - 1) * limits;
   const data = await RoleModels.find({creator:req?.currentUser?._id}).sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
