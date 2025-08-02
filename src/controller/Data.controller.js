@@ -10,6 +10,9 @@ import { convertKeysToUnderscore } from '../utils/excelSerialToDate.js';
 import { getExploitability } from './OpenApi.controller.js';
 import mongoose from 'mongoose';
 import { EPSS, ExploitDetails, getCveId } from '../utils/ThirdPartHandler.js';
+import { ExpectionModel } from '../models/RequestExpection.model.js';
+import { InfraStructureAssetModel } from '../models/InsfrastructureAsset.model.js';
+import { ApplicationModel } from '../models/BusinessApplications.model.js';
 
 
 export const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -413,9 +416,37 @@ const updateOneData = AsyncHandler(async (req, res) => {
 
 const GetTVMCardData = AsyncHandler(async (req, res) => {
   const creator = req?.currentUser?.tenant || req.query?.tenant;
-  const vulnerableData = await DataModel.find(creator ? {creator} : {}).countDocuments();
+  const vulnerableData = await DataModel.find(creator ? { creator } : {});
+  const expections = await ExpectionModel.aggregate(
+    [
+      {
+        $lookup:
+        {
+          from: "datas",
+          localField: "vulnerable_data",
+          foreignField: "_id",
+          as: "vulnerable_data",
+        }
+      },
+      {
+        $addFields: {
+          vulnerable_data: { $arrayElemAt: ["$vulnerable_data", 0] }
+        }
+      },
+      {
+        $match: creator ? { "vulnerable_data.creator": creator } : {}
+      }
+
+    ]
+  );
+  const infrastructure = await InfraStructureAssetModel.find(creator ? { creator } : {}).countDocuments();
+  const businessApplication = await ApplicationModel.find(creator ? { creator } : {}).countDocuments();
   return res.status(StatusCodes.OK).json({
-    vulnerableData
+    vulnerableData:vulnerableData.length,
+    expections:expections.length,
+    infrastructure,
+    businessApplication,
+    Remediated:vulnerableData.filter(item => item.status === 'Closed').length,
   });
 
 });

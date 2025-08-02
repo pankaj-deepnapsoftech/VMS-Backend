@@ -9,6 +9,7 @@ import {
   DeleteManyData,
   getInfrastructureData,
   getAllVulnerabilityData,
+  GetTVMCardData,
 } from '../controller/Data.controller.js';
 import { upload } from '../config/multer.config.js';
 import { Authentication } from '../middleware/Authentication.js';
@@ -23,5 +24,6 @@ routes.route('/delete/:id').delete(Authentication, DeteleOneData);
 routes.route("/delete-many").post(Authentication,DeleteManyData);
 routes.route('/update/:id').patch(Authentication, updateOneData);
 routes.route("/risk-quantification").get(Authentication,getAllVulnerabilityData);
+routes.route("/tvm-cards").get(Authentication,GetTVMCardData);
 
 export default routes;
