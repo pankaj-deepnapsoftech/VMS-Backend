@@ -567,6 +567,78 @@ const TVMSecondChart = AsyncHandler(async (req, res) => {
   });
 });
 
+const TVMNinthChart = AsyncHandler(async (req, res) => {
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  const matchFilter = creator
+    ? { creator: new mongoose.Types.ObjectId(creator), status: { $in: ["Open", "Closed", "Exception"] } }
+    : { status: { $in: ["Open", "Closed", "Exception"] } };
+
+  const result = await DataModel.aggregate([
+    { $match: matchFilter },
+    {
+      $group: {
+        _id: {
+          year: { $year: "$createdAt" },
+          month: { $month: "$createdAt" },
+          status: "$status"
+        },
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $group: {
+        _id: { year: "$_id.year", month: "$_id.month" },
+        severities: {
+          $push: {
+            status: "$_id.status",
+            count: "$count"
+          }
+        }
+      }
+    },
+    {
+      $addFields: {
+        monthName: {
+          $dateToString: {
+            format: "%b",
+            date: {
+              $dateFromParts: {
+                year: "$_id.year",
+                month: "$_id.month",
+                day: 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      $sort: {
+        "_id.year": 1,
+        "_id.month": 1
+      }
+    }
+  ]);
+
+  const formatted = result.map((item) => {
+    const counts = {
+      Open: 0,
+      Closed: 0,
+      Exception: 0,
+    };
+    item.severities.forEach(s => {
+      counts[s.status] = s.count;
+    });
+
+    return {
+      month: `${item.monthName}`,
+      ...counts
+    };
+  });
+
+  return res.status(StatusCodes.OK).json({ data: formatted });
+});
+
 
 
 
@@ -584,4 +656,5 @@ export {
   GetTVMCardData,
   TVMFirstChart,
   TVMSecondChart,
+  TVMNinthChart
 };

@@ -13,7 +13,7 @@ router.route("/get").get(GetBusinessApp);
 router.route("/update/:id").put(UpdateBusinessApp);
 router.route("/delete/:id").delete(DeleteBusinessApp);
 router.route("/get-all").get(GetAllBusinessApp);
-router.route("/tvm-forth-chart").get(TVMChartForth)
+router.route("/tvm-forth-chart").get(TVMChartForth);
 
 
 

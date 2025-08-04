@@ -3,12 +3,14 @@ import { ExpectionModel } from "../models/RequestExpection.model.js";
 import { AsyncHandler } from "../utils/AsyncHandler.js";
 import { NotFoundError } from "../utils/customError.js";
 import mongoose from "mongoose";
+import { DataModel } from "../models/Data.model.js";
 
 
 
 export const CreateExpection = AsyncHandler(async (req, res) => {
   const data = req.body;
   const result = await ExpectionModel.create({ ...data, creator: req?.currentUser?._id });
+  await DataModel.findByIdAndUpdate(data.vulnerable_data,{status:"Exception"});
   return res.status(StatusCodes.CREATED).json({
     message: "Expection created successful",
     data: result

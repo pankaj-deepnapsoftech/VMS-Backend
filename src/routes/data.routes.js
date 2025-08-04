@@ -12,6 +12,7 @@ import {
   GetTVMCardData,
   TVMFirstChart,
   TVMSecondChart,
+  TVMNinthChart,
 } from '../controller/Data.controller.js';
 import { upload } from '../config/multer.config.js';
 import { Authentication } from '../middleware/Authentication.js';
@@ -29,5 +30,6 @@ routes.route("/risk-quantification").get(Authentication,getAllVulnerabilityData)
 routes.route("/tvm-cards").get(Authentication,GetTVMCardData);
 routes.route("/tvm-first-chart").get(Authentication,TVMFirstChart);
 routes.route("/tvm-second-chart").get(Authentication,TVMSecondChart);
+routes.route("/tvm-nine-chart").get(Authentication,TVMNinthChart);
 
 export default routes;
