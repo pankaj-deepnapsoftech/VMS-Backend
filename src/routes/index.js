@@ -20,7 +20,7 @@ import BusinessApplicationRoutes from "./BussinessApp.routes.js";
 import ExpectionRoutes from "./Expection.routes.js";
 import TagRouter  from "./Tags.routes.js";
 import VROCRouter from "./vroc.routes.js";
-import { GetTVMCardData } from '../controller/Data.controller.js';
+import {  TVMFirstChart, TVMSecondChart } from '../controller/Data.controller.js';
 
 const routes = Router();
 
@@ -43,7 +43,7 @@ routes.use("/BusinessApplication",Authentication,BusinessApplicationRoutes);
 routes.use("/expection",Authentication,ExpectionRoutes);
 routes.use("/tags",Authentication,TagRouter);
 routes.use("/vroc",Authentication,VROCRouter);
-routes.get("/test",GetTVMCardData);
+routes.get("/test",TVMSecondChart);
 
 
 export default routes;

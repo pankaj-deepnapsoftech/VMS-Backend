@@ -413,43 +413,172 @@ const updateOneData = AsyncHandler(async (req, res) => {
   });
 });
 
-
 const GetTVMCardData = AsyncHandler(async (req, res) => {
   const creator = req?.currentUser?.tenant || req.query?.tenant;
-  const vulnerableData = await DataModel.find(creator ? { creator } : {});
-  const expections = await ExpectionModel.aggregate(
-    [
+  const matchFilter = creator ? { creator } : {};
+
+  const [
+    vulnerableData,
+    expections,
+    infrastructure,
+    businessApplication
+  ] = await Promise.all([
+    DataModel.find(matchFilter), // get all vulnerable data
+    ExpectionModel.aggregate([
       {
-        $lookup:
-        {
+        $lookup: {
           from: "datas",
           localField: "vulnerable_data",
           foreignField: "_id",
           as: "vulnerable_data",
         }
       },
-      {
-        $addFields: {
-          vulnerable_data: { $arrayElemAt: ["$vulnerable_data", 0] }
-        }
-      },
-      {
-        $match: creator ? { "vulnerable_data.creator": creator } : {}
-      }
+      { $unwind: "$vulnerable_data" }
+    ]),
+    InfraStructureAssetModel.countDocuments(matchFilter),
+    ApplicationModel.countDocuments(matchFilter)
+  ]);
 
-    ]
-  );
-  const infrastructure = await InfraStructureAssetModel.find(creator ? { creator } : {}).countDocuments();
-  const businessApplication = await ApplicationModel.find(creator ? { creator } : {}).countDocuments();
+  const remediatedCount = vulnerableData.filter(item => item.status === 'Closed').length;
+  const expectionsCount = creator
+    ? expections.filter(item => item.vulnerable_data.creator == creator).length
+    : expections.length;
+
   return res.status(StatusCodes.OK).json({
-    vulnerableData:vulnerableData.length,
-    expections:expections.length,
+    vulnerableData: vulnerableData.length,
+    expections: expectionsCount,
     infrastructure,
     businessApplication,
-    Remediated:vulnerableData.filter(item => item.status === 'Closed').length,
+    Remediated: remediatedCount,
+  });
+});
+
+const TVMFirstChart = AsyncHandler(async (req, res) => {
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  const data = await DataModel.find(creator ? { creator } : {});
+
+  let Open = 0, Closed = 0, Re_Open = 0, False_Positive = 0;
+  data.map((item) => {
+    if (item.status === "Open") Open++;
+    if (item.status === "Closed") Closed++;
+    if (item.status === "Re-Open") Re_Open++;
+    if (item.status === "False Positive") False_Positive++;
+
+  });
+
+  return res.status(StatusCodes.OK).json({
+    Open,
+    Closed,
+    Re_Open,
+    False_Positive,
+    total: data.length
+  });
+});
+
+
+
+const TVMSecondChart = AsyncHandler(async (req, res) => {
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  const matchFilter = creator ? { creator: new mongoose.Types.ObjectId(creator) } : {};
+
+  const result = await DataModel.aggregate([
+    { $match: matchFilter },
+    {
+      $group: {
+        _id: {
+          year: { $year: "$createdAt" },
+          month: { $month: "$createdAt" },
+          severity: "$Severity"
+        },
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $group: {
+        _id: { year: "$_id.year", month: "$_id.month" },
+        severities: {
+          $push: {
+            severity: "$_id.severity",
+            count: "$count"
+          }
+        }
+      }
+    },
+    {
+      $addFields: {
+        monthName: {
+          $dateToString: {
+            format: "%b",
+            date: {
+              $dateFromParts: {
+                year: "$_id.year",
+                month: "$_id.month",
+                day: 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      $sort: {
+        "_id.year": 1,
+        "_id.month": 1
+      }
+    }
+  ]);
+
+  const formatted = result.map((item) => {
+    const counts = {
+      Critical: 0,
+      High: 0,
+      Medium: 0,
+      Low: 0,
+      Informational: 0
+    };
+    item.severities.forEach(s => {
+      counts[s.severity] = s.count;
+    });
+
+    return {
+      month: `${item.monthName}`, // e.g., "Jan 2025"
+      ...counts
+    };
+  });
+
+  let label = [], Critical = [], High = [], Medium = [], Low = [], Informational = [];
+
+  formatted.map((item) => {
+    label.push(item.month);
+    Critical.push(item.Critical);
+    High.push(item.High);
+    Medium.push(item.Medium);
+    Low.push(item.Low);
+    Informational.push(item.Informational);
+  });
+
+  return res.status(StatusCodes.OK).json({
+    label,
+    Critical,
+    High,
+    Medium,
+    Low,
+    Informational
+  });
+});
+
+const TVMSexthChart = AsyncHandler(async (req, res) => {
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  const data = await DataModel.find(creator ? { creator } : {});
+
+  const newData = {};
+  data.map((item) => {
+
   });
 
 });
+
+
 
 
 export {
@@ -461,5 +590,8 @@ export {
   AddNewData,
   getInfrastructureData,
   getAllVulnerabilityData,
-  GetTVMCardData
+  GetTVMCardData,
+  TVMFirstChart,
+  TVMSecondChart,
+  TVMSexthChart
 };
