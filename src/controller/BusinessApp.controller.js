@@ -4,6 +4,7 @@ import { NotFoundError } from "../utils/customError.js";
 import { ApplicationModel } from "../models/BusinessApplications.model.js";
 import { convertExcelToJson } from "../utils/ExcelToJson.js";
 import fs from 'fs';
+import { InfraStructureAssetModel } from "../models/InsfrastructureAsset.model.js";
 
 
 
@@ -93,6 +94,17 @@ export const GetAllBusinessApp = AsyncHandler(async (req, res) => {
 });
 
 
+export const TVMChartForth = AsyncHandler(async(req,res)=>{
+  
+  const businessApplication = await ApplicationModel.find({}).countDocuments();
+  const infrastructureIP = await InfraStructureAssetModel.find({}).countDocuments();
+
+  return res.status(StatusCodes.OK).json({
+    businessApplication,
+    infrastructureIP
+  });
+
+});
 
 
 

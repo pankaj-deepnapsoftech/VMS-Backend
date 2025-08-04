@@ -567,16 +567,7 @@ const TVMSecondChart = AsyncHandler(async (req, res) => {
   });
 });
 
-const TVMSexthChart = AsyncHandler(async (req, res) => {
-  const creator = req?.currentUser?.tenant || req.query?.tenant;
-  const data = await DataModel.find(creator ? { creator } : {});
 
-  const newData = {};
-  data.map((item) => {
-
-  });
-
-});
 
 
 
@@ -593,5 +584,4 @@ export {
   GetTVMCardData,
   TVMFirstChart,
   TVMSecondChart,
-  TVMSexthChart
 };
