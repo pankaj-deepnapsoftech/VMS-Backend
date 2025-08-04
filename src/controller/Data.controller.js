@@ -636,7 +636,16 @@ const TVMNinthChart = AsyncHandler(async (req, res) => {
     };
   });
 
-  return res.status(StatusCodes.OK).json({ data: formatted });
+  let label = [], Open = [], Closed = [], Exception = [];
+
+  formatted.map((item) => {
+    label.push(item.month);
+    Open.push(item.Open);
+    Closed.push(item.Closed);
+    Exception.push(item.Exception);
+  });
+
+  return res.status(StatusCodes.OK).json({ label,Open,Closed,Exception });
 });
 
 

@@ -23,6 +23,8 @@ const createAssessment = AsyncHandler(async (req, res) => {
 const getAssessment = AsyncHandler(async (req, res) => {
   const { page, limit,tenant } = req.query;
 
+  
+
   // Parse pagination values
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
@@ -42,12 +44,12 @@ const getAssessment = AsyncHandler(async (req, res) => {
   const newData = data.map((item) => ({
     _id: item._id,
     Type_Of_Assesment: item.Type_Of_Assesment,
-    Organisation: item.Tenant_id.company_name, // Ensure this is correct
+    Organisation: item.Tenant_id?.company_name, // Ensure this is correct
     code_Upload: item.code_Upload,
     Data_Classification: item.Data_Classification,
     // Tester: item.Select_Tester.full_name,
     MFA_Enabled: item.MFA_Enabled,
-    creator: item.creator_id.fname +" " + item.creator_id.lname,
+    creator: item.creator_id?.fname +" " + item.creator_id?.lname,
     task_start: item.task_start,
     task_end: item.task_end,
   }));
