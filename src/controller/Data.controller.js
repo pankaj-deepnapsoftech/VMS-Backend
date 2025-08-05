@@ -71,7 +71,7 @@ const getApplicationData = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
 
   const pages = parseInt(page) || 1;
-  const limits = parseInt(limit) || 20;
+  const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
 
   const creator = req?.currentUser?.tenant || req.query?.tenant;
@@ -126,7 +126,7 @@ const getInfrastructureData = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
 
   const pages = parseInt(page) || 1;
-  const limits = parseInt(limit) || 20;
+  const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
 
   const creator = req?.currentUser?.tenant || req.query?.tenant;
@@ -390,8 +390,6 @@ const updateOneData = AsyncHandler(async (req, res) => {
   const { id } = req.params;
   let update = req.body;
 
-
-
   const data = await DataModel.findById(id).exec();
   if (!data) {
     throw new NotFoundError('data not Found', 'DeleteOneData method');
@@ -474,8 +472,6 @@ const TVMFirstChart = AsyncHandler(async (req, res) => {
     total: data.length
   });
 });
-
-
 
 const TVMSecondChart = AsyncHandler(async (req, res) => {
   const creator = req?.currentUser?.tenant || req.query?.tenant;
