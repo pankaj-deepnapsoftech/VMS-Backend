@@ -297,7 +297,7 @@ const GetAllUsers = AsyncHandler(async (req, res) => {
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
-  const data = await AuthModel.find({ _id: { $ne: req?.currentUser?._id } }).select("-password -security_questions -mustChangePassword").populate([{ path: "tenant", select: "company_name" }, { path: "role", select: "role" }, { path: "partner", select: "company_name" }]).sort({ _id: -1 }).skip(skip).limit(limits);
+  const data = await AuthModel.find({ _id: { $ne: req?.currentUser?._id },role:{$exists:true} }).select("-password -security_questions -mustChangePassword").populate([{ path: "tenant", select: "company_name" }, { path: "role", select: "role" }, { path: "partner", select: "company_name" }]).sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     message: "all users Data",
     data
