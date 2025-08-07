@@ -11,6 +11,7 @@ const AssessmentSchema = new Schema({
   creator_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   task_start: { type: String, required: true },
   task_end: { type: String, required: true },
+  status:{type:String,required:true,enum:['In-Progress','Pending','Completed'],default:"Pending"}
 });
 
 export const AssessmentModel = model('Assessment', AssessmentSchema);

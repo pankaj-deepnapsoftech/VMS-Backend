@@ -31,7 +31,7 @@ const getAssessment = AsyncHandler(async (req, res) => {
   const skip = (pages - 1) * limits;
   const Tenant_id = tenant || req.currentUser?.tenant;
  
-  const data = await AssessmentModel.find(Tenant_id ? {Tenant_id} : {}).populate([
+  const data = await AssessmentModel.find(Tenant_id ? {Tenant_id,status:'Pending'} : {}).populate([
     { path: 'Tenant_id', select: 'company_name' }, 
     { path: 'Select_Tester', select: 'full_name' },
     { path: 'creator_id', select: 'fname lname' },
@@ -61,6 +61,87 @@ const getAssessment = AsyncHandler(async (req, res) => {
   });
 });
 
+const getCompleted = AsyncHandler(async (req, res) => {
+  const { page, limit,tenant } = req.query;
+
+  
+
+  // Parse pagination values
+  const pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 10;
+  const skip = (pages - 1) * limits;
+  const Tenant_id = tenant || req.currentUser?.tenant;
+ 
+  const data = await AssessmentModel.find(Tenant_id ? {Tenant_id,status:'Completed'} : {}).populate([
+    { path: 'Tenant_id', select: 'company_name' }, 
+    { path: 'Select_Tester', select: 'full_name' },
+    { path: 'creator_id', select: 'fname lname' },
+  ])
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limits);
+
+  // Map the result to a more convenient format
+  const newData = data.map((item) => ({
+    _id: item._id,
+    Type_Of_Assesment: item.Type_Of_Assesment,
+    Organisation: item.Tenant_id?.company_name, // Ensure this is correct
+    code_Upload: item.code_Upload,
+    Data_Classification: item.Data_Classification,
+    // Tester: item.Select_Tester.full_name,
+    MFA_Enabled: item.MFA_Enabled,
+    creator: item.creator_id?.fname +" " + item.creator_id?.lname,
+    task_start: item.task_start,
+    task_end: item.task_end,
+  }));
+
+  // Return the result
+  return res.status(StatusCodes.OK).json({
+    message: 'User Assessment',
+    data: newData,
+  });
+});
+
+const getInProgress = AsyncHandler(async (req, res) => {
+  const { page, limit,tenant } = req.query;
+
+  
+
+  // Parse pagination values
+  const pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 10;
+  const skip = (pages - 1) * limits;
+  const Tenant_id = tenant || req.currentUser?.tenant;
+ 
+  const data = await AssessmentModel.find(Tenant_id ? {Tenant_id,status:'In-Progress'} : {}).populate([
+    { path: 'Tenant_id', select: 'company_name' }, 
+    { path: 'Select_Tester', select: 'full_name' },
+    { path: 'creator_id', select: 'fname lname' },
+  ])
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limits);
+
+  // Map the result to a more convenient format
+  const newData = data.map((item) => ({
+    _id: item._id,
+    Type_Of_Assesment: item.Type_Of_Assesment,
+    Organisation: item.Tenant_id?.company_name, // Ensure this is correct
+    code_Upload: item.code_Upload,
+    Data_Classification: item.Data_Classification,
+    // Tester: item.Select_Tester.full_name,
+    MFA_Enabled: item.MFA_Enabled,
+    creator: item.creator_id?.fname +" " + item.creator_id?.lname,
+    task_start: item.task_start,
+    task_end: item.task_end,
+  }));
+
+  // Return the result
+  return res.status(StatusCodes.OK).json({
+    message: 'User Assessment',
+    data: newData,
+  });
+});
 
 const deleteAssessment = AsyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -172,4 +253,6 @@ export {
   tasterList,
   DashboardData,
   AdminGetAssessment,
+  getCompleted,
+  getInProgress
 };
