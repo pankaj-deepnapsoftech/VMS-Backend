@@ -40,24 +40,12 @@ const getAssessment = AsyncHandler(async (req, res) => {
     .skip(skip)
     .limit(limits);
 
-  // Map the result to a more convenient format
-  const newData = data.map((item) => ({
-    _id: item._id,
-    Type_Of_Assesment: item.Type_Of_Assesment,
-    Organisation: item.Tenant_id?.company_name, // Ensure this is correct
-    code_Upload: item.code_Upload,
-    Data_Classification: item.Data_Classification,
-    // Tester: item.Select_Tester.full_name,
-    MFA_Enabled: item.MFA_Enabled,
-    creator: item.creator_id?.fname +" " + item.creator_id?.lname,
-    task_start: item.task_start,
-    task_end: item.task_end,
-  }));
+  
 
   // Return the result
   return res.status(StatusCodes.OK).json({
     message: 'User Assessment',
-    data: newData,
+    data: data,
   });
 });
 
@@ -81,24 +69,11 @@ const getCompleted = AsyncHandler(async (req, res) => {
     .skip(skip)
     .limit(limits);
 
-  // Map the result to a more convenient format
-  const newData = data.map((item) => ({
-    _id: item._id,
-    Type_Of_Assesment: item.Type_Of_Assesment,
-    Organisation: item.Tenant_id?.company_name, // Ensure this is correct
-    code_Upload: item.code_Upload,
-    Data_Classification: item.Data_Classification,
-    // Tester: item.Select_Tester.full_name,
-    MFA_Enabled: item.MFA_Enabled,
-    creator: item.creator_id?.fname +" " + item.creator_id?.lname,
-    task_start: item.task_start,
-    task_end: item.task_end,
-  }));
-
+  
   // Return the result
   return res.status(StatusCodes.OK).json({
     message: 'User Assessment',
-    data: newData,
+    data: data,
   });
 });
 
@@ -122,24 +97,12 @@ const getInProgress = AsyncHandler(async (req, res) => {
     .skip(skip)
     .limit(limits);
 
-  // Map the result to a more convenient format
-  const newData = data.map((item) => ({
-    _id: item._id,
-    Type_Of_Assesment: item.Type_Of_Assesment,
-    Organisation: item.Tenant_id?.company_name, // Ensure this is correct
-    code_Upload: item.code_Upload,
-    Data_Classification: item.Data_Classification,
-    // Tester: item.Select_Tester.full_name,
-    MFA_Enabled: item.MFA_Enabled,
-    creator: item.creator_id?.fname +" " + item.creator_id?.lname,
-    task_start: item.task_start,
-    task_end: item.task_end,
-  }));
+
 
   // Return the result
   return res.status(StatusCodes.OK).json({
     message: 'User Assessment',
-    data: newData,
+    data: data,
   });
 });
 
