@@ -25,13 +25,12 @@ const getAssessment = AsyncHandler(async (req, res) => {
 
   
 
-  // Parse pagination values
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
   const Tenant_id = tenant || req.currentUser?.tenant;
  
-  const data = await AssessmentModel.find(Tenant_id ? {Tenant_id,status:'Pending'} : {}).populate([
+  const data = await AssessmentModel.find(Tenant_id ? {Tenant_id,status:'Pending'} : {status:'Pending'}).populate([
     { path: 'Tenant_id', select: 'company_name' }, 
     { path: 'Select_Tester', select: 'full_name' },
     { path: 'creator_id', select: 'fname lname' },
@@ -54,13 +53,12 @@ const getCompleted = AsyncHandler(async (req, res) => {
 
   
 
-  // Parse pagination values
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
   const Tenant_id = tenant || req.currentUser?.tenant;
  
-  const data = await AssessmentModel.find(Tenant_id ? {Tenant_id,status:'Completed'} : {}).populate([
+  const data = await AssessmentModel.find(Tenant_id ? {Tenant_id,status:'Completed'} : {status:'Completed'}).populate([
     { path: 'Tenant_id', select: 'company_name' }, 
     { path: 'Select_Tester', select: 'full_name' },
     { path: 'creator_id', select: 'fname lname' },
@@ -82,13 +80,12 @@ const getInProgress = AsyncHandler(async (req, res) => {
 
   
 
-  // Parse pagination values
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
   const Tenant_id = tenant || req.currentUser?.tenant;
  
-  const data = await AssessmentModel.find(Tenant_id ? {Tenant_id,status:'In-Progress'} : {}).populate([
+  const data = await AssessmentModel.find(Tenant_id ? {Tenant_id,status:'In-Progress'} : {status:'In-Progress'}).populate([
     { path: 'Tenant_id', select: 'company_name' }, 
     { path: 'Select_Tester', select: 'full_name' },
     { path: 'creator_id', select: 'fname lname' },
@@ -99,7 +96,6 @@ const getInProgress = AsyncHandler(async (req, res) => {
 
 
 
-  // Return the result
   return res.status(StatusCodes.OK).json({
     message: 'User Assessment',
     data: data,
