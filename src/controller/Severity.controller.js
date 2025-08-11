@@ -5,7 +5,7 @@ export const CreateSeverity = AsyncHandler(async (req, res) => {
   const data = req.body;
   const severity = await SeverityModel.create(data);
   res.status(201).json({
-    success: true,
+    message: "Severity created successfully",
     data: severity
   });
 });

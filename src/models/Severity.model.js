@@ -2,9 +2,9 @@ import {Schema,model} from "mongoose";
 
 
 const SeveritySchema = new Schema({
-  severity:{type:String,required:true},
-  descrption:{type:String,required:true},
-  tenant:{type:String,required:true},
+  name:{type:String,required:true},
+  description:{type:String,required:true},
+  tenant:{type:Schema.Types.ObjectId,ref:"Tenant",required:true},
   days:{type:Number,required:true},
 },{timestamps:true});
 
