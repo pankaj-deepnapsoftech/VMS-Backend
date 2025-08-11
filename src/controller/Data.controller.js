@@ -82,6 +82,14 @@ const getApplicationData = AsyncHandler(async (req, res) => {
     },
     {
       $lookup: {
+        from: "severities",
+        foreignField: "_id",
+        localField: "Severity",
+        as: "Severity"
+      }
+    },
+    {
+      $lookup: {
         from: "expections",
         foreignField: "vulnerable_data",
         localField: "_id",
@@ -110,6 +118,8 @@ const getApplicationData = AsyncHandler(async (req, res) => {
         BusinessApplication: { $arrayElemAt: ["$BusinessApplication", 0] },
         creator: { $arrayElemAt: ["$creator", 0] },
         Expection: { $arrayElemAt: ["$Expection", 0] },
+        Severity: { $arrayElemAt: ["$Severity", 0] },
+
       }
     }
   ]).skip(skip)
@@ -135,6 +145,14 @@ const getInfrastructureData = AsyncHandler(async (req, res) => {
   const data = await DataModel.aggregate([
     {
       $match: creator ? { creator: new mongoose.Types.ObjectId(creator), asset_type: "Infrastructure" } : { asset_type: "Infrastructure" }
+    },
+    {
+      $lookup: {
+        from: "severities",
+        foreignField: "_id",
+        localField: "Severity",
+        as: "Severity"
+      }
     },
     {
       $lookup: {
@@ -202,6 +220,7 @@ const getInfrastructureData = AsyncHandler(async (req, res) => {
         InfraStructureAsset: { $arrayElemAt: ["$InfraStructureAsset", 0] },
         creator: { $arrayElemAt: ["$creator", 0] },
         Expection: { $arrayElemAt: ["$Expection", 0] },
+        Severity: { $arrayElemAt: ["$Severity", 0] },
       }
     }
   ]).skip(skip)
@@ -225,6 +244,14 @@ const getAllVulnerabilityData = AsyncHandler(async (req, res) => {
   const data = await DataModel.aggregate([
     {
       $match: creator ? { creator: new mongoose.Types.ObjectId(creator), } : {}
+    },
+    {
+      $lookup: {
+        from: "severities",
+        foreignField: "_id",
+        localField: "Severity",
+        as: "Severity"
+      }
     },
     {
       $lookup: {
@@ -342,6 +369,7 @@ const getAllVulnerabilityData = AsyncHandler(async (req, res) => {
       $addFields: {
         BusinessApplication: { $arrayElemAt: ["$BusinessApplication", 0] },
         InfraStructureAsset: { $arrayElemAt: ["$InfraStructureAsset", 0] },
+        Severity: { $arrayElemAt: ["$Severity", 0] },
       }
     },
     {
@@ -641,7 +669,7 @@ const TVMNinthChart = AsyncHandler(async (req, res) => {
     Exception.push(item.Exception);
   });
 
-  return res.status(StatusCodes.OK).json({ label,Open,Closed,Exception });
+  return res.status(StatusCodes.OK).json({ label, Open, Closed, Exception });
 });
 
 

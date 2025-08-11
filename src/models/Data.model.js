@@ -19,7 +19,7 @@ const DataSchema = new Schema({
   Location: { type: String, required: true },
   Title: { type: String, required: true },
   Description: { type: String },
-  Severity: { type: String, required: true },
+  Severity: { type: Schema.Types.ObjectId,ref:"Severity", required: true },
   CVSS: { type: String, required: true },
   Reference_URL: { type: String, required: true },
   BusinessApplication: { type: Schema.Types.ObjectId, ref: "BusinessApplication",  },

@@ -46,3 +46,11 @@ export const DeleteSeverity = AsyncHandler(async (req, res) => {
     message: "Severity deleted successfully"
   });
 });
+
+export const GetSeveritiesByTenant = AsyncHandler(async (req, res) => {
+  const tenant = req?.currentUser?.tenant || req.query?.tenant;
+  const severities = await SeverityModel.find({ tenant }).select("name").sort({ createdAt: -1 });
+  return res.status(200).json({
+    data: severities
+  });
+});
