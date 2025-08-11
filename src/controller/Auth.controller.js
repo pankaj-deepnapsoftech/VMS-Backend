@@ -326,7 +326,6 @@ const getAllUserByTenant = AsyncHandler(async (req, res) => {
   });
 });
 
-
 const Verifycaptcha = AsyncHandler(async (req,res) => {
   const {token} = req.body;
   const data = await axios.post("https://www.google.com/recaptcha/api/siteverify", null, {
