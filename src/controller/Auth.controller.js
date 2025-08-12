@@ -162,7 +162,7 @@ const getlogedInUser = AsyncHandler(async (req, res) => {
 
   return res.status(StatusCodes.OK).json({
     message: 'User Data',
-    data: { ...userObj, tenant: user?.tenant && user?.tenant?.company_name, role: user?.role && user?.role?.role, allowed_path: user?.role && user?.role?.allowed_path },
+    data: { ...userObj, tenant: user?.tenant && user?.tenant?._id, role: user?.role && user?.role?.role, allowed_path: user?.role && user?.role?.allowed_path },
   });
 });
 
@@ -338,8 +338,6 @@ const Verifycaptcha = AsyncHandler(async (req,res) => {
     success:data.data.success
   });
 });
-
-
 
 
 export {
