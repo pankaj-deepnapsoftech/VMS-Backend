@@ -40,7 +40,7 @@ AuthSchema.pre('findOneAndUpdate', async function (next) {
     this._update.password = hashedPass;
     next();
   } catch (error) {
-    next(error);
+    next(error); 
   }
 });
 

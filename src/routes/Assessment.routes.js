@@ -6,7 +6,7 @@ import { Assessmentvalidater } from '../helper/helper.js';
 
 const router = Router();
 
-router.route('/create').post(Authentication, upload.single('code_Upload'), Assessmentvalidater, createAssessment);
+router.route('/create').post(Authentication, Assessmentvalidater, createAssessment);
 router.route('/get').get(Authentication, getAssessment);
 router.route('/get-in-progress').get(Authentication, getInProgress);
 router.route('/get-completed').get(Authentication, getCompleted);

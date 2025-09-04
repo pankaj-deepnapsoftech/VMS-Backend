@@ -6,14 +6,8 @@ import { AuthModel } from '../models/Auth.model.js';
 
 const createAssessment = AsyncHandler(async (req, res) => {
   const data = req.body;
-  const file = req.file;
 
-  let filePath = '';
-  if (file) {
-    filePath = `http://localhost:4000/file/${file.filename}`;
-  }
-
-  const result = await AssessmentModel.create({ ...data, creator_id: req.currentUser?._id, code_Upload: filePath });
+  const result = await AssessmentModel.create({ ...data, creator_id: req.currentUser?._id });
   return res.status(StatusCodes.OK).json({
     message: 'Assessment Scheduled Successful',
     data: result,
