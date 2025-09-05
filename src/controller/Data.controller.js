@@ -48,7 +48,7 @@ const AddNewData = AsyncHandler(async (req, res) => {
 
   const creator = req?.currentUser?.tenant || req.query?.tenant;
 
-  let Exploit_Availale = "", Exploit_Details = "", EPSSData = "";
+  let Exploit_Availale = false, Exploit_Details = "", EPSSData = "";
 
   if (data?.CVE_ID) {
     Exploit_Availale = await getCveId(data?.CVE_ID);
