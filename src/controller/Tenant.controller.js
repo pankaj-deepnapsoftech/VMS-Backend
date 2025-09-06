@@ -10,6 +10,12 @@ import { config } from "../config/env.config.js";
 
 export const CreateTenant = AsyncHandler(async (req, res) => {
   const data = req.body;
+
+  const exist = await TenantModel.findOne({company_name:data.company_name,Website_url:data?.Website_url,Country:data?.Country,State:data?.State,City:data?.City});
+  if(exist){
+    throw new NotFoundError("Data Already exist","CreateTenant method");
+  };
+  
   await TenantModel.create(data);
   return res.status(StatusCodes.CREATED).json({
     message: "Tenant Created"

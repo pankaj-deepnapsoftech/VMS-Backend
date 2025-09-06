@@ -2,14 +2,21 @@ import { AuthModel } from '../models/Auth.model.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { BadRequestError, NotAuthenticated } from '../utils/customError.js';
 import { VerifyToken } from '../utils/jwtTokens.js';
+import { JWTencryptToDecrypt } from '../utils/TokenIncrypt.js';
 
 export const Authentication = AsyncHandler(async (req, _res, next) => {
-  const token = req.headers?.authorization?.split(' ')[1];
-  if (!token) {
+  let encryptToken = req.headers?.authorization?.split(' ')[1];
+  const validate = JWTencryptToDecrypt(encryptToken);
+
+  if (!validate?.token) {
     throw new NotAuthenticated('User not Authenticated', 'Authentication method');
   }
 
-  const data = VerifyToken(token);
+  if (!validate?.frontend) {
+    throw new NotAuthenticated('User not Valid', 'Authentication method');
+  }
+
+  const data = VerifyToken(validate?.token);
   const user = await AuthModel.findById(data.id);
 
   if (!user) {

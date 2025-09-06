@@ -16,6 +16,7 @@ class Config {
     FILE_URL_LOCAL;
     OPENAPI_API_KEY;
     RECAPTCHA_SECRET;
+    ENCRYPTION_KEY;
     
     constructor(){
         this.NODE_ENV = process.env.NODE_ENV;
@@ -32,6 +33,7 @@ class Config {
         this.FILE_URL_LOCAL = process.env.FILE_URL_LOCAL;
         this.OPENAPI_API_KEY = process.env.OPENAPI_API_KEY;
         this.RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET;
+        this.ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
     }
 }
 

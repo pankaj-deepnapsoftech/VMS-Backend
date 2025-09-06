@@ -9,6 +9,7 @@ import { compare } from 'bcrypt';
 import { config } from '../config/env.config.js';
 import { AlreadyUsePassword } from '../helper/AlreadyUsedPassword.js';
 import axios from 'axios';
+import { JWTSecretencrypt } from '../utils/TokenIncrypt.js';
 
 const RegisterUser = AsyncHandler(async (req, res) => {
   const data = req.body;
@@ -65,18 +66,12 @@ const LoginUser = AsyncHandler(async (req, res) => {
   }
 
   const token = SignToken({ email: user.email, id: user._id });
-
-  res.cookie('tok', 'token', {
-    httpOnly: true,
-    secure: config.NODE_ENV !== 'developement',
-    sameSite: 'None',
-    maxAge: 1000000,
-  });
+  const newToken = JWTSecretencrypt({token});
 
   return res.status(StatusCodes.OK).json({
     message: 'Login Successful',
     user,
-    token,
+    token:newToken,
   });
 });
 

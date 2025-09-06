@@ -10,7 +10,7 @@ const TenantSchema = new Schema({
   City:{type:String,required:true},
   Industry:{type:String,required:true},
   Risk_Apetite:{type:String,required:true},
-  Partner:{type:Schema.Types.ObjectId,ref:"Partner"}
+  Partner:{type:Schema.Types.ObjectId,ref:"Partner"},
 });
 
 export const TenantModel = model("Tenant",TenantSchema);
