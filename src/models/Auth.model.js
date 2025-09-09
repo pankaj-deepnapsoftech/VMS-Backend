@@ -23,6 +23,7 @@ const AuthSchema = new Schema({
   role: { type: Schema.Types.ObjectId, ref: "Role" },
   partner:{type:Schema.Types.ObjectId,ref:"Partner"},
   part_securend:{type:Boolean,required:true,default:false},
+  loginedInSession:{type:Boolean,required:true,default:false}
 },{timestamps:true});
 
 AuthSchema.pre('save', async function (next) {

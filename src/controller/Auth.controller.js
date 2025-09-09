@@ -68,11 +68,13 @@ const LoginUser = AsyncHandler(async (req, res) => {
   const token = SignToken({ email: user.email, id: user._id });
   const newToken = JWTSecretencrypt({token});
 
-  return res.status(StatusCodes.OK).json({
+  res.status(StatusCodes.OK).json({
     message: 'Login Successful',
     user,
     token:newToken,
   });
+
+  await AuthModel.findByIdAndUpdate(user._id, { loginedInSession: true });
 });
 
 const VerifyOTP = AsyncHandler(async (req, res) => {
@@ -133,11 +135,7 @@ const ResetPassword = AsyncHandler(async (req, res) => {
 });
 
 const LogoutUser = AsyncHandler(async (req, res) => {
-  await AuthModel.findByIdAndUpdate(req?.currentUser._id, {
-    Login_verification: false,
-    otp: null,
-    otp_expire: null,
-  });
+  await AuthModel.findByIdAndUpdate(req?.currentUser._id, { loginedInSession: false });
   return res.status(StatusCodes.OK).json({
     message: 'Logout Successful',
   });

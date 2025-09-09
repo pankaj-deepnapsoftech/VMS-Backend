@@ -19,7 +19,7 @@ export const Authentication = AsyncHandler(async (req, _res, next) => {
   const data = VerifyToken(validate?.token);
   const user = await AuthModel.findById(data.id);
 
-  if (!user) {
+  if (!user || !user.loginedInSession) {
     throw new BadRequestError('Invalid User Please Try Again', 'Authentication method');
   }
 
