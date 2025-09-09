@@ -1,8 +1,13 @@
 import { SeverityModel } from "../models/Severity.model.js";
 import { AsyncHandler } from "../utils/AsyncHandler.js";
+import { BadRequestError } from "../utils/customError.js";
 
 export const CreateSeverity = AsyncHandler(async (req, res) => {
   const data = req.body;
+  const exist = await SeverityModel.findOne({ name: data.name, tenant: data.tenant });
+  if(exist){
+    throw new BadRequestError("Severity with this name already exists for the tenant","CreateSeverity method");
+  }
   const severity = await SeverityModel.create(data);
   res.status(201).json({
     message: "Severity created successfully",
