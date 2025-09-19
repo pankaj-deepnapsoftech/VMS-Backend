@@ -33,7 +33,7 @@ app.get('/health', Health);
 app.use('/api/v1', MainRoutes);
 app.use('/file', express.static(path.join(__dirname, '../', 'public/temp')));
 app.all('*', (_req, _res, next) => {
-  next(new NotFoundError('Path Not Found ', 'server.js'));
+  next(new NotFoundError('Path Not Found', 'server.js'));
 });
 
 

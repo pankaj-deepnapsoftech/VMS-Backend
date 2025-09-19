@@ -49,7 +49,7 @@ const LoginUser = AsyncHandler(async (req, res) => {
   const user = await AuthModel.findOne({ email }).select("-security_questions");
 
   if (!user) {
-    throw new NotFoundError('User not exist', 'LoginUser method');
+    throw new NotFoundError('Invalid email or password', 'LoginUser method');
   }
 
   if (user.deactivate) {
@@ -57,7 +57,7 @@ const LoginUser = AsyncHandler(async (req, res) => {
   }
   const isPasswordCurrect = await compare(password, user.password);
   if (!isPasswordCurrect) {
-    throw new BadRequestError('Wrong Password Try Again...', 'LoginUser method');
+    throw new BadRequestError('Invalid email or password', 'LoginUser method');
   }
   user.password = null;
 
@@ -222,28 +222,11 @@ const UpdateUserProfile = AsyncHandler(async (req, res) => {
   const data = req.body;
   const { id } = req.params;
 
-  const file = req.file;
-
-  let profile;
-
-  if (file) {
-    profile = config.NODE_ENV !== 'development' ? `${config.FILE_URL}/file/${file.filename}` : `${config.FILE_URL_LOCAL}/file/${file.filename}`;
-  }
-
-  const date = Date.now();
-  if (date > req?.currentUser.otp_expire) {
-    throw new BadRequestError('OTP is expire', 'VerifyOTP method');
-  }
-
-  if (data.otp !== req?.currentUser.otp) {
-    throw new BadRequestError('Wrong OTP', 'UpdateUserProfile method');
-  }
-
   const user = await AuthModel.findById(id);
   if (!user) {
     throw new NotFoundError('Something Went Wrong', 'UpdateUserProfile method');
   }
-  await AuthModel.findByIdAndUpdate(id, { ...data, otp: null, otp_expire: null, email_verification: true, profile });
+  await AuthModel.findByIdAndUpdate(id, { ...data,email_verification: true });
   return res.status(StatusCodes.ACCEPTED).json({
     message: 'User Profile Update',
   });
@@ -331,6 +314,15 @@ const Verifycaptcha = AsyncHandler(async (req,res) => {
     success:data.data.success
   });
 });
+
+
+export const ChangePasswordViaQuestion = AsyncHandler(async (req,res) => {
+  const {email} = req.query;
+});
+
+
+
+
 
 
 export {

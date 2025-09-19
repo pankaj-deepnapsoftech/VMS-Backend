@@ -18,6 +18,7 @@ import {
   UpdateUserByAdmin,
   getAllUserByTenant,
   Verifycaptcha,
+  ChangePasswordViaQuestion,
 } from '../controller/Auth.controller.js';
 import {  Authentication } from '../middleware/Authentication.js';
 import { upload } from '../config/multer.config.js';
@@ -41,5 +42,6 @@ routes.route("/delete-user/:id").delete(Authentication,DeleteUser);
 routes.route("/all-users").get(Authentication,GetAllUsers);
 routes.route("/update-user/:id").put(Authentication,UpdateUserByAdmin);
 routes.route("/user-by-tenant").get(Authentication,getAllUserByTenant);
+routes.route("/change-password-question").get(ChangePasswordViaQuestion);
 
 export default routes;
