@@ -508,11 +508,22 @@ const TVMSecondChart = AsyncHandler(async (req, res) => {
   const result = await DataModel.aggregate([
     { $match: matchFilter },
     {
+      $lookup:{
+        from:"severities",
+        foreignField:"_id",
+        localField:"Severity",
+        as:"Severity"
+      }
+    },
+    {
+      $unwind:{path:"$Severity",preserveNullAndEmptyArrays:true}
+    },
+    {
       $group: {
         _id: {
           year: { $year: "$createdAt" },
           month: { $month: "$createdAt" },
-          severity: "$Severity"
+          severity: "$Severity.name"
         },
         count: { $sum: 1 }
       }

@@ -30,9 +30,10 @@ export const calculateARS = (data) => {
 };
 
 export const calculateEPSS_annual = (epss) => {
+  if(!epss) return 0;
   const monthsInYear = 365 / 30;
   const probability = 1 - Math.pow((1 - epss), monthsInYear);
-  return probability.toFixed(5);
+  return probability;
 };
 
 
@@ -48,9 +49,8 @@ export const calculateALE = (data) => {
   const ars = calculateARS(vrs, acs);
   const epss_annual = calculateEPSS_annual(data.EPSS);
   const lm = data?.BusinessApplication ? calculateLM(data?.BusinessApplication?.amount, acs) : calculateLM(data?.InfraStructureAsset?.amount, acs);
-  // console.log("vrs is : %d, and acs is: %d, and epss_anula is : %d , and lm is : %d",vrs,acs,epss_annual,lm)
-
-  return epss_annual * lm;
+  
+  return (epss_annual * lm).toFixed(2);
 };
 
 

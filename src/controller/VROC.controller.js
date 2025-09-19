@@ -142,16 +142,33 @@ export const GetRiskScoreData = AsyncHandler(async (req, res) => {
     }
   ]);
 
+
+
   let riskScore = 0;
   let financial = 0;
   data.map((item) => {
-    riskScore += parseInt(calculateARS(item));
-    financial += calculateALE(item);
+    riskScore += parseInt(calculateARS(item)) || 0;
+    financial += parseInt(calculateALE(item)) || 0;
   });
 
 
   return res.status(StatusCodes.OK).json({
-    risk_score: ((riskScore / data.length) * 1000) / 100,
+    risk_score: (((riskScore / data.length) * 1000) / 100).toFixed(2),
     financial,
+    data
   });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
