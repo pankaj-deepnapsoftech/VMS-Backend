@@ -318,6 +318,7 @@ const Verifycaptcha = AsyncHandler(async (req,res) => {
 
 export const ChangePasswordViaQuestion = AsyncHandler(async (req,res) => {
   const {email} = req.query;
+  console.log(email);
 });
 
 
