@@ -32,9 +32,15 @@ app.set('trust proxy', 1);
 app.get('/health', Health);
 app.use('/api/v1', MainRoutes);
 app.use('/file', express.static(path.join(__dirname, '../', 'public/temp')));
-app.all('*', (_req, _res, next) => {
-  next(new NotFoundError('Path Not Found', 'server.js'));
+app.all('*', (req, _res, next) => {
+  const path = req.originalUrl;
+  next(new NotFoundError(`Path Not Found: ${path}`, 'server.js'));
 });
+app.use("*",(_req, res, next) => {
+  res.setHeader('Content-Security-Policy', "script-src 'self' 'unsafe-inline'");
+  next();
+});
+
 
 
 app.use((error, _req, res, next) => {

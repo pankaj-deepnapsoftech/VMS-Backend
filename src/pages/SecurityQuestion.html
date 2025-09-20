@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Security Question Form</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .form-container h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        select,
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .success {
+            color: green;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="form-container">
+        <h2>Security Question</h2>
+        <div class="error" id="error-message"></div>
+        <div class="success" id="success-message"></div>
+
+        <form id="security-form">
+            <label for="security-question">Select a security question:</label>
+            <select id="security-question" name="securityQuestion" required>
+                <option value="">-- Please choose a question --</option>
+                <option value="pet">What was the name of your first pet?</option>
+                <option value="mother-maiden">What is your mother’s maiden name?</option>
+                <option value="school">What was the name of your first school?</option>
+                <option value="city">In what city were you born?</option>
+                <option value="book-movie">What is your favorite book or movie?</option>
+                <option value="car">What was the make and model of your first car?</option>
+                <option value="father-middle">What is your father's middle name?</option>
+                <option value="friend">What was the name of your childhood best friend?</option>
+                <option value="street">What was the name of the street you grew up on?</option>
+                <option value="dream-job">What was your dream job as a child?</option>
+            </select>
+
+            <label for="security-answer">Your Answer:</label>
+            <input type="text" id="security-answer" name="securityAnswer" required>
+
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('security-form');
+            const errorMessage = document.getElementById('error-message');
+            const successMessage = document.getElementById('success-message');
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+
+            if (!token) {
+                errorMessage.textContent = '❌ Token is missing in the URL. Cannot proceed.';
+                form.querySelector('input[type="submit"]').disabled = true;
+                return;
+            }
+
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault(); // Prevent page reload
+
+                console.log(token);
+
+                // Clear messages
+                errorMessage.textContent = '';
+                successMessage.textContent = '';
+
+                const question = document.getElementById('security-question').value;
+                const answer = document.getElementById('security-answer').value;
+
+                if (!question || !answer) {
+                    errorMessage.textContent = '❌ Please fill in all fields.';
+                    return;
+                }
+
+                try {
+                  const response = await fetch(`http://localhost:8078/api/v1/auth/reset-password-via-question?token=${token}`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      securityQuestion: question,
+                      securityAnswer: answer
+                    })
+                  });
+
+                  const result = await response.json();
+
+                  if (response.ok) {
+                    successMessage.textContent = '✅ Security question verified. Proceed to reset password.';
+                    console.log('🎉 Response:', result);
+                    // You can redirect to password reset page here if needed
+                    // window.location.href = "/reset-password.html?token=" + token;
+                  } else {
+                    errorMessage.textContent = result.message || '❌ Something went wrong.';
+                    console.error('❌ Error response:', result);
+                  }
+                } catch (err) {
+                  console.error('❌ Network error:', err);
+                  errorMessage.textContent = '❌ Failed to connect to server.';
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

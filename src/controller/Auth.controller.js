@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { AuthModel, PasswordHistoryModel } from '../models/Auth.model.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
-import { BadRequestError, NotFoundError } from '../utils/customError.js';
+import { BadRequestError, NotAuthenticated, NotFoundError } from '../utils/customError.js';
 import { generateOTP } from '../utils/otpGenerater.js';
 import { PasswordSignToken, SignToken, VerifyToken } from '../utils/jwtTokens.js';
 import { SendMail } from '../utils/SendMain.js';
@@ -10,6 +10,14 @@ import { config } from '../config/env.config.js';
 import { AlreadyUsePassword } from '../helper/AlreadyUsedPassword.js';
 import axios from 'axios';
 import { JWTSecretencrypt } from '../utils/TokenIncrypt.js';
+import { fileURLToPath } from "url";
+import path from "path";
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
 
 const RegisterUser = AsyncHandler(async (req, res) => {
   const data = req.body;
@@ -66,12 +74,12 @@ const LoginUser = AsyncHandler(async (req, res) => {
   }
 
   const token = SignToken({ email: user.email, id: user._id });
-  const newToken = JWTSecretencrypt({token});
+  const newToken = JWTSecretencrypt({ token });
 
   res.status(StatusCodes.OK).json({
     message: 'Login Successful',
     user,
-    token:newToken,
+    token: newToken,
   });
 
   await AuthModel.findByIdAndUpdate(user._id, { loginedInSession: true });
@@ -226,7 +234,7 @@ const UpdateUserProfile = AsyncHandler(async (req, res) => {
   if (!user) {
     throw new NotFoundError('Something Went Wrong', 'UpdateUserProfile method');
   }
-  await AuthModel.findByIdAndUpdate(id, { ...data,email_verification: true });
+  await AuthModel.findByIdAndUpdate(id, { ...data, email_verification: true });
   return res.status(StatusCodes.ACCEPTED).json({
     message: 'User Profile Update',
   });
@@ -273,7 +281,7 @@ const GetAllUsers = AsyncHandler(async (req, res) => {
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
-  const data = await AuthModel.find({ _id: { $ne: req?.currentUser?._id },role:{$exists:true} }).select("-password -security_questions -mustChangePassword").populate([{ path: "tenant", select: "company_name" }, { path: "role", select: "role" }, { path: "partner", select: "company_name" }]).sort({ _id: -1 }).skip(skip).limit(limits);
+  const data = await AuthModel.find({ _id: { $ne: req?.currentUser?._id }, role: { $exists: true } }).select("-password -security_questions -mustChangePassword").populate([{ path: "tenant", select: "company_name" }, { path: "role", select: "role" }, { path: "partner", select: "company_name" }]).sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     message: "all users Data",
     data
@@ -302,8 +310,8 @@ const getAllUserByTenant = AsyncHandler(async (req, res) => {
   });
 });
 
-const Verifycaptcha = AsyncHandler(async (req,res) => {
-  const {token} = req.body;
+const Verifycaptcha = AsyncHandler(async (req, res) => {
+  const { token } = req.body;
   const data = await axios.post("https://www.google.com/recaptcha/api/siteverify", null, {
     params: {
       secret: config.RECAPTCHA_SECRET,
@@ -311,18 +319,57 @@ const Verifycaptcha = AsyncHandler(async (req,res) => {
     },
   });
   return res.status(StatusCodes.OK).json({
-    success:data.data.success
+    success: data.data.success
   });
 });
 
+export const ChangePasswordViaQuestion = AsyncHandler(async (req, res) => {
+  const { email } = req.query;
+  if (!email.trim()) {
+    throw new BadRequestError("email is required", "ChangePasswordViaQuestion method");
+  }
+  const find = await AuthModel.findOne({ email });
+  if (!find) {
+    throw new BadRequestError("user not foudnd", "ChangePasswordViaQuestion method");
+  }
 
-export const ChangePasswordViaQuestion = AsyncHandler(async (req,res) => {
-  const {email} = req.query;
-  console.log(email);
+  const token = SignToken({ id: find._id, email: find.email });
+
+  return res.status(StatusCodes.OK).json({
+    url: `${config.NODE_ENV === "development" ? config.FILE_URL_LOCAL : config.FILE_URL}/api/v1/auth/render-security?token=${token}`
+  });
+
+
 });
 
 
+export const RenderQuestionPage = AsyncHandler(async (req, res) => {
+  const { token } = req.query;
+  if (!token.trim()) {
+    throw new NotAuthenticated("invalid token", "RenderQuestionPage method");
+  };
 
+  const data = VerifyToken(token);
+
+  if (!data) {
+    throw new NotAuthenticated("invalid user", "RenderQuestionPage method");
+  }
+
+  const newPath = path.join(__dirname, '../', 'pages', "SecurityQuestion.html");
+  res.sendFile(newPath);
+});
+
+
+export const RenderResetPassword = AsyncHandler(async (req, res) => {
+  const { token } = req.query;
+  console.log(req.body);
+  if (!token?.trim()) {
+    throw new NotAuthenticated("invalid token", "RenderQuestionPage method");
+  };
+
+  const data = VerifyToken(token);
+  console.log(data);
+});
 
 
 
