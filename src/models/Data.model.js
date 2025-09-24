@@ -5,6 +5,10 @@ const proofConcept = new Schema({
   image: { type: String},
 });
 
+
+
+
+
 const DataSchema = new Schema({
   scan_type: { type: String, required: true, enum: ["Automatic", "Manual"] },
   asset_type: { type: String, required: true, enum: ['Infrastructure', "Application"] },
@@ -26,6 +30,8 @@ const DataSchema = new Schema({
   InfraStructureAsset: { type: Schema.Types.ObjectId, ref: "InfraStructureAsset", },
   Proof_of_Concept:[proofConcept],
   creator: { type: Schema.Types.ObjectId, ref: "Tenant", required: true },
+  assign:{type:Schema.Types.ObjectId,ref:"User"},
+  comment:{type:String}
 },
 { timestamps: true },
 );

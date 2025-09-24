@@ -123,6 +123,7 @@
 
             const urlParams = new URLSearchParams(window.location.search);
             const token = urlParams.get('token');
+            console.log(token)
 
             if (!token) {
                 errorMessage.textContent = '❌ Token is missing in the URL. Cannot proceed.';
