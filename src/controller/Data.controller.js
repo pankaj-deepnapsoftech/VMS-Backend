@@ -399,7 +399,7 @@ const getAllVulnerabilityDataForUser = AsyncHandler(async (req, res) => {
   const assign = req?.currentUser?._id;
   const data = await DataModel.aggregate([
     {
-      $match: { creator: new mongoose.Types.ObjectId(assign), } 
+      $match: { assign: new mongoose.Types.ObjectId(assign), } 
     },
     {
       $lookup: {
