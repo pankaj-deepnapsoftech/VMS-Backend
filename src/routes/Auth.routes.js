@@ -27,6 +27,7 @@ import { upload } from '../config/multer.config.js';
 
 const routes = Router();
 
+
 routes.route('/create').post(RegistrationValidate, RegisterUser);
 routes.route('/login').post(LoginValidate, LoginUser);
 routes.route('/verify-recaptcha').post(Verifycaptcha);
@@ -48,4 +49,5 @@ routes.route("/change-password-question").get(ChangePasswordViaQuestion);
 routes.route("/render-security").get(RenderQuestionPage);
 routes.route("/reset-password-via-question").post(RenderResetPassword);
 
+                   
 export default routes;
