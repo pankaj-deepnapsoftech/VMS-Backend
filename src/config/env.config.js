@@ -17,6 +17,7 @@ class Config {
     OPENAPI_API_KEY;
     RECAPTCHA_SECRET;
     ENCRYPTION_KEY;
+    NESSUS_MONGODB_URI;
     
     constructor(){
         this.NODE_ENV = process.env.NODE_ENV;
@@ -34,6 +35,7 @@ class Config {
         this.OPENAPI_API_KEY = process.env.OPENAPI_API_KEY;
         this.RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET;
         this.ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+        this.NESSUS_MONGODB_URI = process.env.NESSUS_MONGODB_URI;
     }
 }
 

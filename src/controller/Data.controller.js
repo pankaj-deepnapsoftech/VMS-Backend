@@ -546,12 +546,13 @@ const TVMFirstChart = AsyncHandler(async (req, res) => {
   const creator = req?.currentUser?.tenant || req.query?.tenant;
   const data = await DataModel.find(creator ? { creator } : {});
 
+
   let Open = 0, Closed = 0, Re_Open = 0, False_Positive = 0;
   data.map((item) => {
     if (item.status === "Open") Open++;
     if (item.status === "Closed") Closed++;
     if (item.status === "Re-Open") Re_Open++;
-    if (item.status === "False Positive") False_Positive++;
+    if (item.status === "False Positive") False_Positive++;
 
   });
 
@@ -686,7 +687,6 @@ const TVMSecondChart = AsyncHandler(async (req, res) => {
     Informational
   });
 });
-
 
 const TVMNinthChart = AsyncHandler(async (req, res) => {
   const creator = req?.currentUser?.tenant || req.query?.tenant;
