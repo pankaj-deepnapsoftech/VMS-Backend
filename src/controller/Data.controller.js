@@ -566,25 +566,33 @@ const TVMFirstChart = AsyncHandler(async (req, res) => {
 
 const TVMSecondChart = AsyncHandler(async (req, res) => {
   const creator = req?.currentUser?.tenant || req.query?.tenant;
-  const matchFilter = creator ? { creator: new mongoose.Types.ObjectId(creator) } : {};
+  let { year } = req.query;
+
+  // 👇 Default to current year if year is not provided
+  year = parseInt(year) || new Date().getFullYear();
+
+  const matchFilter = {
+    ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
 
   const result = await DataModel.aggregate([
     { $match: matchFilter },
     {
-      $lookup:{
-        from:"severities",
-        foreignField:"_id",
-        localField:"Severity",
-        as:"Severity"
+      $lookup: {
+        from: "severities",
+        foreignField: "_id",
+        localField: "Severity",
+        as: "Severity"
       }
     },
-    {
-      $unwind:{path:"$Severity",preserveNullAndEmptyArrays:true}
-    },
+    { $unwind: { path: "$Severity", preserveNullAndEmptyArrays: true } },
     {
       $group: {
         _id: {
-          year: { $year: "$createdAt" },
           month: { $month: "$createdAt" },
           severity: "$Severity.name"
         },
@@ -593,7 +601,7 @@ const TVMSecondChart = AsyncHandler(async (req, res) => {
     },
     {
       $group: {
-        _id: { year: "$_id.year", month: "$_id.month" },
+        _id: "$_id.month",
         severities: {
           $push: {
             severity: "$_id.severity",
@@ -609,8 +617,8 @@ const TVMSecondChart = AsyncHandler(async (req, res) => {
             format: "%b",
             date: {
               $dateFromParts: {
-                year: "$_id.year",
-                month: "$_id.month",
+                year: year,
+                month: "$_id",
                 day: 1
               }
             }
@@ -619,14 +627,13 @@ const TVMSecondChart = AsyncHandler(async (req, res) => {
       }
     },
     {
-      $sort: {
-        "_id.year": 1,
-        "_id.month": 1
-      }
+      $sort: { "_id": 1 }
     }
   ]);
 
-  const formatted = result.map((item) => {
+  // Build month map
+  const monthMap = new Map();
+  result.forEach((item) => {
     const counts = {
       Critical: 0,
       High: 0,
@@ -638,15 +645,30 @@ const TVMSecondChart = AsyncHandler(async (req, res) => {
       counts[s.severity] = s.count;
     });
 
-    return {
-      month: `${item.monthName}`, // e.g., "Jan 2025"
+    monthMap.set(item._id, {
+      month: item.monthName,
       ...counts
+    });
+  });
+
+  // Fill in missing months with 0s
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  const finalData = Array.from({ length: 12 }, (_, i) => {
+    const monthData = monthMap.get(i + 1);
+    return monthData || {
+      month: monthNames[i],
+      Critical: 0,
+      High: 0,
+      Medium: 0,
+      Low: 0,
+      Informational: 0
     };
   });
 
-  let label = [], Critical = [], High = [], Medium = [], Low = [], Informational = [];
+  const label = [], Critical = [], High = [], Medium = [], Low = [], Informational = [];
 
-  formatted.map((item) => {
+  finalData.forEach((item) => {
     label.push(item.month);
     Critical.push(item.Critical);
     High.push(item.High);
@@ -665,18 +687,28 @@ const TVMSecondChart = AsyncHandler(async (req, res) => {
   });
 });
 
+
 const TVMNinthChart = AsyncHandler(async (req, res) => {
   const creator = req?.currentUser?.tenant || req.query?.tenant;
-  const matchFilter = creator
-    ? { creator: new mongoose.Types.ObjectId(creator), status: { $in: ["Open", "Closed", "Exception"] } }
-    : { status: { $in: ["Open", "Closed", "Exception"] } };
+  let { year } = req.query;
+
+  // Default to current year if not provided
+  year = parseInt(year) || new Date().getFullYear();
+
+  const matchFilter = {
+    ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
+    status: { $in: ["Open", "Closed", "Exception"] },
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
 
   const result = await DataModel.aggregate([
     { $match: matchFilter },
     {
       $group: {
         _id: {
-          year: { $year: "$createdAt" },
           month: { $month: "$createdAt" },
           status: "$status"
         },
@@ -685,8 +717,8 @@ const TVMNinthChart = AsyncHandler(async (req, res) => {
     },
     {
       $group: {
-        _id: { year: "$_id.year", month: "$_id.month" },
-        severities: {
+        _id: "$_id.month",
+        statuses: {
           $push: {
             status: "$_id.status",
             count: "$count"
@@ -701,8 +733,8 @@ const TVMNinthChart = AsyncHandler(async (req, res) => {
             format: "%b",
             date: {
               $dateFromParts: {
-                year: "$_id.year",
-                month: "$_id.month",
+                year: year,
+                month: "$_id",
                 day: 1
               }
             }
@@ -710,43 +742,56 @@ const TVMNinthChart = AsyncHandler(async (req, res) => {
         }
       }
     },
-    {
-      $sort: {
-        "_id.year": 1,
-        "_id.month": 1
-      }
-    }
+    { $sort: { "_id": 1 } }
   ]);
 
-  const formatted = result.map((item) => {
+  // Build a map of month -> status counts
+  const monthMap = new Map();
+  result.forEach(item => {
     const counts = {
       Open: 0,
       Closed: 0,
-      Exception: 0,
+      Exception: 0
     };
-    item.severities.forEach(s => {
+    item.statuses.forEach(s => {
       counts[s.status] = s.count;
     });
 
-    return {
-      month: `${item.monthName}`,
+    monthMap.set(item._id, {
+      month: item.monthName,
       ...counts
+    });
+  });
+
+  // Ensure all 12 months are included
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const finalData = Array.from({ length: 12 }, (_, i) => {
+    const monthData = monthMap.get(i + 1);
+    return monthData || {
+      month: monthNames[i],
+      Open: 0,
+      Closed: 0,
+      Exception: 0
     };
   });
 
-  let label = [], Open = [], Closed = [], Exception = [];
+  // Format final arrays
+  const label = [], Open = [], Closed = [], Exception = [];
 
-  formatted.map((item) => {
+  finalData.forEach(item => {
     label.push(item.month);
     Open.push(item.Open);
     Closed.push(item.Closed);
     Exception.push(item.Exception);
   });
 
-  return res.status(StatusCodes.OK).json({ label, Open, Closed, Exception });
+  return res.status(StatusCodes.OK).json({
+    label,
+    Open,
+    Closed,
+    Exception
+  });
 });
-
-
 
 
 
