@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Exception Approved</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        background-color: #f4f6f8;
+        color: #333333;
+      }
+
+      .email-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .header {
+        background-color: #1d4ed8; /* Securend Blue */
+        color: #ffffff;
+        padding: 25px;
+        text-align: center;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+      }
+
+      .body {
+        padding: 30px 25px;
+      }
+
+      .body p {
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 15px 0;
+      }
+
+      .exception-details {
+        margin: 20px 0;
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      .exception-details th,
+      .exception-details td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #e0e0e0;
+        text-align: left;
+      }
+
+      .exception-details th {
+        background-color: #f9fafb;
+        font-weight: 600;
+      }
+
+      .btn-view {
+        display: inline-block;
+        background-color: #1d4ed8;
+        color: #ffffff;
+        text-decoration: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        margin: 20px 0;
+        font-weight: 600;
+        font-size: 16px;
+      }
+
+      .footer {
+        background-color: #f9fafb;
+        text-align: center;
+        font-size: 14px;
+        color: #777777;
+        padding: 20px;
+      }
+
+      @media screen and (max-width: 640px) {
+        .email-container {
+          width: 90%;
+          margin: 20px auto;
+        }
+
+        .header h1 {
+          font-size: 20px;
+        }
+
+        .body p,
+        .exception-details th,
+        .exception-details td {
+          font-size: 14px;
+        }
+
+        .btn-view {
+          padding: 10px 20px;
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <!-- Header -->
+      <div class="header">
+        <h1>Exception Approved</h1>
+      </div>
+
+      <!-- Body -->
+      <div class="body">
+        <p>Hi <%= requested_by %>,</p>
+
+        <p>Your exception request for the following vulnerability has been approved by <strong><%= approved_by %></strong>. Please see the approved details below:</p>
+
+        <h3>Approved Exception Details:</h3>
+        <table class="exception-details">
+          <tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr>
+          <tr>
+            <td>Vulnerability ID</td>
+            <td><%= vuln_id %></td>
+          </tr>
+          <tr>
+            <td>Asset</td>
+            <td><%= asset_name %></td>
+          </tr>
+          <tr>
+            <td>Approved On</td>
+            <td><%= approved_date %></td>
+          </tr>
+          <tr>
+            <td>Exception Valid Till</td>
+            <td><%= expiry_date %></td>
+          </tr>
+        </table>
+
+        <div style="text-align: center; margin-top: 30px">
+          <a href="<%= platform_url %>" class="btn-view"> View in Platform </a>
+        </div>
+
+        <p>
+          Best regards,<br />
+          <strong>Securend Risk Management</strong>
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">&copy; <%= new Date().getFullYear() %> Securend. All rights reserved.</div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>New Tenant Assigned: <%= tenant_name %></title>
+  </head>
+
+  <body
+    style="font-family: Arial, sans-serif; background-color: #f4f6f8; margin: 0; padding: 30px;"
+  >
+    <div
+      style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); overflow: hidden;"
+    >
+      <!-- Header -->
+      <div
+        style="background-color: #1a73e8; color: white; padding: 20px; text-align: center;"
+      >
+        <h2 style="margin: 0;">New Tenant Assigned</h2>
+      </div>
+
+      <!-- Body -->
+      <div style="padding: 25px; color: #333;">
+        <p>Hi <strong><%= partner_name %></strong>,</p>
+
+        <p>
+          A new tenant has been assigned to your partner account in
+          <strong>Securend</strong>.
+        </p>
+
+        <h3 style="margin-top: 25px;">Tenant Details:</h3>
+
+        <table
+          style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px;"
+        >
+          <thead>
+            <tr style="background-color: #f0f4ff;">
+              <th
+                style="text-align: left; padding: 8px; border-bottom: 2px solid #1a73e8;"
+              >
+                Field
+              </th>
+              <th
+                style="text-align: left; padding: 8px; border-bottom: 2px solid #1a73e8;"
+              >
+                Value
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                Tenant Name
+              </td>
+              <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                <%= tenant_name %>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                Assigned Date
+              </td>
+              <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                <%= assigned_date %>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                Assigned By
+              </td>
+              <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                <%= assigned_by %>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p style="margin-top: 25px;">
+          Please log in to review and begin management for this tenant.
+        </p>
+
+        <div style="text-align: center; margin-top: 30px;">
+          <a
+            href="<%= dashboard_url %>"
+            style="display: inline-block; background-color: #1a73e8; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold;"
+          >
+           View Tenant Dashboard
+          </a>
+        </div>
+
+        <p style="margin-top: 25px; font-size: 14px; color: #555;">
+          Thank you for partnering with us.
+        </p>
+
+        <p style="margin-top: 20px; font-weight: bold;">
+          Best regards, <br />
+          Securend Partner Operations
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
