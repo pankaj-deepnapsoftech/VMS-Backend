@@ -13,16 +13,16 @@ import InfraRoutes from './infra.routes.js';
 import OpenAiRoutes from "./OpenApi.routes.js";
 import BookDemoRoutes from "./BookDemo.routes.js";
 import TanentRoutes from "./Tenant.routes.js";
-import RoleRoutes from "./Role.Routes.js" ;
+import RoleRoutes from "./Role.Routes.js";
 import PartnerRoutes from "./Partner.routes.js";
 import InfraStructureAssetRoutes from "./InfraStructureAsset.routes.js";
 import BusinessApplicationRoutes from "./BussinessApp.routes.js";
 import ExpectionRoutes from "./Expection.routes.js";
-import TagRouter  from "./Tags.routes.js";
+import TagRouter from "./Tags.routes.js";
 import VROCRouter from "./vroc.routes.js";
 import { TVMNinthChart } from '../controller/Data.controller.js';
 import SevertyRoutes from "./Severity.routes.js";
-import { GetNessusData } from '../controller/nessus.controller.js';
+import NessusRoutes from "./nessus.route.js";
 
 const routes = Router();
 
@@ -37,16 +37,17 @@ routes.use('/report', ReportRoutes);
 routes.use('/infra', InfraRoutes);
 routes.use("/open-api", OpenAiRoutes);
 routes.use("/book-demo", BookDemoRoutes);
-routes.use("/tenant",Authentication,TanentRoutes);
-routes.use("/role",Authentication,RoleRoutes);
-routes.use("/partner",Authentication,PartnerRoutes);
-routes.use("/infraStructureAsset",Authentication,InfraStructureAssetRoutes);
-routes.use("/BusinessApplication",Authentication,BusinessApplicationRoutes);
-routes.use("/expection",Authentication,ExpectionRoutes);
-routes.use("/tags",Authentication,TagRouter);
-routes.use("/vroc",Authentication,VROCRouter);
-routes.use("/severity",Authentication,SevertyRoutes);
-routes.get("/test",GetNessusData);
+routes.use("/tenant", Authentication, TanentRoutes);
+routes.use("/role", Authentication, RoleRoutes);
+routes.use("/partner", Authentication, PartnerRoutes);
+routes.use("/infraStructureAsset", Authentication, InfraStructureAssetRoutes);
+routes.use("/BusinessApplication", Authentication, BusinessApplicationRoutes);
+routes.use("/expection", Authentication, ExpectionRoutes);
+routes.use("/tags", Authentication, TagRouter);
+routes.use("/vroc", Authentication, VROCRouter);
+routes.use("/severity", Authentication, SevertyRoutes);
+routes.use("/nessus", NessusRoutes);
+// routes.get("/test",TVMNinthChart);
 
 
 export default routes;

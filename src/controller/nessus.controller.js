@@ -34,6 +34,6 @@ export const GetNessusData = AsyncHandler(async (req, res) => {
     data: combinedData, // Merged data
     page: pageNum,
     limit: limitNum,
-    total: combinedData.length, // Total length of merged data
+    total: combinedData.length,
   });
 });
