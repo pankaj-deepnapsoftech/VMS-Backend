@@ -3,45 +3,87 @@ import { AssessmentModel } from '../models/Assessment.model.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { NotFoundError } from '../utils/customError.js';
 import { AuthModel } from '../models/Auth.model.js';
-import mongoose from 'mongoose';
+import { SendMail } from '../utils/SendMain.js';
+import moment from 'moment';
+import { config } from '../config/env.config.js';
 
 const createAssessment = AsyncHandler(async (req, res) => {
   const data = req.body;
 
+  // Create the new assessment
   const result = await AssessmentModel.create({ ...data, creator_id: req.currentUser?._id });
+
+  // Send the response to the client
   res.status(StatusCodes.OK).json({
-    message: 'Assessment Scheduled Successful',
+    message: 'Assessment Scheduled Successfully',
     data: result,
   });
 
-  const newData = AssessmentModel.aggregate([
+  // Now, run the additional processing asynchronously
+  let newData = await AssessmentModel.aggregate([
     {
-      $match:{_id:mongoose.Types.ObjectId(result._id)}
+      $match: { _id: result._id }
     },
     {
-      $lookup:{
-        from:"users",
-        localField:"Tenant_id",
-        foreignField:"tenant",
-        as:"all_tenant",
-        pipeline:[
+      $lookup: {
+        from: "users",
+        localField: "Tenant_id",
+        foreignField: "tenant",
+        as: "all_tenant",
+        pipeline: [
           {
-            $lookup:{
-              from:"roles",
-              localField:"role",
-              foreignField:"_id",
-              as:"role"
+            $lookup: {
+              from: "roles",
+              localField: "role",
+              foreignField: "_id",
+              as: "role"
+            }
+          },
+          {
+            // Unwind the 'role' array, flattening it
+            $unwind: {
+              path: "$role",  // The 'role' field that we want to unwind
+              preserveNullAndEmptyArrays: true  // Keep documents even if 'role' is empty or null
             }
           }
         ]
       }
+    },
+    {
+      $lookup: {
+        from: "tenants",
+        localField: "Tenant_id",
+        foreignField: "_id",
+        as: "tenant"
+      }
     }
   ]);
 
-console.log(newData)
-  // const filtermanager = newData
+  newData = newData[0];
+
+  const manager = newData.all_tenant.filter((item) => item?.role?.role?.toLowerCase().includes('manager'))[0];
+
+  const currentDate = moment().format('YYYY-MM-DD');  
+
+
+
+  
+  SendMail("AssessmentAssigned.ejs",
+    {
+      partner_name: `${manager.fname} ${manager.lname}`,
+      tenant_name: newData?.tenant?.company_name,
+      assessment_name: newData?.Type_Of_Assesment,
+      assigned_date: currentDate,
+      due_date: newData?.task_end,
+      assigned_by: `${req?.currentUser?.fname} ${req?.currentUser?.lname}`,
+      assessment_url:config.NODE_ENV === "development" ? config.CLIENT_URL_LOCAL : config.CLIENT_URL
+    },
+    { email: manager?.email, subject: `New Assessment Assigned for ${newData?.tenant?.company_name}` }
+  );
 
 });
+
+
 
 const getAssessment = AsyncHandler(async (req, res) => {
   const { page, limit, tenant } = req.query;
