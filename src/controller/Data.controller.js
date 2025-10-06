@@ -519,7 +519,7 @@ const updateOneData = AsyncHandler(async (req, res) => {
         assigned_date:currentDate,
         tenant_name:DataNotify?.creator?.company_name,
         vuln_url:config.NODE_ENV === "developemnt" ? config.CLIENT_URL_LOCAL : config.CLIENT_URL,
-    },{email:DataNotify?.assign?.email,subject:"New Vulnerability Assigned for Review "});
+      },{email:DataNotify?.assign?.email,subject:"New Vulnerability Assigned for Review "});
   };
 
 

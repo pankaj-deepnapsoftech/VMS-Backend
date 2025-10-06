@@ -20,7 +20,6 @@ import BusinessApplicationRoutes from "./BussinessApp.routes.js";
 import ExpectionRoutes from "./Expection.routes.js";
 import TagRouter from "./Tags.routes.js";
 import VROCRouter from "./vroc.routes.js";
-import { TVMNinthChart } from '../controller/Data.controller.js';
 import SevertyRoutes from "./Severity.routes.js";
 import NessusRoutes from "./nessus.route.js";
 
