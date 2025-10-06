@@ -38,8 +38,8 @@ const createAssessment = AsyncHandler(async (req, res) => {
     }
   ]);
 
-
-  console.log(newData)
+console.log(newData)
+  // const filtermanager = newData
 
 });
 
