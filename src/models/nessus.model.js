@@ -82,6 +82,9 @@ const vulnerabilityReportSchema = new Schema({
   stig_severity: {
     type: String,
   },
+  status: { type: String, required: true, enum: ["Open", "Closed", "Re-Open", "False Positive", "Exception"], default: "Open" },
+  scan_type: { type: String, required: true, enum: ["Automatic", "Manual"], default: "Automatic" },
+  threat_type: { type: String, required: true, enum: ["Vulnerability", "Misconfiguration"],default:"Vulnerability" },
   asset_inventory: {
     type: String,
   }
