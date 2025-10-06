@@ -13,6 +13,9 @@ import { EPSS, ExploitDetails, getCveId } from '../utils/ThirdPartHandler.js';
 import { ExpectionModel } from '../models/RequestExpection.model.js';
 import { InfraStructureAssetModel } from '../models/InsfrastructureAsset.model.js';
 import { ApplicationModel } from '../models/BusinessApplications.model.js';
+import { SendMail } from '../utils/SendMain.js';
+import moment from 'moment';
+import { config } from '../config/env.config.js';
 
 
 export const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -481,6 +484,7 @@ const updateOneData = AsyncHandler(async (req, res) => {
   const { id } = req.params;
   let update = req.body;
 
+
   const data = await DataModel.findById(id).exec();
   if (!data) {
     throw new NotFoundError('data not Found', 'DeleteOneData method');
@@ -496,10 +500,29 @@ const updateOneData = AsyncHandler(async (req, res) => {
     EPSSData = await EPSS(update?.CVE_ID);
   }
 
-  await DataModel.findByIdAndUpdate(id, { ...update, Exploit_Availale, Exploit_Details, EPSS: EPSSData }).exec();
-  return res.status(StatusCodes.OK).json({
+  const result = await DataModel.findByIdAndUpdate(id, { ...update, Exploit_Availale, Exploit_Details, EPSS: EPSSData }).exec();
+  res.status(StatusCodes.OK).json({
     message: 'data updated Successful',
   });
+
+  const DataNotify = await DataModel.findById(result._id).populate([{path:"assign"},{path:"creator"},{path:"Severity"}]);
+
+
+  if(update?.assign){
+    const currentDate = moment().format('YYYY-MM-DD');
+    SendMail("VulnerabilityAssigned.ejs",
+      {
+        partner_name:`${DataNotify?.assign?.fname} ${DataNotify?.assign?.lname}`,
+        vuln_id : DataNotify?._id,
+        severity:DataNotify?.Severity?.name,
+        assigned_by:`${req?.currentUser?.fname} ${req?.currentUser?.lname}`,
+        assigned_date:currentDate,
+        tenant_name:DataNotify?.creator?.company_name,
+        vuln_url:config.NODE_ENV === "developemnt" ? config.CLIENT_URL_LOCAL : config.CLIENT_URL,
+    },{email:DataNotify?.assign?.email,subject:"New Vulnerability Assigned for Review "});
+  };
+
+
 });
 
 const GetTVMCardData = AsyncHandler(async (req, res) => {
