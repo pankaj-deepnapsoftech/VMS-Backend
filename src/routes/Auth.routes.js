@@ -20,7 +20,6 @@ import {
   Verifycaptcha,
   ChangePasswordViaQuestion,
   RenderQuestionPage,
-  RenderResetPassword,
 } from '../controller/Auth.controller.js';
 import {  Authentication } from '../middleware/Authentication.js';
 import { upload } from '../config/multer.config.js';
@@ -47,7 +46,6 @@ routes.route("/update-user/:id").put(Authentication,UpdateUserByAdmin);
 routes.route("/user-by-tenant").get(Authentication,getAllUserByTenant);
 routes.route("/change-password-question").get(ChangePasswordViaQuestion);
 routes.route("/render-security").get(RenderQuestionPage);
-routes.route("/reset-password-via-question").post(RenderResetPassword);
 
                    
 export default routes;
