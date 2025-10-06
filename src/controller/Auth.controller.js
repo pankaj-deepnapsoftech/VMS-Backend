@@ -32,13 +32,16 @@ const RegisterUser = AsyncHandler(async (req, res) => {
     throw new BadRequestError('Password Do not Contain your name', 'RegisterUser method');
   }
 
-  await AuthModel.create(data);
+  const result = await AuthModel.create(data);
 
-  SendMail("RegisterEmail.ejs", { fullName: `${data?.fname} ${data?.lname}`, email: data.email, password: data.password, loginLink: config.NODE_ENV !== "development" ? config.CLIENT_URL + "/sign-in" : config.CLIENT_URL_LOCAL + "/sign-in" }, { email: data.email, subject: "Registeration Successful" });
-
-  return res.status(StatusCodes.OK).json({
+  
+  res.status(StatusCodes.OK).json({
     message: 'User created Successful',
   });
+
+  const userData = await AuthModel.findById(result._id).populate([{path:"tenant",select:"company_name"},{path:"role",select:"role"}])
+
+ await SendMail("UserCreation.ejs", { user_name : `${userData?.fname} ${userData?.lname}`, user_email : userData?.email, Role: userData?.role?.role,Tenant:userData?.tenant?.company_name }, { email: data.email, subject: "Registeration Successful" });
 });
 
 const LoginUser = AsyncHandler(async (req, res) => {

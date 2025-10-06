@@ -37,3 +37,18 @@ export const GetNessusData = AsyncHandler(async (req, res) => {
     total: combinedData.length,
   });
 });
+
+export const DeleteNessusData = AsyncHandler(async (req,res) => {
+  const {id} = req.params;
+
+  let nessus = await VulnerabilityReport.findByIdAndDelete(id);
+
+  if(!nessus){
+    nessus = await DataModel.findByIdAndDelete(id);
+  };
+
+  return res.status(StatusCodes.OK).json({
+    message:"Data Deleted",
+    data:nessus
+  });
+});
