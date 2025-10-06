@@ -39,9 +39,9 @@ const RegisterUser = AsyncHandler(async (req, res) => {
     message: 'User created Successful',
   });
 
-  const userData = await AuthModel.findById(result._id).populate([{path:"tenant",select:"company_name"},{path:"role",select:"role"}])
+  const userData = await AuthModel.findById(result._id).populate([{path:"tenant",select:"company_name"},{path:"role",select:"role"}]);
 
- await SendMail("UserCreation.ejs", { user_name : `${userData?.fname} ${userData?.lname}`, user_email : userData?.email, Role: userData?.role?.role,Tenant:userData?.tenant?.company_name }, { email: data.email, subject: "Registeration Successful" });
+ await SendMail("UserCreation.ejs", { user_name : `${userData?.fname} ${userData?.lname}`, user_email : userData?.email, user_role : userData?.role?.role,tenant_name :userData?.tenant?.company_name }, { email: data.email, subject: "Registeration Successful" });
 });
 
 const LoginUser = AsyncHandler(async (req, res) => {
