@@ -3,29 +3,58 @@ import { AssessmentModel } from '../models/Assessment.model.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { NotFoundError } from '../utils/customError.js';
 import { AuthModel } from '../models/Auth.model.js';
+import mongoose from 'mongoose';
 
 const createAssessment = AsyncHandler(async (req, res) => {
   const data = req.body;
 
   const result = await AssessmentModel.create({ ...data, creator_id: req.currentUser?._id });
-  return res.status(StatusCodes.OK).json({
+  res.status(StatusCodes.OK).json({
     message: 'Assessment Scheduled Successful',
     data: result,
   });
+
+  const newData = AssessmentModel.aggregate([
+    {
+      $match:{_id:mongoose.Types.ObjectId(result._id)}
+    },
+    {
+      $lookup:{
+        from:"users",
+        localField:"Tenant_id",
+        foreignField:"tenant",
+        as:"all_tenant",
+        pipeline:[
+          {
+            $lookup:{
+              from:"roles",
+              localField:"role",
+              foreignField:"_id",
+              as:"role"
+            }
+          }
+        ]
+      }
+    }
+  ]);
+
+
+  console.log(newData)
+
 });
 
 const getAssessment = AsyncHandler(async (req, res) => {
-  const { page, limit,tenant } = req.query;
+  const { page, limit, tenant } = req.query;
 
-  
+
 
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
   const Tenant_id = tenant || req.currentUser?.tenant;
- 
-  const data = await AssessmentModel.find(Tenant_id ? {Tenant_id,status:'Pending'} : {status:'Pending'}).populate([
-    { path: 'Tenant_id', select: 'company_name' }, 
+
+  const data = await AssessmentModel.find(Tenant_id ? { Tenant_id, status: 'Pending' } : { status: 'Pending' }).populate([
+    { path: 'Tenant_id', select: 'company_name' },
     { path: 'Select_Tester', select: 'full_name' },
     { path: 'creator_id', select: 'fname lname' },
   ])
@@ -33,7 +62,7 @@ const getAssessment = AsyncHandler(async (req, res) => {
     .skip(skip)
     .limit(limits);
 
-  
+
 
   // Return the result
   return res.status(StatusCodes.OK).json({
@@ -43,17 +72,17 @@ const getAssessment = AsyncHandler(async (req, res) => {
 });
 
 const getCompleted = AsyncHandler(async (req, res) => {
-  const { page, limit,tenant } = req.query;
+  const { page, limit, tenant } = req.query;
 
-  
+
 
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
   const Tenant_id = tenant || req.currentUser?.tenant;
- 
-  const data = await AssessmentModel.find(Tenant_id ? {Tenant_id,status:'Completed'} : {status:'Completed'}).populate([
-    { path: 'Tenant_id', select: 'company_name' }, 
+
+  const data = await AssessmentModel.find(Tenant_id ? { Tenant_id, status: 'Completed' } : { status: 'Completed' }).populate([
+    { path: 'Tenant_id', select: 'company_name' },
     { path: 'Select_Tester', select: 'full_name' },
     { path: 'creator_id', select: 'fname lname' },
   ])
@@ -61,7 +90,7 @@ const getCompleted = AsyncHandler(async (req, res) => {
     .skip(skip)
     .limit(limits);
 
-  
+
   // Return the result
   return res.status(StatusCodes.OK).json({
     message: 'User Assessment',
@@ -70,17 +99,17 @@ const getCompleted = AsyncHandler(async (req, res) => {
 });
 
 const getInProgress = AsyncHandler(async (req, res) => {
-  const { page, limit,tenant } = req.query;
+  const { page, limit, tenant } = req.query;
 
-  
+
 
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
   const Tenant_id = tenant || req.currentUser?.tenant;
- 
-  const data = await AssessmentModel.find(Tenant_id ? {Tenant_id,status:'In-Progress'} : {status:'In-Progress'}).populate([
-    { path: 'Tenant_id', select: 'company_name' }, 
+
+  const data = await AssessmentModel.find(Tenant_id ? { Tenant_id, status: 'In-Progress' } : { status: 'In-Progress' }).populate([
+    { path: 'Tenant_id', select: 'company_name' },
     { path: 'Select_Tester', select: 'full_name' },
     { path: 'creator_id', select: 'fname lname' },
   ])
@@ -189,7 +218,7 @@ const DashboardData = AsyncHandler(async (req, res) => {
   });
 });
 
-const AdminGetAssessment = AsyncHandler(async (_req,res) => {
+const AdminGetAssessment = AsyncHandler(async (_req, res) => {
   const data = await AssessmentModel.find({});
   return res.status(StatusCodes.OK).json({
     data
@@ -198,7 +227,7 @@ const AdminGetAssessment = AsyncHandler(async (_req,res) => {
 
 
 
-export { 
+export {
   createAssessment,
   getAssessment,
   deleteAssessment,
