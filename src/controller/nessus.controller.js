@@ -4,39 +4,66 @@ import { AsyncHandler } from "../utils/AsyncHandler.js";
 import { DataModel } from "../models/Data.model.js";
 
 export const GetNessusData = AsyncHandler(async (req, res) => {
-  const { page = 1, limit = 10 } = req.query; // Default to page 1 and limit 10
+  const { page = 1, limit = 10 } = req.query;
 
-  // Convert to integers
   const pageNum = parseInt(page, 10);
   const limitNum = parseInt(limit, 10);
 
-  // Calculate the skip values
-  const skipVulnerability = (pageNum - 1) * limitNum;
-  const skipDataModel = (pageNum - 1) * limitNum;
+  // Calculate skip for the first collection
+  const skip = (pageNum - 1) * limitNum;
 
-  // Fetch the first `limit` records from `VulnerabilityReport`
-  const vulnerabilityData = await VulnerabilityReport.find({})
-    .skip(skipVulnerability)
-    .limit(limitNum)
-    .exec();
+  // 1️⃣ Get total counts for both models
+  const [vulnCount, dataModelCount] = await Promise.all([
+    VulnerabilityReport.countDocuments(),
+    DataModel.countDocuments(),
+  ]);
 
-  // Fetch the next `limit` records from `DataModel`
-  const dataModelData = await DataModel.find({})
-    .skip(skipDataModel)
-    .limit(limitNum)
-    .exec();
+  // 2️⃣ Calculate total items across both collections
+  const totalCount = vulnCount + dataModelCount;
 
-  // Combine both datasets
+  // 3️⃣ Start fetching data
+  let vulnerabilityData = [];
+  let dataModelData = [];
+
+  // If skip is within vulnerability data range
+  if (skip < vulnCount) {
+    // Fetch vulnerability data with pagination
+    vulnerabilityData = await VulnerabilityReport.find({})
+      .skip(skip)
+      .limit(limitNum)
+      .exec();
+
+    // Check if we still need more data to fill the page
+    const remainingLimit = limitNum - vulnerabilityData.length;
+
+    if (remainingLimit > 0) {
+      // Get extra from DataModel
+      dataModelData = await DataModel.find({})
+        .limit(remainingLimit)
+        .exec();
+    }
+  } else {
+    // If we’ve already passed all vulnerability data, skip into DataModel
+    const dataSkip = skip - vulnCount;
+
+    dataModelData = await DataModel.find({})
+      .skip(dataSkip)
+      .limit(limitNum)
+      .exec();
+  }
+
+  // Merge both datasets
   const combinedData = [...vulnerabilityData, ...dataModelData];
 
   return res.status(StatusCodes.OK).json({
     message: "Data fetched successfully",
-    data: combinedData, // Merged data
+    data: combinedData,
     page: pageNum,
     limit: limitNum,
-    total: combinedData.length,
+    total: totalCount,
   });
 });
+
 
 export const DeleteNessusData = AsyncHandler(async (req,res) => {
   const {id} = req.params;
