@@ -1,165 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>New Assessment Assigned</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      background-color: #f4f6f8;
-      color: #333333;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <title>New Assessment Assigned</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        background-color: #f4f6f8;
+        color: #333333;
+      }
 
-    .email-container {
-      max-width: 600px;
-      margin: 40px auto;
-      background-color: #ffffff;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    .header {
-      background-color: #1d4ed8;
-      color: #ffffff;
-      padding: 25px;
-      text-align: center;
-    }
-
-    .header h1 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: 700;
-    }
-
-    .body {
-      padding: 30px 25px;
-    }
-
-    .body p {
-      font-size: 16px;
-      line-height: 1.6;
-      margin: 15px 0;
-    }
-
-    .assessment-details {
-      margin: 20px 0;
-      border-collapse: collapse;
-      width: 100%;
-    }
-
-    .assessment-details th, .assessment-details td {
-      padding: 12px 15px;
-      border-bottom: 1px solid #e0e0e0;
-      text-align: left;
-    }
-
-    .assessment-details th {
-      background-color: #f9fafb;
-      font-weight: 600;
-    }
-
-    .btn-assessment {
-      display: inline-block;
-      background-color: #1d4ed8;
-      color: #ffffff;
-      text-decoration: none;
-      padding: 12px 25px;
-      border-radius: 5px;
-      margin: 20px 0;
-      font-weight: 600;
-      font-size: 16px;
-    }
-
-    .footer {
-      background-color: #f9fafb;
-      text-align: center;
-      font-size: 14px;
-      color: #777777;
-      padding: 20px;
-    }
-
-    @media screen and (max-width: 640px) {
       .email-container {
-        width: 90%;
-        margin: 20px auto;
+        max-width: 600px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .header {
+        background-color: #1d4ed8;
+        color: #ffffff;
+        padding: 25px;
+        text-align: center;
       }
 
       .header h1 {
-        font-size: 20px;
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
       }
 
-      .body p, .assessment-details th, .assessment-details td {
-        font-size: 14px;
+      .body {
+        padding: 30px 25px;
+      }
+
+      .body p {
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 15px 0;
+      }
+
+      .assessment-details {
+        margin: 20px 0;
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      .assessment-details th,
+      .assessment-details td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #e0e0e0;
+        text-align: left;
+      }
+
+      .assessment-details th {
+        background-color: #f9fafb;
+        font-weight: 600;
       }
 
       .btn-assessment {
-        padding: 10px 20px;
-        font-size: 14px;
+        display: inline-block;
+        background-color: #1d4ed8;
+        color: #ffffff;
+        text-decoration: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        margin: 20px 0;
+        font-weight: 600;
+        font-size: 16px;
       }
-    }
-  </style>
-</head>
-<body>
-  <div class="email-container">
-    <!-- Header -->
-    <div class="header">
-      <h1>New Assessment Assigned!</h1>
-    </div>
 
-    <!-- Body -->
-    <div class="body">
-      <p>Hi <%= partner_name %>,</p>
+      .footer {
+        background-color: #f9fafb;
+        text-align: center;
+        font-size: 14px;
+        color: #777777;
+        padding: 20px;
+      }
 
-      <p>A new assessment has been assigned to your partner account for <strong><%= tenant_name %></strong>. Please review the details below and complete the assessment by the due date.</p>
+      @media screen and (max-width: 640px) {
+        .email-container {
+          width: 90%;
+          margin: 20px auto;
+        }
 
-      <h3>Assessment Details:</h3>
-      <table class="assessment-details">
-        <tr>
-          <th>Field</th>
-          <th>Value</th>
-        </tr>
-        <tr>
-          <td>Assessment Name</td>
-          <td><%= assessment_name %></td>
-        </tr>
-        <tr>
-          <td>Tenant</td>
-          <td><%= tenant_name %></td>
-        </tr>
-        <tr>
-          <td>Assigned Date</td>
-          <td><%= assigned_date %></td>
-        </tr>
-        <tr>
-          <td>Due Date</td>
-          <td><%= due_date %></td>
-        </tr>
-        <tr>
-          <td>Assigned By</td>
-          <td><%= assigned_by %></td>
-        </tr>
-      </table>
+        .header h1 {
+          font-size: 20px;
+        }
 
-      <div style="text-align: center; margin-top: 30px;">
-        <a href="<%= assessment_url %>" class="btn-assessment">
-         Open Assessment
-        </a>
+        .body p,
+        .assessment-details th,
+        .assessment-details td {
+          font-size: 14px;
+        }
+
+        .btn-assessment {
+          padding: 10px 20px;
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <!-- Header -->
+      <div style="background-color: #1d4ed8; padding: 25px; text-align: center">
+        <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700">New Assessment Assigned!</h1>
       </div>
 
-      <p>Please complete the assessment before the due date to ensure timely compliance.</p>
+      <!-- Body -->
+      <div class="body">
+        <p>Hi <%= partner_name %>,</p>
 
-      <p>Best regards,<br>
-      <strong>Securend Security Team</strong></p>
-    </div>
+        <p>A new assessment has been assigned to your partner account for <strong><%= tenant_name %></strong>. Please review the details below and complete the assessment by the due date.</p>
 
-    <!-- Footer -->
-    <div class="footer">
-      &copy; <%= new Date().getFullYear() %> Securend. All rights reserved.
+        <h3>Assessment Details:</h3>
+        <table class="assessment-details">
+          <tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr>
+          <tr>
+            <td>Assessment Name</td>
+            <td><%= assessment_name %></td>
+          </tr>
+          <tr>
+            <td>Tenant</td>
+            <td><%= tenant_name %></td>
+          </tr>
+          <tr>
+            <td>Assigned Date</td>
+            <td><%= assigned_date %></td>
+          </tr>
+          <tr>
+            <td>Due Date</td>
+            <td><%= due_date %></td>
+          </tr>
+          <tr>
+            <td>Assigned By</td>
+            <td><%= assigned_by %></td>
+          </tr>
+        </table>
+
+        <div style="text-align: center; margin-top: 30px">
+          <a href="<%= assessment_url %>" class="btn-assessment"> Open Assessment </a>
+        </div>
+
+        <p>Please complete the assessment before the due date to ensure timely compliance.</p>
+
+        <p>
+          Best regards,<br />
+          <strong>Securend Security Team</strong>
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">&copy; <%= new Date().getFullYear() %> Securend. All rights reserved.</div>
     </div>
-  </div>
-</body>
+  </body>
 </html>
