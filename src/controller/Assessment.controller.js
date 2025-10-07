@@ -63,11 +63,8 @@ const createAssessment = AsyncHandler(async (req, res) => {
 
   const manager = newData.all_tenant.filter((item) => item?.role?.role?.toLowerCase().includes('manager'))[0];
 
-  const currentDate = moment().format('YYYY-MM-DD');  
+  const currentDate = moment().format('YYYY-MM-DD');
 
-
-
-  
   SendMail("AssessmentAssigned.ejs",
     {
       partner_name: `${manager.fname} ${manager.lname}`,
@@ -76,19 +73,14 @@ const createAssessment = AsyncHandler(async (req, res) => {
       assigned_date: currentDate,
       due_date: newData?.task_end,
       assigned_by: `${req?.currentUser?.fname} ${req?.currentUser?.lname}`,
-      assessment_url:config.NODE_ENV === "development" ? config.CLIENT_URL_LOCAL : config.CLIENT_URL
+      assessment_url: config.NODE_ENV === "development" ? config.CLIENT_URL_LOCAL : config.CLIENT_URL
     },
     { email: manager?.email, subject: `New Assessment Assigned for ${newData?.tenant?.company_name}` }
   );
-
 });
-
-
 
 const getAssessment = AsyncHandler(async (req, res) => {
   const { page, limit, tenant } = req.query;
-
-
 
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
@@ -116,8 +108,6 @@ const getAssessment = AsyncHandler(async (req, res) => {
 const getCompleted = AsyncHandler(async (req, res) => {
   const { page, limit, tenant } = req.query;
 
-
-
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
@@ -142,8 +132,6 @@ const getCompleted = AsyncHandler(async (req, res) => {
 
 const getInProgress = AsyncHandler(async (req, res) => {
   const { page, limit, tenant } = req.query;
-
-
 
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;

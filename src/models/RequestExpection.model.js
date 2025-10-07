@@ -1,4 +1,5 @@
 import {Schema,model} from "mongoose";
+import { ImageSchem } from "./ImageSchema.model.js";
 
 const ApprovalSchema = new Schema({
   approver:{type:Schema.Types.ObjectId,ref:"Tenant",required:true},
@@ -12,7 +13,7 @@ const ExpectionSchema = new Schema({
   reason:{type:String,required:true},
   compensatory_control:{type:String,required:true,enum:['Yes',"No"]},
   detail:{type:String},
-  proof:{type:String},
+  proof:ImageSchem,
   creator:{type:Schema.Types.ObjectId,ref:"User",required:true},
   vulnerable_data:{type:Schema.Types.ObjectId,ref:"Data",required:true},
   aprove_1:ApprovalSchema,
