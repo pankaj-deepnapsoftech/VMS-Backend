@@ -1,157 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Exception Request Submitted</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      background-color: #f4f6f8;
-      color: #333333;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <title>Exception Request Submitted</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        background-color: #f4f6f8;
+        color: #333333;
+      }
 
-    .email-container {
-      max-width: 600px;
-      margin: 40px auto;
-      background-color: #ffffff;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    .header {
-      background-color: #1d4ed8; /* Securend Blue */
-      color: #ffffff;
-      padding: 25px;
-      text-align: center;
-    }
-
-    .header h1 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: 700;
-    }
-
-    .body {
-      padding: 30px 25px;
-    }
-
-    .body p {
-      font-size: 16px;
-      line-height: 1.6;
-      margin: 15px 0;
-    }
-
-    .exception-details {
-      margin: 20px 0;
-      border-collapse: collapse;
-      width: 100%;
-    }
-
-    .exception-details th, .exception-details td {
-      padding: 12px 15px;
-      border-bottom: 1px solid #e0e0e0;
-      text-align: left;
-    }
-
-    .exception-details th {
-      background-color: #f9fafb;
-      font-weight: 600;
-    }
-
-    .btn-review {
-      display: inline-block;
-      background-color: #1d4ed8;
-      color: #ffffff;
-      text-decoration: none;
-      padding: 12px 25px;
-      border-radius: 5px;
-      margin: 20px 0;
-      font-weight: 600;
-      font-size: 16px;
-    }
-
-    .footer {
-      background-color: #f9fafb;
-      text-align: center;
-      font-size: 14px;
-      color: #777777;
-      padding: 20px;
-    }
-
-    @media screen and (max-width: 640px) {
       .email-container {
-        width: 90%;
-        margin: 20px auto;
+        max-width: 600px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .header {
+        background-color: #1d4ed8; /* Securend Blue */
+        color: #ffffff;
+        padding: 25px;
+        text-align: center;
       }
 
       .header h1 {
-        font-size: 20px;
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
       }
 
-      .body p, .exception-details th, .exception-details td {
-        font-size: 14px;
+      .body {
+        padding: 30px 25px;
+      }
+
+      .body p {
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 15px 0;
+      }
+
+      .exception-details {
+        margin: 20px 0;
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      .exception-details th,
+      .exception-details td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #e0e0e0;
+        text-align: left;
+      }
+
+      .exception-details th {
+        background-color: #f9fafb;
+        font-weight: 600;
       }
 
       .btn-review {
-        padding: 10px 20px;
-        font-size: 14px;
+        display: inline-block;
+        background-color: #1d4ed8;
+        color: #ffffff;
+        text-decoration: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        margin: 20px 0;
+        font-weight: 600;
+        font-size: 16px;
       }
-    }
-  </style>
-</head>
-<body>
-  <div class="email-container">
-    <!-- Header -->
-    <div class="header">
-      <h1>Exception Request Submitted</h1>
-    </div>
 
-    <!-- Body -->
-    <div class="body">
-      <p>Hi <%= tenant_admin %>,</p>
+      .footer {
+        background-color: #f9fafb;
+        text-align: center;
+        font-size: 14px;
+        color: #777777;
+        padding: 20px;
+      }
 
-      <p>An exception has been requested for the following vulnerability by <strong><%= requested_by %></strong>. Please review the details below.</p>
+      @media screen and (max-width: 640px) {
+        .email-container {
+          width: 90%;
+          margin: 20px auto;
+        }
 
-      <h3>Exception Request Details:</h3>
-      <table class="exception-details">
-        <tr>
-          <th>Field</th>
-          <th>Value</th>
-        </tr>
-        <tr>
-          <td>Vulnerability ID</td>
-          <td><%= vuln_id %></td>
-        </tr>
-        <tr>
-          <td>Reason</td>
-          <td><%= exception_reason %></td>
-        </tr>
-        <tr>
-          <td>Requested On</td>
-          <td><%= requested_date %></td>
-        </tr>
-      </table>
+        .header h1 {
+          font-size: 20px;
+        }
 
-      <div style="text-align: center; margin-top: 30px;">
-        <a href="<%= exception_url %>" class="btn-review">
-          Review Exception Request
+        .body p,
+        .exception-details th,
+        .exception-details td {
+          font-size: 14px;
+        }
+
+        .btn-review {
+          padding: 10px 20px;
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <!-- Header -->
+      <div style="text-align: center; margin-top: 30px">
+        <a href="<%= dashboard_url %>" style="display: inline-block; background-color: #1a73e8; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold">
+          Exception Request Submitted
         </a>
       </div>
 
-      <p>You can approve or reject the request directly from the platform.</p>
+      <!-- Body -->
+      <div class="body">
+        <p>Hi <%= tenant_admin %>,</p>
 
-      <p>Best regards,<br>
-      <strong>Securend Risk Management</strong></p>
-    </div>
+        <p>An exception has been requested for the following vulnerability by <strong><%= requested_by %></strong>. Please review the details below.</p>
 
-    <!-- Footer -->
-    <div class="footer">
-      &copy; <%= new Date().getFullYear() %> Securend. All rights reserved.
+        <h3>Exception Request Details:</h3>
+        <table class="exception-details">
+          <tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr>
+          <tr>
+            <td>Vulnerability ID</td>
+            <td><%= vuln_id %></td>
+          </tr>
+          <tr>
+            <td>Reason</td>
+            <td><%= exception_reason %></td>
+          </tr>
+          <tr>
+            <td>Requested On</td>
+            <td><%= requested_date %></td>
+          </tr>
+        </table>
+
+        <div style="text-align: center; margin-top: 30px">
+          <a href="<%= exception_url %>" class="btn-review"> Review Exception Request </a>
+        </div>
+
+        <p>You can approve or reject the request directly from the platform.</p>
+
+        <p>
+          Best regards,<br />
+          <strong>Securend Risk Management</strong>
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">&copy; <%= new Date().getFullYear() %> Securend. All rights reserved.</div>
     </div>
-  </div>
-</body>
+  </body>
 </html>
