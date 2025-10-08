@@ -4,6 +4,8 @@ import { ImageSchem } from "./ImageSchema.model.js";
 const ApprovalSchema = new Schema({
   approver:{type:Schema.Types.ObjectId,ref:"User",required:true},
   status:{type:String,required:true,enum:['Pending','Approved','Rejected'],default:"Pending"},
+  aproved:{type:Boolean,required:true,default:false},
+  description:{type:String}
 });
 
 
