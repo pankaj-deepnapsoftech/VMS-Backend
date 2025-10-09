@@ -135,15 +135,15 @@ export const UpdateExpection = AsyncHandler(async (req, res) => {
 
   // here is if update user so send notification again 
 
-  if (newData?.aprove_1?.approver?._id?.toString() !== data?.aprove_1?.approver && data?.aprove_1) {
+  if (newData?.aprove_1?.approver?.email && data?.aprove_1 && data?.aprove_1.status === "Pending") {
     emails.push({ email: newData?.aprove_1?.approver?.email, name: `${newData?.aprove_1?.approver?.fname} ${newData?.aprove_1?.approver?.lname}` });
   };
 
-  if (newData?.aprove_2?.approver?._id?.toString() !== data?.aprove_2?.approver && data?.aprove_2) {
+  if (newData?.aprove_2?.approver?.email && data?.aprove_2 && data?.aprove_2.status === "Pending") {
     emails.push({ email: newData?.aprove_2?.approver?.email, name: `${newData?.aprove_2?.approver?.fname} ${newData?.aprove_2?.approver?.lname}` });
   };
 
-  if (newData?.aprove_3?.approver?._id?.toString() !== data?.aprove_3?.approver && data?.aprove_3) {
+  if (newData?.aprove_3?.approver?.email && data?.aprove_3 && data?.aprove_1.status === "Pending") {
     emails.push({ email: newData?.aprove_3?.approver?.email, name: `${newData?.aprove_3?.approver?.fname} ${newData?.aprove_3?.approver?.lname}` });
   };
 
@@ -192,6 +192,18 @@ export const UpdateExpection = AsyncHandler(async (req, res) => {
       }, { email: item.email, subject: `Exception Request Submitted — ${newData?.vulnerable_data?._id}` });
     });
   }
+
+  if (newData?.aprove_1?.approver?._id?.toString() === data?.aprove_1?.approver && data?.aprove_1 && data?.aprove_1.status === "Rejected") {
+    await CreateNotification({ reciver_id: newData?.creator?._id, options: false, title: `Exeception Rejected by ${newData?.aprove_1?.approver?.email} Reasion:${newData?.aprove_1?.description}`, expection_id: result?._id });
+  };
+
+  if (newData?.aprove_2?.approver?._id?.toString() === data?.aprove_2?.approver && data?.aprove_2 && data?.aprove_2.status === "Rejected") {
+    await CreateNotification({ reciver_id: newData?.creator?._id, options: false, title: `Exeception Rejected by ${newData?.aprove_2?.approver?.email} Reasion:${newData?.aprove_2?.description}`, expection_id: result?._id });
+  };
+
+  if (newData?.aprove_3?.approver?._id?.toString() === data?.aprove_3?.approver && data?.aprove_3 && data?.aprove_3.status === "Rejected") {
+    await CreateNotification({ reciver_id: newData?.creator?._id, options: false, title: `Exeception Rejected by ${newData?.aprove_3?.approver?.email} Reasion:${newData?.aprove_3?.description}`, expection_id: result?._id });
+  };
 
   emails = [];
 });
