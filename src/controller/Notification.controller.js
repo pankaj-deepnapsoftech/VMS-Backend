@@ -26,8 +26,8 @@ const NotificationViewed = AsyncHandler(async (req, res) => {
   if (!find) {
     throw new NotFoundError('Data Not Found', 'NotificationViewed method');
   }
-  await NotificationModel.findByIdAndUpdate(id, { view: true });
-  return res.status(StatusCodes.OK).json({
+  await NotificationModel.findByIdAndUpdate(id, { view: true,options:false,expection_id:null });
+  res.status(StatusCodes.OK).json({
     message: 'notification viewed',
   });
 });

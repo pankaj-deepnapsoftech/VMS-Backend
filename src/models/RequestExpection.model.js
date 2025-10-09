@@ -17,11 +17,23 @@ const ExpectionSchema = new Schema({
   detail:{type:String},
   proof:ImageSchem,
   creator:{type:Schema.Types.ObjectId,ref:"User",required:true},
+  tenant:{type:Schema.Types.ObjectId,ref:"Tenant",required:true},
   vulnerable_data:{type:Schema.Types.ObjectId,ref:"Data",required:true},
   aprove_1:ApprovalSchema,
   aprove_2:ApprovalSchema,
-  aprove_3:ApprovalSchema, 
+  aprove_3:ApprovalSchema,
 });
 
 
 export const ExpectionModel = model("Expection",ExpectionSchema);
+
+
+
+
+
+
+
+
+
+
+
