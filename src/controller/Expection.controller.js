@@ -119,94 +119,221 @@ export const DeleteExpection = AsyncHandler(async (req, res) => {
 export const UpdateExpection = AsyncHandler(async (req, res) => {
   const { id } = req.params;
   const data = req.body;
+
   const find = await ExpectionModel.findById(id);
   if (!find) {
-    throw new NotFoundError("data not found", "DeleteExpection method ()");
+    throw new NotFoundError("Data not found", "UpdateExpection method()");
   }
 
+  // Update Exception
   const result = await ExpectionModel.findByIdAndUpdate(id, data);
   res.status(StatusCodes.OK).json({
-    message: "Expection Updated Successful"
+    message: "Expection Updated Successfully",
   });
 
-  const newData = await ExpectionModel.findById(result._id).populate([{ path: "vulnerable_data" }, { path: "aprove_1.approver" }, { path: "aprove_2.approver" }, { path: "aprove_3.approver" }, { path: "creator" }]);
+  const newData = await ExpectionModel.findById(result._id).populate([
+    { path: "vulnerable_data" },
+    { path: "aprove_1.approver" },
+    { path: "aprove_2.approver" },
+    { path: "aprove_3.approver" },
+    { path: "creator" },
+  ]);
 
   let emails = [];
 
-  // here is if update user so send notification again 
+  console.log("check data status", data?.aprove_1?.status);
+  console.log("check find status", find?.aprove_1?.status);
 
-  if (newData?.aprove_1?.approver?.email && data?.aprove_1 && data?.aprove_1.status === "Pending") {
-    emails.push({ email: newData?.aprove_1?.approver?.email, name: `${newData?.aprove_1?.approver?.fname} ${newData?.aprove_1?.approver?.lname}` });
-  };
-
-  if (newData?.aprove_2?.approver?.email && data?.aprove_2 && data?.aprove_2.status === "Pending") {
-    emails.push({ email: newData?.aprove_2?.approver?.email, name: `${newData?.aprove_2?.approver?.fname} ${newData?.aprove_2?.approver?.lname}` });
-  };
-
-  if (newData?.aprove_3?.approver?.email && data?.aprove_3 && data?.aprove_1.status === "Pending") {
-    emails.push({ email: newData?.aprove_3?.approver?.email, name: `${newData?.aprove_3?.approver?.fname} ${newData?.aprove_3?.approver?.lname}` });
-  };
-
-  const date = moment().format("DD-MM-YYYY");
-  if (data?.aprove_3?.status === "Pending" || data?.aprove_2?.status === "Pending" || data?.aprove_1?.status === "Pending") {
-    emails.map((item) => {
-
-      SendMail('ExceptionRequest.ejs', {
-        tenant_admin: item.name,
-        requested_by: `${req?.currentUser?.fname} ${req?.currentUser?.lname}`,
-        vuln_id: newData?.vulnerable_data?._id,
-        exception_reason: newData.reason,
-        requested_date: date,
-        exception_url: config.NODE_ENV === "development" ? config.CLIENT_URL_LOCAL : config.CLIENT_URL
-      }, { email: item.email, subject: `Exception Request Submitted — ${newData?.vulnerable_data?._id}` });
+  // ✅ Send notification again if status changed from Rejected → Pending
+  if (data?.aprove_1?.status === "Pending" && find?.aprove_1?.status === "Rejected") {
+    console.log("checking 1");
+    emails.push({
+      email: newData?.aprove_1?.approver?.email,
+      name: `${newData?.aprove_1?.approver?.fname} ${newData?.aprove_1?.approver?.lname}`,
     });
-  };
-
-
-  if (newData?.aprove_1?.approver?._id?.toString() === data?.aprove_1?.approver && data?.aprove_1 && data?.aprove_1.status === "Approved") {
-    emails.push({ email: newData?.creator?.email, name: `${newData?.aprove_1?.approver?.fname} ${newData?.aprove_1?.approver?.lname}` });
-    await CreateNotification({ reciver_id: newData?.creator?._id, options: false, title: `Exeception approved by ${newData?.aprove_1?.approver?.email}`, expection_id: result?._id });
-  };
-
-
-  if (newData?.aprove_2?.approver?._id?.toString() === data?.aprove_2?.approver && data?.aprove_2 && data?.aprove_2.status === "Approved") {
-    emails.push({ email: newData?.creator?.email, name: `${newData?.aprove_2?.approver?.fname} ${newData?.aprove_2?.approver?.lname}` });
-    await CreateNotification({ reciver_id: newData?.creator?._id, options: false, title: `Exeception approved by ${newData?.aprove_1?.approver?.email}`, expection_id: result?._id });
-  };
-
-  if (newData?.aprove_3?.approver?._id?.toString() === data?.aprove_3?.approver && data?.aprove_3 && data?.aprove_3.status === "Approved") {
-    emails.push({ email: newData?.creator?.email, name: `${newData?.aprove_3?.approver?.fname} ${newData?.aprove_3?.approver?.lname}` });
-    await CreateNotification({ reciver_id: newData?.creator?._id, options: false, title: `Exeception approved by ${newData?.aprove_1?.approver?.email}`, expection_id: result?._id });
-  };
-
-
-  if (data?.aprove_1?.status === "Approved" || data?.aprove_2?.status === "Approved" || data?.aprove_3?.status === "Approved") {
-    emails.map((item) => {
-      SendMail('ExceptionApproved.ejs', {
-        approved_by: item.name,
-        requested_by: `${newData?.creator?.fname} ${newData?.creator?.lname}`,
-        vuln_id: newData?.vulnerable_data?._id,
-        approved_date: date,
-        expiry_date: newData?.exception_end_data,
-        platform_url: config.NODE_ENV === "development" ? config.CLIENT_URL_LOCAL : config.CLIENT_URL
-      }, { email: item.email, subject: `Exception Request Submitted — ${newData?.vulnerable_data?._id}` });
+    await CreateNotification({
+      reciver_id: newData?.aprove_1?.approver?._id,
+      options: true,
+      title: `You have an exception for approval`,
+      expection_id: result?._id,
     });
   }
 
-  if (newData?.aprove_1?.approver?._id?.toString() === data?.aprove_1?.approver && data?.aprove_1 && data?.aprove_1.status === "Rejected") {
-    await CreateNotification({ reciver_id: newData?.creator?._id, options: false, title: `Exeception Rejected by ${newData?.aprove_1?.approver?.email} Reasion:${newData?.aprove_1?.description}`, expection_id: result?._id });
-  };
+  if (data?.aprove_2?.status === "Pending" && find?.aprove_2?.status === "Rejected") {
+    console.log("checking 2");
+    emails.push({
+      email: newData?.aprove_2?.approver?.email,
+      name: `${newData?.aprove_2?.approver?.fname} ${newData?.aprove_2?.approver?.lname}`,
+    });
+    await CreateNotification({
+      reciver_id: newData?.aprove_2?.approver?._id,
+      options: true,
+      title: `You have an exception for approval`,
+      expection_id: result?._id,
+    });
+  }
 
-  if (newData?.aprove_2?.approver?._id?.toString() === data?.aprove_2?.approver && data?.aprove_2 && data?.aprove_2.status === "Rejected") {
-    await CreateNotification({ reciver_id: newData?.creator?._id, options: false, title: `Exeception Rejected by ${newData?.aprove_2?.approver?.email} Reasion:${newData?.aprove_2?.description}`, expection_id: result?._id });
-  };
+  if (data?.aprove_3?.status === "Pending" && find?.aprove_3?.status === "Rejected") {
+    console.log("checking 3");
+    emails.push({
+      email: newData?.aprove_3?.approver?.email,
+      name: `${newData?.aprove_3?.approver?.fname} ${newData?.aprove_3?.approver?.lname}`,
+    });
+    await CreateNotification({
+      reciver_id: newData?.aprove_3?.approver?._id,
+      options: true,
+      title: `You have an exception for approval`,
+      expection_id: result?._id,
+    });
+  }
 
-  if (newData?.aprove_3?.approver?._id?.toString() === data?.aprove_3?.approver && data?.aprove_3 && data?.aprove_3.status === "Rejected") {
-    await CreateNotification({ reciver_id: newData?.creator?._id, options: false, title: `Exeception Rejected by ${newData?.aprove_3?.approver?.email} Reasion:${newData?.aprove_3?.description}`, expection_id: result?._id });
-  };
+  const date = moment().format("DD-MM-YYYY");
+
+  // ✅ Send notification mail for Pending approvals
+  if (
+    data?.aprove_1?.status === "Pending" ||
+    data?.aprove_2?.status === "Pending" ||
+    data?.aprove_3?.status === "Pending"
+  ) {
+    emails.forEach((item) => {
+      SendMail(
+        "ExceptionRequest.ejs",
+        {
+          tenant_admin: item.name,
+          requested_by: `${req?.currentUser?.fname} ${req?.currentUser?.lname}`,
+          vuln_id: newData?.vulnerable_data?._id,
+          exception_reason: newData.reason,
+          requested_date: date,
+          exception_url:
+            config.NODE_ENV === "development"
+              ? config.CLIENT_URL_LOCAL
+              : config.CLIENT_URL,
+        },
+        {
+          email: item.email,
+          subject: `Exception Request Submitted — ${newData?.vulnerable_data?._id}`,
+        }
+      );
+    });
+  }
+
+  // ✅ Notify creator if Approved
+  if (
+    newData?.aprove_1?.approver?._id?.toString() === data?.aprove_1?.approver &&
+    data?.aprove_1?.status === "Approved"
+  ) {
+    emails.push({
+      email: newData?.creator?.email,
+      name: `${newData?.aprove_1?.approver?.fname} ${newData?.aprove_1?.approver?.lname}`,
+    });
+    await CreateNotification({
+      reciver_id: newData?.creator?._id,
+      options: false,
+      title: `Exception approved by ${newData?.aprove_1?.approver?.email}`,
+      expection_id: result?._id,
+    });
+  }
+
+  if (
+    newData?.aprove_2?.approver?._id?.toString() === data?.aprove_2?.approver &&
+    data?.aprove_2?.status === "Approved"
+  ) {
+    emails.push({
+      email: newData?.creator?.email,
+      name: `${newData?.aprove_2?.approver?.fname} ${newData?.aprove_2?.approver?.lname}`,
+    });
+    await CreateNotification({
+      reciver_id: newData?.creator?._id,
+      options: false,
+      title: `Exception approved by ${newData?.aprove_2?.approver?.email}`,
+      expection_id: result?._id,
+    });
+  }
+
+  if (
+    newData?.aprove_3?.approver?._id?.toString() === data?.aprove_3?.approver &&
+    data?.aprove_3?.status === "Approved"
+  ) {
+    emails.push({
+      email: newData?.creator?.email,
+      name: `${newData?.aprove_3?.approver?.fname} ${newData?.aprove_3?.approver?.lname}`,
+    });
+    await CreateNotification({
+      reciver_id: newData?.creator?._id,
+      options: false,
+      title: `Exception approved by ${newData?.aprove_3?.approver?.email}`,
+      expection_id: result?._id,
+    });
+  }
+
+  // ✅ Send mail on approval
+  if (
+    data?.aprove_1?.status === "Approved" ||
+    data?.aprove_2?.status === "Approved" ||
+    data?.aprove_3?.status === "Approved"
+  ) {
+    emails.forEach((item) => {
+      SendMail(
+        "ExceptionApproved.ejs",
+        {
+          approved_by: item.name,
+          requested_by: `${newData?.creator?.fname} ${newData?.creator?.lname}`,
+          vuln_id: newData?.vulnerable_data?._id,
+          approved_date: date,
+          expiry_date: newData?.exception_end_data,
+          platform_url:
+            config.NODE_ENV === "development"
+              ? config.CLIENT_URL_LOCAL
+              : config.CLIENT_URL,
+        },
+        {
+          email: item.email,
+          subject: `Exception Request Approved — ${newData?.vulnerable_data?._id}`,
+        }
+      );
+    });
+  }
+
+  // ✅ Notify creator if Rejected
+  if (
+    newData?.aprove_1?.approver?._id?.toString() === data?.aprove_1?.approver &&
+    data?.aprove_1?.status === "Rejected"
+  ) {
+    await CreateNotification({
+      reciver_id: newData?.creator?._id,
+      options: false,
+      title: `Exception Rejected by ${newData?.aprove_1?.approver?.email} — Reason: ${newData?.aprove_1?.description}`,
+      expection_id: result?._id,
+    });
+  }
+
+  if (
+    newData?.aprove_2?.approver?._id?.toString() === data?.aprove_2?.approver &&
+    data?.aprove_2?.status === "Rejected"
+  ) {
+    await CreateNotification({
+      reciver_id: newData?.creator?._id,
+      options: false,
+      title: `Exception Rejected by ${newData?.aprove_2?.approver?.email} — Reason: ${newData?.aprove_2?.description}`,
+      expection_id: result?._id,
+    });
+  }
+
+  if (
+    newData?.aprove_3?.approver?._id?.toString() === data?.aprove_3?.approver &&
+    data?.aprove_3?.status === "Rejected"
+  ) {
+    await CreateNotification({
+      reciver_id: newData?.creator?._id,
+      options: false,
+      title: `Exception Rejected by ${newData?.aprove_3?.approver?.email} — Reason: ${newData?.aprove_3?.description}`,
+      expection_id: result?._id,
+    });
+  }
 
   emails = [];
 });
+
 
 
 
