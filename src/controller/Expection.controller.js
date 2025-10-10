@@ -141,12 +141,9 @@ export const UpdateExpection = AsyncHandler(async (req, res) => {
 
   let emails = [];
 
-  console.log("check data status", data?.aprove_1?.status);
-  console.log("check find status", find?.aprove_1?.status);
 
   // ✅ Send notification again if status changed from Rejected → Pending
   if (data?.aprove_1?.status === "Pending" && find?.aprove_1?.status === "Rejected") {
-    console.log("checking 1");
     emails.push({
       email: newData?.aprove_1?.approver?.email,
       name: `${newData?.aprove_1?.approver?.fname} ${newData?.aprove_1?.approver?.lname}`,
@@ -160,7 +157,6 @@ export const UpdateExpection = AsyncHandler(async (req, res) => {
   }
 
   if (data?.aprove_2?.status === "Pending" && find?.aprove_2?.status === "Rejected") {
-    console.log("checking 2");
     emails.push({
       email: newData?.aprove_2?.approver?.email,
       name: `${newData?.aprove_2?.approver?.fname} ${newData?.aprove_2?.approver?.lname}`,
@@ -174,7 +170,6 @@ export const UpdateExpection = AsyncHandler(async (req, res) => {
   }
 
   if (data?.aprove_3?.status === "Pending" && find?.aprove_3?.status === "Rejected") {
-    console.log("checking 3");
     emails.push({
       email: newData?.aprove_3?.approver?.email,
       name: `${newData?.aprove_3?.approver?.fname} ${newData?.aprove_3?.approver?.lname}`,

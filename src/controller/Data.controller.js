@@ -570,19 +570,19 @@ const TVMFirstChart = AsyncHandler(async (req, res) => {
   const data = await DataModel.find(creator ? { creator } : {});
 
 
-  let Open = 0, Closed = 0, Re_Open = 0, False_Positive = 0;
+  let Open = 0, Closed = 0, exception = 0, False_Positive = 0;
   data.map((item) => {
-    if (item.status === "Open") Open++;
+    if (item.status === "Open" || item.status === "Re-Open") Open++;
     if (item.status === "Closed") Closed++;
-    if (item.status === "Re-Open") Re_Open++;
     if (item.status === "False Positive") False_Positive++;
+    if (item.status === "Exception") exception++;
 
   });
 
   return res.status(StatusCodes.OK).json({
     Open,
     Closed,
-    Re_Open,
+    exception,
     False_Positive,
     total: data.length
   });
