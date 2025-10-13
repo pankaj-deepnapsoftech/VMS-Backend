@@ -11,7 +11,7 @@ const InfraStructureAssetSchema = new Schema({
   exposure: {type:Number,required:true,default:0},
   hosting: {type:Number,required:true,default:0},
   data_sensitivity:{type:Schema.Types.ObjectId,ref:"Tag",required:true}
-});
+},{timestamps:true});
 
 
 export const InfraStructureAssetModel = model("InfraStructureAsset", InfraStructureAssetSchema);

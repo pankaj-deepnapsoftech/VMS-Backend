@@ -22,7 +22,7 @@ const ExpectionSchema = new Schema({
   aprove_1:ApprovalSchema,
   aprove_2:ApprovalSchema,
   aprove_3:ApprovalSchema,
-});
+},{timestamps:true});
 
 
 export const ExpectionModel = model("Expection",ExpectionSchema);

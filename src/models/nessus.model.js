@@ -88,7 +88,7 @@ const vulnerabilityReportSchema = new Schema({
   asset_inventory: {
     type: String,
   }
-});
+},{timestamps:true});
 
 export const VulnerabilityReport = model('VulnerabilityReport', vulnerabilityReportSchema);
 

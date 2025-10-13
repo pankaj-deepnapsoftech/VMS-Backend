@@ -12,7 +12,7 @@ const RoleSchema = new Schema({
   description:{type:String,required:true},
   allowed_path:{type:[pathsSchema],required:true},
   creator:{type:Schema.Types.ObjectId,ref:"User",required:true}, 
-});
+},{timestamps:true});
 
 export const RoleModels = model("Role",RoleSchema);
 

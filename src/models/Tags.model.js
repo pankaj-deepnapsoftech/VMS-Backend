@@ -7,6 +7,6 @@ const tagSchema = new Schema({
   tag_color:{type:String, default:'#000000'},
   related :{type:String,required:true},
   amount:{type:Number}
-});
+},{timestamps:true});
 
 export const TagModel = model('Tag', tagSchema);

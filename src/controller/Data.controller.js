@@ -400,10 +400,10 @@ const getAllVulnerabilityDataForUser = AsyncHandler(async (req, res) => {
   const limits = parseInt(limit) || 10;
   const skip = (Pages - 1) * limits;
   const assign = req?.currentUser?._id;
-  
+
   const data = await DataModel.aggregate([
     {
-      $match: { assign: new mongoose.Types.ObjectId(assign)} 
+      $match: { assign: new mongoose.Types.ObjectId(assign) }
     },
     {
       $lookup: {
@@ -505,29 +505,43 @@ const updateOneData = AsyncHandler(async (req, res) => {
     message: 'data updated Successful',
   });
 
-  const DataNotify = await DataModel.findById(result._id).populate([{path:"assign"},{path:"creator"},{path:"Severity"}]);
+  const DataNotify = await DataModel.findById(result._id).populate([{ path: "assign" }, { path: "creator" }, { path: "Severity" }]);
 
 
-  if(update?.assign){
+  if (update?.assign) {
     const currentDate = moment().format('YYYY-MM-DD');
     SendMail("VulnerabilityAssigned.ejs",
       {
-        partner_name:`${DataNotify?.assign?.fname} ${DataNotify?.assign?.lname}`,
-        vuln_id : DataNotify?._id,
-        severity:DataNotify?.Severity?.name,
-        assigned_by:`${req?.currentUser?.fname} ${req?.currentUser?.lname}`,
-        assigned_date:currentDate,
-        tenant_name:DataNotify?.creator?.company_name,
-        vuln_url:config.NODE_ENV === "developemnt" ? config.CLIENT_URL_LOCAL : config.CLIENT_URL,
-      },{email:DataNotify?.assign?.email,subject:"New Vulnerability Assigned for Review "});
+        partner_name: `${DataNotify?.assign?.fname} ${DataNotify?.assign?.lname}`,
+        vuln_id: DataNotify?._id,
+        severity: DataNotify?.Severity?.name,
+        assigned_by: `${req?.currentUser?.fname} ${req?.currentUser?.lname}`,
+        assigned_date: currentDate,
+        tenant_name: DataNotify?.creator?.company_name,
+        vuln_url: config.NODE_ENV === "developemnt" ? config.CLIENT_URL_LOCAL : config.CLIENT_URL,
+      }, { email: DataNotify?.assign?.email, subject: "New Vulnerability Assigned for Review " });
   };
 
 
 });
 
 const GetTVMCardData = AsyncHandler(async (req, res) => {
+  // Get the current year from the query parameter or use the current year as default
+  const currentYear = parseInt(req.query?.year) || new Date().getFullYear();
+
+
+  // Get the start and end dates for the current year
+  const startOfYear = new Date(currentYear, 0, 1); // January 1st of the current year
+  const endOfYear = new Date(currentYear + 1, 0, 1); // January 1st of the next year (exclusive)
+
   const creator = req?.currentUser?.tenant || req.query?.tenant;
   const matchFilter = creator ? { creator } : {};
+
+  // Add createdAt range filter for the current year
+  const finalFilter = {
+    ...matchFilter,
+    createdAt: { $gte: startOfYear, $lt: endOfYear } // Filter by createdAt between start and end of the year
+  };
 
   const [
     vulnerableData,
@@ -535,7 +549,7 @@ const GetTVMCardData = AsyncHandler(async (req, res) => {
     infrastructure,
     businessApplication
   ] = await Promise.all([
-    DataModel.find(matchFilter), // get all vulnerable data
+    DataModel.find(finalFilter), // get all vulnerable data for the current year
     ExpectionModel.aggregate([
       {
         $lookup: {
@@ -545,10 +559,13 @@ const GetTVMCardData = AsyncHandler(async (req, res) => {
           as: "vulnerable_data",
         }
       },
-      { $unwind: "$vulnerable_data" }
+      { $unwind: "$vulnerable_data" },
+      {
+        $match: { "vulnerable_data.createdAt": { $gte: startOfYear, $lt: endOfYear } } // Filter expectations by createdAt
+      }
     ]),
-    InfraStructureAssetModel.countDocuments(matchFilter),
-    ApplicationModel.countDocuments(matchFilter)
+    InfraStructureAssetModel.countDocuments(finalFilter), // Filter infrastructure by createdAt
+    ApplicationModel.countDocuments(finalFilter) // Filter business applications by createdAt
   ]);
 
   const remediatedCount = vulnerableData.filter(item => item.status === 'Closed').length;
@@ -565,9 +582,17 @@ const GetTVMCardData = AsyncHandler(async (req, res) => {
   });
 });
 
+
 const TVMFirstChart = AsyncHandler(async (req, res) => {
+
+  const currentYear = parseInt(req.query?.year) || new Date().getFullYear();
+
+
+  // Get the start and end dates for the current year
+  const startOfYear = new Date(currentYear, 0, 1); // January 1st of the current year
+  const endOfYear = new Date(currentYear + 1, 0, 1); // January 1st of the next year (exclusive)
   const creator = req?.currentUser?.tenant || req.query?.tenant;
-  const data = await DataModel.find(creator ? { creator } : {});
+  const data = await DataModel.find(creator ? { creator, createdAt: { $gte: startOfYear, $lt: endOfYear } } : { createdAt: { $gte: startOfYear, $lt: endOfYear } });
 
 
   let Open = 0, Closed = 0, exception = 0, False_Positive = 0;
@@ -715,7 +740,6 @@ const TVMNinthChart = AsyncHandler(async (req, res) => {
   const creator = req?.currentUser?.tenant || req.query?.tenant;
   let { year } = req.query;
 
-  // Default to current year if not provided
   year = parseInt(year) || new Date().getFullYear();
 
   const matchFilter = {

@@ -7,6 +7,6 @@ const NotificationSchema = new Schema({
   view: { type: Boolean, required: true, default: false },
   options:{type:Boolean,required:true,default:false},
   expection_id:{type:Schema.Types.ObjectId,ref:"Expection"}
-});
+},{timestamps:true});
 
 export const NotificationModel = model('Notification', NotificationSchema);

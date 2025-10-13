@@ -22,7 +22,7 @@ const ScanSchema = new Schema ({
   label:{type:String},
   isSchedule:{type:Boolean,required:true,default:false},
   Schedule:ScheduleSchema
-});
+},{timestamps:true});
 
 
 export const ScanModel = model("Scan",ScanSchema);

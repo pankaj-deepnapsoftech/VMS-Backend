@@ -11,7 +11,7 @@ const TenantSchema = new Schema({
   Industry:{type:String,required:true},
   Risk_Apetite:{type:String,required:true},
   Partner:{type:Schema.Types.ObjectId,ref:"Partner"},
-});
+},{timestamps:true});
 
 export const TenantModel = model("Tenant",TenantSchema);
 

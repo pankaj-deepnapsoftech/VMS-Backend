@@ -12,6 +12,6 @@ const AssessmentSchema = new Schema({
   task_start: { type: String, required: true },
   task_end: { type: String, required: true },
   status:{type:String,required:true,enum:['In-Progress','Pending','Completed'],default:"Pending"}
-});
+},{timestamps:true});
 
 export const AssessmentModel = model('Assessment', AssessmentSchema);
