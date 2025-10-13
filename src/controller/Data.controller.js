@@ -582,12 +582,9 @@ const GetTVMCardData = AsyncHandler(async (req, res) => {
   });
 });
 
-
 const TVMFirstChart = AsyncHandler(async (req, res) => {
 
   const currentYear = parseInt(req.query?.year) || new Date().getFullYear();
-
-
   // Get the start and end dates for the current year
   const startOfYear = new Date(currentYear, 0, 1); // January 1st of the current year
   const endOfYear = new Date(currentYear + 1, 0, 1); // January 1st of the next year (exclusive)
@@ -736,7 +733,53 @@ const TVMSecondChart = AsyncHandler(async (req, res) => {
   });
 });
 
+const TVMThirdChart = AsyncHandler(async (req, res) => {
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  let { year } = req.query;
+
+  year = parseInt(year) || new Date().getFullYear();
+
+  const matchFilter = {
+    ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
+
+  const data = await DataModel.aggregate([
+    {
+      $match: matchFilter
+    },
+    {
+      $group: {
+        _id: {
+          isExploitable: { $cond: [{ $ifNull: ["$EPSS", false] }, true, false] }
+        },
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        type: {
+          $cond: [
+            { $eq: ["$_id.isExploitable", true] },
+            "exploitable",
+            "not_exploitable"
+          ]
+        },
+        count: 1
+      }
+    }
+  ]);
+  res.status(StatusCodes.OK).json({
+    data
+  });
+});
+
 const TVMNinthChart = AsyncHandler(async (req, res) => {
+
   const creator = req?.currentUser?.tenant || req.query?.tenant;
   let { year } = req.query;
 
@@ -856,5 +899,6 @@ export {
   TVMFirstChart,
   TVMSecondChart,
   TVMNinthChart,
-  getAllVulnerabilityDataForUser
+  getAllVulnerabilityDataForUser,
+  TVMThirdChart
 };

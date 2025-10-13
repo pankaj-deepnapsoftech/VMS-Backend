@@ -33,7 +33,7 @@ export const BulkCreateBusinessApp = AsyncHandler(async (req, res) => {
 
   await ApplicationModel.create(dataWithCreator);
 
-  fs.unlinkSync(file.path); 
+  fs.unlinkSync(file.path);
 
   return res.status(StatusCodes.OK).json({
     message: "InfraStructure Assert Added Successful",
@@ -49,7 +49,7 @@ export const GetBusinessApp = AsyncHandler(async (req, res) => {
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
-  const data = await ApplicationModel.find(creator ? {creator} : {}).populate([{path:"asset"}]).sort({ _id: -1 }).skip(skip).limit(limits);
+  const data = await ApplicationModel.find(creator ? { creator } : {}).populate([{ path: "asset" }]).sort({ _id: -1 }).skip(skip).limit(limits);
   return res.status(StatusCodes.OK).json({
     message: "data",
     data
@@ -86,7 +86,7 @@ export const DeleteBusinessApp = AsyncHandler(async (req, res) => {
 
 export const GetAllBusinessApp = AsyncHandler(async (req, res) => {
   const creator = req?.currentUser?.tenant || req.query?.tenant;
-  const data = await ApplicationModel.find(creator ? {creator}: {}).sort({ _id: -1 }).select("name");
+  const data = await ApplicationModel.find(creator ? { creator } : {}).sort({ _id: -1 }).select("name");
   return res.status(StatusCodes.OK).json({
     message: "data",
     data
@@ -94,10 +94,37 @@ export const GetAllBusinessApp = AsyncHandler(async (req, res) => {
 });
 
 
-export const TVMChartForth = AsyncHandler(async(req,res)=>{
-  
-  const businessApplication = await ApplicationModel.find({}).countDocuments();
-  const infrastructureIP = await InfraStructureAssetModel.find({}).countDocuments();
+export const TVMChartForth = AsyncHandler(async (req, res) => {
+
+  let { year } = req.query;
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+
+  year = parseInt(year) || new Date().getFullYear();
+
+  const businessApplication = await ApplicationModel.find(creator ? {
+    creator,
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  } : {
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  }).countDocuments();
+  const infrastructureIP = await InfraStructureAssetModel.find(creator ? {
+    creator,
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  } : {
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  }).countDocuments();
 
   return res.status(StatusCodes.OK).json({
     businessApplication,
