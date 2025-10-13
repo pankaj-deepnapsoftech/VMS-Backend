@@ -747,7 +747,7 @@ const TVMThirdChart = AsyncHandler(async (req, res) => {
     }
   };
 
-  const data = await DataModel.aggregate([
+  const aggregationResult = await DataModel.aggregate([
     {
       $match: matchFilter
     },
@@ -773,10 +773,22 @@ const TVMThirdChart = AsyncHandler(async (req, res) => {
       }
     }
   ]);
+
+  // Ensure both "exploitable" and "not_exploitable" are included
+  const defaultCounts = {
+    exploitable: 0,
+    not_exploitable: 0
+  };
+
+  aggregationResult.forEach(item => {
+    defaultCounts[item.type] = item.count;
+  });
+
   res.status(StatusCodes.OK).json({
-    data
+    data: defaultCounts
   });
 });
+
 
 const TVMNinthChart = AsyncHandler(async (req, res) => {
 
