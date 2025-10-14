@@ -17,6 +17,9 @@ import {
   TVMThirdChart,
   TVMthenthChart,
   TVMElaventhChart,
+  TVMTwalththChart,
+  TVMThirteenthChart,
+  TVMfourteenthChart,
 } from '../controller/Data.controller.js';
 import { upload } from '../config/multer.config.js';
 import { Authentication } from '../middleware/Authentication.js';
@@ -39,5 +42,8 @@ routes.route("/get-assign-data").get(Authentication,getAllVulnerabilityDataForUs
 routes.route("/tvm-third-data").get(Authentication,TVMThirdChart);
 routes.route("/tvm-thenth-data").get(Authentication,TVMthenthChart);
 routes.route("/tvm-elaventh-data").get(Authentication,TVMElaventhChart);
+routes.route("/tvm-twelfth-data").get(Authentication,TVMTwalththChart);
+routes.route("/tvm-tharteenth-data").get(Authentication,TVMThirteenthChart);
+routes.route("/tvm-fourteenth-data").get(Authentication,TVMfourteenthChart);
 
 export default routes;

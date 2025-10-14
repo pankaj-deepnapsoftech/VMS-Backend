@@ -16,7 +16,7 @@ import { ApplicationModel } from '../models/BusinessApplications.model.js';
 import { SendMail } from '../utils/SendMain.js';
 import moment from 'moment';
 import { config } from '../config/env.config.js';
-import { calculateACS, calculateARS } from '../utils/calculation.js';
+import { calculateACS, calculateARS, calculateVRS } from '../utils/calculation.js';
 import { getRiskQuntificationData } from '../services/data.service.js';
 
 
@@ -972,14 +972,173 @@ const TVMElaventhChart = AsyncHandler(async (req, res) => {
       }
     });
 
+  const topFiveVulnerable = Object.values(topVulnerable)
+    .sort((a, b) => b.count - a.count) // Sort by count (descending)
+    .slice(0, 5);
+
 
 
   return res.status(StatusCodes.OK).json({
-    data: [topVulnerable],
+    data: topFiveVulnerable,
   });
 
 
 });
+
+const TVMTwalththChart = AsyncHandler(async (req, res) => {
+
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  let { year } = req.query;
+
+  year = parseInt(year) || new Date().getFullYear();
+
+  const matchFilter = {
+    ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
+
+
+  const data = await getRiskQuntificationData(matchFilter);
+
+
+  const topVulnerable = {};  // Track assets and their counts
+
+  data.map(item => ({
+    ...item,
+    ACS: item?.BusinessApplication
+      ? calculateACS(item?.BusinessApplication)
+      : calculateACS(item?.InfraStructureAsset)
+  })) // Add ACS field based on BusinessApplication or InfraStructureAsset
+    .sort((a, b) => b.ACS - a.ACS) // Sort by ACS (descending)
+    .map((item, index) => {
+      // Use asset_hostname as the key for easier tracking
+      const assetHostname = item?.BusinessApplication?.asset_hostname || item?.InfraStructureAsset?.asset_hostname;
+
+      if (!assetHostname) return; // Skip if there's no asset_hostname
+
+      // Initialize or update the count for the asset
+      if (!topVulnerable[assetHostname]) {
+        topVulnerable[assetHostname] = { name: assetHostname, count: item.ACS };
+      } else {
+        topVulnerable[assetHostname].count += item.ACS;
+      }
+    });
+
+  const topFiveVulnerable = Object.values(topVulnerable)
+    .sort((a, b) => b.count - a.count) // Sort by count (descending)
+    .slice(0, 5);
+
+  return res.status(StatusCodes.OK).json({
+    data: topFiveVulnerable,
+  });
+
+
+});
+
+const TVMThirteenthChart = AsyncHandler(async (req, res) => {
+
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  let { year } = req.query;
+
+  year = parseInt(year) || new Date().getFullYear();
+
+  const matchFilter = {
+    ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
+    status:"Open",
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
+
+
+
+  const data = await getRiskQuntificationData(matchFilter);
+
+
+  const topVulnerable = {};  // Track assets and their counts
+
+  data.map(item => ({
+    ...item,
+    VRS:  calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type) })) // Add ACS field based on BusinessApplication or InfraStructureAsset
+    .sort((a, b) => b.VRS - a.VRS) // Sort by ACS (descending)
+    .map((item) => {
+      // Use asset_hostname as the key for easier tracking
+      const assetHostname = item?.BusinessApplication?.asset_hostname || item?.InfraStructureAsset?.asset_hostname;
+
+      if (!assetHostname) return; // Skip if there's no asset_hostname
+
+      // Initialize or update the count for the asset
+      if (!topVulnerable[item.Title]) {
+        topVulnerable[item.Title] = { name: item.Title, count: item.VRS };
+      } 
+    });
+
+  const topFiveVulnerable = Object.values(topVulnerable)
+    .sort((a, b) => b.count - a.count) // Sort by count (descending)
+    .slice(0, 5);
+
+  return res.status(StatusCodes.OK).json({
+    data: topFiveVulnerable,
+  });
+
+
+});
+
+
+const TVMfourteenthChart = AsyncHandler(async (req, res) => {
+
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  let { year } = req.query;
+
+  year = parseInt(year) || new Date().getFullYear();
+
+  const matchFilter = {
+    ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
+    status:"Closed",
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
+
+
+
+  const data = await getRiskQuntificationData(matchFilter);
+
+
+  const topVulnerable = {};  // Track assets and their counts
+
+  data.map(item => ({
+    ...item,
+    VRS:  calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type) })) // Add ACS field based on BusinessApplication or InfraStructureAsset
+    .sort((a, b) => b.VRS - a.VRS) // Sort by ACS (descending)
+    .map((item) => {
+      // Use asset_hostname as the key for easier tracking
+      const assetHostname = item?.BusinessApplication?.asset_hostname || item?.InfraStructureAsset?.asset_hostname;
+
+      if (!assetHostname) return; // Skip if there's no asset_hostname
+
+      // Initialize or update the count for the asset
+      if (!topVulnerable[item.Title]) {
+        topVulnerable[item.Title] = { name: item.Title, count: item.VRS };
+      } 
+    });
+
+  const topFiveVulnerable = Object.values(topVulnerable)
+    .sort((a, b) => b.count - a.count) // Sort by count (descending)
+    .slice(0, 5);
+
+  return res.status(StatusCodes.OK).json({
+    data: topFiveVulnerable,
+  });
+
+
+});
+
 
 
 
@@ -1000,5 +1159,8 @@ export {
   getAllVulnerabilityDataForUser,
   TVMThirdChart,
   TVMthenthChart,
-  TVMElaventhChart
+  TVMElaventhChart,
+  TVMTwalththChart,
+  TVMThirteenthChart,
+  TVMfourteenthChart
 };

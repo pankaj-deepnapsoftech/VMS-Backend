@@ -139,3 +139,14 @@ export const getRiskQuntificationData = async (matchFilter) => {
 
   return data;
 };
+
+
+
+
+
+
+
+
+
+
+
