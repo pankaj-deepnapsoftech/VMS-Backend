@@ -1088,7 +1088,6 @@ const TVMThirteenthChart = AsyncHandler(async (req, res) => {
 
 });
 
-
 const TVMfourteenthChart = AsyncHandler(async (req, res) => {
 
   const creator = req?.currentUser?.tenant || req.query?.tenant;
@@ -1139,7 +1138,55 @@ const TVMfourteenthChart = AsyncHandler(async (req, res) => {
 
 });
 
+const TVMfifthteenthChart = AsyncHandler(async (req, res) => {
 
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  let { year } = req.query;
+
+  year = parseInt(year) || new Date().getFullYear();
+
+  const matchFilter = {
+    ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
+    status:"Closed",
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
+
+  const data = await getRiskQuntificationData(matchFilter);
+
+
+  const topVulnerable = {};  // Track assets and their counts
+
+  data.map(item => ({
+    ...item,
+    VRS:  calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type) })) // Add ACS field based on BusinessApplication or InfraStructureAsset
+    .sort((a, b) => b.VRS - a.VRS) // Sort by ACS (descending)
+    .map((item) => {
+      // Use asset_hostname as the key for easier tracking
+      const assetHostname = item?.BusinessApplication?.asset_hostname || item?.InfraStructureAsset?.asset_hostname;
+
+      if (!assetHostname) return; // Skip if there's no asset_hostname
+
+      // Initialize or update the count for the asset
+      if (!topVulnerable[item.Title]) {
+        topVulnerable[item.Title] = { name: item.Title, count: item.VRS };
+      } else {
+        topVulnerable[item.Title].count +=  item.VRS;
+      }
+    });
+
+  const topFiveVulnerable = Object.values(topVulnerable)
+    .sort((a, b) => b.count - a.count) // Sort by count (descending)
+    .slice(0, 5);
+
+  return res.status(StatusCodes.OK).json({
+    data: topFiveVulnerable,
+  });
+
+
+});
 
 
 
@@ -1162,5 +1209,6 @@ export {
   TVMElaventhChart,
   TVMTwalththChart,
   TVMThirteenthChart,
-  TVMfourteenthChart
+  TVMfourteenthChart,
+  TVMfifthteenthChart
 };
