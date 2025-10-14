@@ -16,7 +16,8 @@ import { ApplicationModel } from '../models/BusinessApplications.model.js';
 import { SendMail } from '../utils/SendMain.js';
 import moment from 'moment';
 import { config } from '../config/env.config.js';
-import { calculateARS } from '../utils/calculation.js';
+import { calculateACS, calculateARS } from '../utils/calculation.js';
+import { getRiskQuntificationData } from '../services/data.service.js';
 
 
 export const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -910,144 +911,11 @@ const TVMthenthChart = AsyncHandler(async (req, res) => {
   };
 
 
-  const data = await DataModel.aggregate([
-    {
-      $match: matchFilter
-    },
-    {
-      $lookup: {
-        from: "businessapplications",
-        localField: "BusinessApplication",
-        foreignField: "_id",
-        as: "BusinessApplication",
-        pipeline: [
-          {
-            $lookup: {
-              from: "infrastructureassets",
-              localField: "asset",
-              foreignField: "_id",
-              as: "asset",
-              pipeline: [
-                {
-                  $lookup: {
-                    from: "tags",
-                    localField: "service_role",
-                    foreignField: "_id",
-                    as: "service_role",
-                  }
-                },
-                {
-                  $lookup: {
-                    from: "tags",
-                    localField: "data_sensitivity",
-                    foreignField: "_id",
-                    as: "data_sensitivity",
-                  }
-                },
-                {
-                  $addFields: {
-                    service_role_score_total: { $sum: "$service_role.tag_score" },
-                    data_sensitivity: { $arrayElemAt: ["$data_sensitivity.tag_score", 0] },
-                    amount: { $arrayElemAt: ["$data_sensitivity.amount", 0] }
-
-                  }
-                }
-              ]
-            }
-          },
-          {
-            $addFields: {
-              asset_hostname: { $arrayElemAt: ["$asset.asset_hostname", 0] },
-              asset_class: { $arrayElemAt: ["$asset.asset_class", 0] },
-              exposure: { $arrayElemAt: ["$asset.exposure", 0] },
-              hosting: { $arrayElemAt: ["$asset.hosting", 0] },
-              data_sensitivity: { $arrayElemAt: ["$asset.data_sensitivity", 0] },
-              service_role_score_total: { $arrayElemAt: ["$asset.service_role_score_total", 0] },
-              amount: { $arrayElemAt: ["$asset.amount", 0] },
-            }
-          },
-          {
-            $project: {
-              name: 1,
-              asset_hostname: 1,
-              asset_class: 1,
-              exposure: 1,
-              hosting: 1,
-              data_sensitivity: 1,
-              service_role_score_total: 1,
-              amount: 1
-            }
-          }
-
-        ]
-      }
-    },
-    {
-      $lookup: {
-        from: "infrastructureassets",
-        localField: "InfraStructureAsset",
-        foreignField: "_id",
-        as: "InfraStructureAsset",
-        pipeline: [
-          {
-            $lookup: {
-              from: "tags",
-              localField: "service_role",
-              foreignField: "_id",
-              as: "service_role",
-            }
-          },
-          {
-            $lookup: {
-              from: "tags",
-              localField: "data_sensitivity",
-              foreignField: "_id",
-              as: "data_sensitivity",
-            }
-          },
-          {
-            $addFields: {
-              service_role_score_total: { $sum: "$service_role.tag_score" },
-              data_sensitivity: { $arrayElemAt: ["$data_sensitivity.tag_score", 0] },
-              amount: { $arrayElemAt: ["$data_sensitivity.amount", 0] }
-            }
-          },
-          {
-            $project: {
-              asset_hostname: 1,
-              asset_class: 1,
-              exposure: 1,
-              hosting: 1,
-              data_sensitivity: 1,
-              service_role_score_total: 1,
-              amount: 1
-            }
-          }
-        ]
-      }
-    },
-    {
-      $addFields: {
-        BusinessApplication: { $arrayElemAt: ["$BusinessApplication", 0] },
-        InfraStructureAsset: { $arrayElemAt: ["$InfraStructureAsset", 0] },
-      }
-    },
-    {
-      $project: {
-        Title: 1,
-        EPSS: 1,
-        exploit_complexity: 1,
-        Exploit_Availale: 1,
-        threat_type: 1,
-        InfraStructureAsset: 1,
-        BusinessApplication: 1
-      }
-    }
-  ]);
+  const data = await getRiskQuntificationData(matchFilter);
 
 
   const newData = data
-    .map(item => ({ title:item?.Title, RAS: calculateARS(item) }))         // Add RAS field
+    .map(item => ({ title: item?.Title, RAS: calculateARS(item) }))         // Add RAS field
     .sort((a, b) => b.RAS - a.RAS)                                // Sort descending by RAS
     .slice(0, 5);                                                 // Take top 5
 
@@ -1055,6 +923,59 @@ const TVMthenthChart = AsyncHandler(async (req, res) => {
 
   return res.status(StatusCodes.OK).json({
     data: newData
+  });
+
+
+});
+
+
+const TVMElaventhChart = AsyncHandler(async (req, res) => {
+
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  let { year } = req.query;
+
+  year = parseInt(year) || new Date().getFullYear();
+
+  const matchFilter = {
+    ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
+
+
+  const data = await getRiskQuntificationData(matchFilter);
+
+
+  const topVulnerable = {};  // Track assets and their counts
+
+  data
+    .map(item => ({
+      ...item,
+      ACS: item?.BusinessApplication
+        ? calculateACS(item?.BusinessApplication)
+        : calculateACS(item?.InfraStructureAsset)
+    })) // Add ACS field based on BusinessApplication or InfraStructureAsset
+    .sort((a, b) => b.ACS - a.ACS) // Sort by ACS (descending)
+    .map((item, index) => {
+      // Use asset_hostname as the key for easier tracking
+      const assetHostname = item?.BusinessApplication?.asset_hostname || item?.InfraStructureAsset?.asset_hostname;
+
+      if (!assetHostname) return; // Skip if there's no asset_hostname
+
+      // Initialize or update the count for the asset
+      if (!topVulnerable[assetHostname]) {
+        topVulnerable[assetHostname] = { name: assetHostname, count: 1 };
+      } else {
+        topVulnerable[assetHostname].count += 1;
+      }
+    });
+
+
+
+  return res.status(StatusCodes.OK).json({
+    data: [topVulnerable],
   });
 
 
@@ -1078,5 +999,6 @@ export {
   TVMNinthChart,
   getAllVulnerabilityDataForUser,
   TVMThirdChart,
-  TVMthenthChart
+  TVMthenthChart,
+  TVMElaventhChart
 };
