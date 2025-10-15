@@ -17,7 +17,7 @@ import { SendMail } from '../utils/SendMain.js';
 import moment from 'moment';
 import { config } from '../config/env.config.js';
 import { calculateACS, calculateARS, calculateVRS } from '../utils/calculation.js';
-import { getRiskQuntificationData } from '../services/data.service.js';
+import { getExploitableSeverityData, getRiskQuntificationData } from '../services/data.service.js';
 
 
 export const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -1047,7 +1047,7 @@ const TVMThirteenthChart = AsyncHandler(async (req, res) => {
 
   const matchFilter = {
     ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
-    status:"Open",
+    status: "Open",
     createdAt: {
       $gte: new Date(`${year}-01-01T00:00:00Z`),
       $lte: new Date(`${year}-12-31T23:59:59Z`)
@@ -1063,7 +1063,8 @@ const TVMThirteenthChart = AsyncHandler(async (req, res) => {
 
   data.map(item => ({
     ...item,
-    VRS:  calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type) })) // Add ACS field based on BusinessApplication or InfraStructureAsset
+    VRS: calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type)
+  })) // Add ACS field based on BusinessApplication or InfraStructureAsset
     .sort((a, b) => b.VRS - a.VRS) // Sort by ACS (descending)
     .map((item) => {
       // Use asset_hostname as the key for easier tracking
@@ -1074,7 +1075,7 @@ const TVMThirteenthChart = AsyncHandler(async (req, res) => {
       // Initialize or update the count for the asset
       if (!topVulnerable[item.Title]) {
         topVulnerable[item.Title] = { name: item.Title, count: item.VRS };
-      } 
+      }
     });
 
   const topFiveVulnerable = Object.values(topVulnerable)
@@ -1097,7 +1098,7 @@ const TVMfourteenthChart = AsyncHandler(async (req, res) => {
 
   const matchFilter = {
     ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
-    status:"Closed",
+    status: "Closed",
     createdAt: {
       $gte: new Date(`${year}-01-01T00:00:00Z`),
       $lte: new Date(`${year}-12-31T23:59:59Z`)
@@ -1113,7 +1114,8 @@ const TVMfourteenthChart = AsyncHandler(async (req, res) => {
 
   data.map(item => ({
     ...item,
-    VRS:  calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type) })) // Add ACS field based on BusinessApplication or InfraStructureAsset
+    VRS: calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type)
+  })) // Add ACS field based on BusinessApplication or InfraStructureAsset
     .sort((a, b) => b.VRS - a.VRS) // Sort by ACS (descending)
     .map((item) => {
       // Use asset_hostname as the key for easier tracking
@@ -1124,7 +1126,7 @@ const TVMfourteenthChart = AsyncHandler(async (req, res) => {
       // Initialize or update the count for the asset
       if (!topVulnerable[item.Title]) {
         topVulnerable[item.Title] = { name: item.Title, count: item.VRS };
-      } 
+      }
     });
 
   const topFiveVulnerable = Object.values(topVulnerable)
@@ -1147,7 +1149,7 @@ const TVMfifthteenthChart = AsyncHandler(async (req, res) => {
 
   const matchFilter = {
     ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
-    status:"Closed",
+    status: "Closed",
     createdAt: {
       $gte: new Date(`${year}-01-01T00:00:00Z`),
       $lte: new Date(`${year}-12-31T23:59:59Z`)
@@ -1161,7 +1163,8 @@ const TVMfifthteenthChart = AsyncHandler(async (req, res) => {
 
   data.map(item => ({
     ...item,
-    VRS:  calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type) })) // Add ACS field based on BusinessApplication or InfraStructureAsset
+    VRS: calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type)
+  })) // Add ACS field based on BusinessApplication or InfraStructureAsset
     .sort((a, b) => b.VRS - a.VRS) // Sort by ACS (descending)
     .map((item) => {
       // Use asset_hostname as the key for easier tracking
@@ -1173,7 +1176,7 @@ const TVMfifthteenthChart = AsyncHandler(async (req, res) => {
       if (!topVulnerable[item.Title]) {
         topVulnerable[item.Title] = { name: item.Title, count: item.VRS };
       } else {
-        topVulnerable[item.Title].count +=  item.VRS;
+        topVulnerable[item.Title].count += item.VRS;
       }
     });
 
@@ -1188,7 +1191,6 @@ const TVMfifthteenthChart = AsyncHandler(async (req, res) => {
 
 });
 
-
 const TVMSixteenthChart = AsyncHandler(async (req, res) => {
 
   const creator = req?.currentUser?.tenant || req.query?.tenant;
@@ -1198,7 +1200,7 @@ const TVMSixteenthChart = AsyncHandler(async (req, res) => {
 
   const matchFilter = {
     ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
-    status:"Open",
+    status: "Open",
     createdAt: {
       $gte: new Date(`${year}-01-01T00:00:00Z`),
       $lte: new Date(`${year}-12-31T23:59:59Z`)
@@ -1253,14 +1255,67 @@ const TVMSixteenthChart = AsyncHandler(async (req, res) => {
     result[item._id] = item.count;
   });
 
-
-
   res.status(StatusCodes.OK).json({
-    data:result
+    data: result
   });
 
 
 });
+
+const TVMninteenthChart = AsyncHandler(async (req, res) => {
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  let { year } = req.query;
+
+  year = parseInt(year) || new Date().getFullYear();
+
+  const matchFilter = {
+    ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
+    status: "Exception",
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
+
+  const data = await getExploitableSeverityData(matchFilter);
+
+  const topVulnerable = {};
+
+  data
+    .map((item) => {
+      return {
+        title: item.Title,
+        severity: item.Severity_name,
+        VRS: calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type),
+        assetHostname: item?.BusinessApplication?.asset_hostname || item?.InfraStructureAsset?.asset_hostname
+      };
+    })
+    .filter((item) => item.title) // Remove items without asset hostname
+    .sort((a, b) => b.VRS - a.VRS) // Sort by VRS descending
+    .forEach((item) => {
+      const key = item.title;
+
+      // Only keep the highest VRS per asset
+      if (!topVulnerable[key]) {
+        topVulnerable[key] = {
+          name: item.title,
+          severity: item.severity,
+          VRS:item.VRS
+        };
+      } else if(topVulnerable[key]) {
+        topVulnerable[key].VRS += item.VRS ;
+      }
+    });
+
+  const topFiveVulnerable = Object.values(topVulnerable)
+    .sort((a, b) => b.VRS - a.VRS)
+    .slice(0, 5);
+
+  res.status(StatusCodes.OK).json({
+    data: topFiveVulnerable
+  });
+});
+
 
 
 export {
@@ -1284,5 +1339,6 @@ export {
   TVMThirteenthChart,
   TVMfourteenthChart,
   TVMfifthteenthChart,
-  TVMSixteenthChart
+  TVMSixteenthChart,
+  TVMninteenthChart
 };

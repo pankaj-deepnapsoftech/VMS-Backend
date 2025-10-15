@@ -22,6 +22,7 @@ import {
   TVMfourteenthChart,
   TVMfifthteenthChart,
   TVMSixteenthChart,
+  TVMninteenthChart,
 } from '../controller/Data.controller.js';
 import { upload } from '../config/multer.config.js';
 import { Authentication } from '../middleware/Authentication.js';
@@ -49,5 +50,6 @@ routes.route("/tvm-tharteenth-data").get(Authentication,TVMThirteenthChart);
 routes.route("/tvm-fourteenth-data").get(Authentication,TVMfourteenthChart);
 routes.route("/tvm-fifteen-data").get(Authentication,  TVMfifthteenthChart);
 routes.route("/tvm-sixteen-data").get(Authentication,  TVMSixteenthChart);
+routes.route("/tvm-ninteen-data").get(Authentication,  TVMninteenthChart);
 
 export default routes;
