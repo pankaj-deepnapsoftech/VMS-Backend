@@ -1189,6 +1189,79 @@ const TVMfifthteenthChart = AsyncHandler(async (req, res) => {
 });
 
 
+const TVMSixteenthChart = AsyncHandler(async (req, res) => {
+
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  let { year } = req.query;
+
+  year = parseInt(year) || new Date().getFullYear();
+
+  const matchFilter = {
+    ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
+    status:"Open",
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
+
+  const aggData = await DataModel.aggregate([
+    {
+      $match: matchFilter,
+    },
+    {
+      $lookup: {
+        from: "severities",
+        localField: "Severity",
+        foreignField: "_id",
+        as: "Severity"
+      }
+    },
+    {
+      $unwind: {
+        path: "$Severity",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $addFields: {
+        trimmedSeverityName: {
+          $trim: { input: "$Severity.name" }
+        }
+      }
+    },
+    {
+      $match: {
+        trimmedSeverityName: { $in: ["High", "Critical"] }
+      }
+    },
+    {
+      $group: {
+        _id: "$trimmedSeverityName",
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  const result = {
+    High: 0,
+    Critical: 0
+  };
+
+  // Populate actual counts
+  aggData.forEach(item => {
+    result[item._id] = item.count;
+  });
+
+
+
+  res.status(StatusCodes.OK).json({
+    data:result
+  });
+
+
+});
+
 
 export {
   CreateData,
@@ -1210,5 +1283,6 @@ export {
   TVMTwalththChart,
   TVMThirteenthChart,
   TVMfourteenthChart,
-  TVMfifthteenthChart
+  TVMfifthteenthChart,
+  TVMSixteenthChart
 };
