@@ -32,7 +32,7 @@ const DataSchema = new Schema({
   creator: { type: Schema.Types.ObjectId, ref: "Tenant", required: true },
   assign:{type:Schema.Types.ObjectId,ref:"User"},
   comment:{type:String},
-  SLA:{type:String,enum:["MET","NOT MET"]},
+  SLA:{type:String,enum:["MET","NOT MET"],default:null},
 },
 { timestamps: true },
 );
