@@ -486,12 +486,12 @@ const updateOneData = AsyncHandler(async (req, res) => {
   let update = req.body;
 
 
-  const data = await DataModel.findById(id).exec();
+  const data = await DataModel.findById(id).populate("Severity").exec();
   if (!data) {
     throw new NotFoundError('data not Found', 'DeleteOneData method');
   }
 
-  let Exploit_Availale = false, Exploit_Details = "", EPSSData = "";
+  let Exploit_Availale = false, Exploit_Details = "", EPSSData = "", SLA = null;
 
   if (update?.CVE_ID) {
     Exploit_Availale = await getCveId(update?.CVE_ID);
@@ -501,7 +501,15 @@ const updateOneData = AsyncHandler(async (req, res) => {
     EPSSData = await EPSS(update?.CVE_ID);
   }
 
-  const result = await DataModel.findByIdAndUpdate(id, { ...update, Exploit_Availale, Exploit_Details, EPSS: EPSSData }).exec();
+  if (update.status === "Closed") {
+    const createdDate = new Date(data.createdAt);
+    const newDate = new Date(createdDate);
+    newDate.setDate(createdDate.getDate() + data?.Severity?.days);
+    const today = new Date();
+    SLA = newDate >= today ? "MET" : "NOT MET";
+  }
+
+  const result = await DataModel.findByIdAndUpdate(id, { ...update, Exploit_Availale, Exploit_Details, EPSS: EPSSData,SLA }).exec();
   res.status(StatusCodes.OK).json({
     message: 'data updated Successful',
   });
@@ -678,6 +686,7 @@ const TVMSecondChart = AsyncHandler(async (req, res) => {
     }
   ]);
 
+
   // Build month map
   const monthMap = new Map();
   result.forEach((item) => {
@@ -697,6 +706,7 @@ const TVMSecondChart = AsyncHandler(async (req, res) => {
       ...counts
     });
   });
+
 
   // Fill in missing months with 0s
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -1300,10 +1310,10 @@ const TVMninteenthChart = AsyncHandler(async (req, res) => {
         topVulnerable[key] = {
           name: item.title,
           severity: item.severity,
-          VRS:item.VRS
+          VRS: item.VRS
         };
-      } else if(topVulnerable[key]) {
-        topVulnerable[key].VRS += item.VRS ;
+      } else if (topVulnerable[key]) {
+        topVulnerable[key].VRS += item.VRS;
       }
     });
 
