@@ -246,9 +246,10 @@ const getAllVulnerabilityData = AsyncHandler(async (req, res) => {
   const limits = parseInt(limit) || 10;
   const skip = (Pages - 1) * limits;
   const creator = req?.currentUser?.tenant || req.query?.tenant;
+  const matchFilter = creator ? { creator: new mongoose.Types.ObjectId(creator), } : {};
   const data = await DataModel.aggregate([
     {
-      $match: creator ? { creator: new mongoose.Types.ObjectId(creator), } : {}
+      $match: matchFilter
     },
     {
       $lookup: {
@@ -385,7 +386,8 @@ const getAllVulnerabilityData = AsyncHandler(async (req, res) => {
         Exploit_Availale: 1,
         threat_type: 1,
         InfraStructureAsset: 1,
-        BusinessApplication: 1
+        BusinessApplication: 1,
+        SLA:1
       }
     }
   ]).sort({ _id: -1 }).skip(skip).limit(limits);
