@@ -10,10 +10,17 @@ import MainRoutes from './routes/index.js';
 import { CustomError, NotFoundError } from './utils/customError.js';
 import helmet from 'helmet';
 import hpp from 'hpp';
+import { DataJob } from './job/data.job.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
+
+
+
+
+
+DataJob();
 
 app.use(json({ limit: '20mb' }));
 app.use(urlencoded({ limit: '20mb', extended: true }));

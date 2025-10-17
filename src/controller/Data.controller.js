@@ -1161,7 +1161,7 @@ const TVMfifthteenthChart = AsyncHandler(async (req, res) => {
 
   const matchFilter = {
     ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
-    status: "Closed",
+    // status: "Closed",
     createdAt: {
       $gte: new Date(`${year}-01-01T00:00:00Z`),
       $lte: new Date(`${year}-12-31T23:59:59Z`)
@@ -1175,7 +1175,7 @@ const TVMfifthteenthChart = AsyncHandler(async (req, res) => {
 
   data.map(item => ({
     ...item,
-    VRS: calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type)
+    VRS: parseInt(calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type))
   })) // Add ACS field based on BusinessApplication or InfraStructureAsset
     .sort((a, b) => b.VRS - a.VRS) // Sort by ACS (descending)
     .map((item) => {
@@ -1298,7 +1298,7 @@ const TVMninteenthChart = AsyncHandler(async (req, res) => {
       return {
         title: item.Title,
         severity: item.Severity_name,
-        VRS: calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type),
+        VRS: parseInt(calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type)),
         assetHostname: item?.BusinessApplication?.asset_hostname || item?.InfraStructureAsset?.asset_hostname
       };
     })
@@ -1390,7 +1390,61 @@ const TVMeighteenthChart = AsyncHandler(async (req, res) => {
       return {
         title: item.Title,
         severity: item.Severity_name,
-        VRS: calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type),
+        VRS: parseInt(calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type)),
+        assetHostname: item?.BusinessApplication?.asset_hostname || item?.InfraStructureAsset?.asset_hostname
+      };
+    })
+    .filter((item) => item.title) // Remove items without asset hostname
+    .sort((a, b) => b.VRS - a.VRS) // Sort by VRS descending
+    .forEach((item) => {
+      const key = item.title;
+
+      // Only keep the highest VRS per asset
+      if (!topVulnerable[key]) {
+        topVulnerable[key] = {
+          name: item.title,
+          severity: item.severity,
+          VRS: item.VRS
+        };
+      } else if (topVulnerable[key]) {
+        topVulnerable[key].VRS += item.VRS;
+      }
+    });
+
+  const topFiveVulnerable = Object.values(topVulnerable)
+    .sort((a, b) => b.VRS - a.VRS)
+    .slice(0, 5);
+
+  res.status(StatusCodes.OK).json({
+    data: topFiveVulnerable
+  });
+});
+
+const TVMtwntyChart = AsyncHandler(async (req, res) => {
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  let { year } = req.query;
+
+  year = parseInt(year) || new Date().getFullYear();
+
+  const matchFilter = {
+    ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
+    // status: "Exception",
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
+
+  const data = await getExploitableSeverityData(matchFilter);
+
+  const topVulnerable = {};
+
+  data
+    .map((item) => {
+      return {
+        title: item.Title,
+        severity: item.Severity_name,
+        VRS: parseInt(calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type)),
         assetHostname: item?.BusinessApplication?.asset_hostname || item?.InfraStructureAsset?.asset_hostname
       };
     })
@@ -1422,7 +1476,6 @@ const TVMeighteenthChart = AsyncHandler(async (req, res) => {
 
 
 
-
 export {
   CreateData,
   getApplicationData,
@@ -1447,5 +1500,6 @@ export {
   TVMSixteenthChart,
   TVMninteenthChart,
   TVMSeventeenChart,
-  TVMeighteenthChart
+  TVMeighteenthChart,
+  TVMtwntyChart
 };

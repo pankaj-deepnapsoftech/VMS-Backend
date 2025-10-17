@@ -22,7 +22,6 @@ import TagRouter from "./Tags.routes.js";
 import VROCRouter from "./vroc.routes.js";
 import SevertyRoutes from "./Severity.routes.js";
 import NessusRoutes from "./nessus.route.js";
-import { TVMeighteenthChart} from '../controller/Data.controller.js';
 
 const routes = Router();
 
