@@ -387,7 +387,7 @@ const getAllVulnerabilityData = AsyncHandler(async (req, res) => {
         threat_type: 1,
         InfraStructureAsset: 1,
         BusinessApplication: 1,
-        SLA:1
+        SLA: 1
       }
     }
   ]).sort({ _id: -1 }).skip(skip).limit(limits);
@@ -511,7 +511,7 @@ const updateOneData = AsyncHandler(async (req, res) => {
     SLA = newDate >= today ? "MET" : "NOT MET";
   }
 
-  const result = await DataModel.findByIdAndUpdate(id, { ...update, Exploit_Availale, Exploit_Details, EPSS: EPSSData,SLA }).exec();
+  const result = await DataModel.findByIdAndUpdate(id, { ...update, Exploit_Availale, Exploit_Details, EPSS: EPSSData, SLA }).exec();
   res.status(StatusCodes.OK).json({
     message: 'data updated Successful',
   });
@@ -1328,6 +1328,99 @@ const TVMninteenthChart = AsyncHandler(async (req, res) => {
   });
 });
 
+const TVMSeventeenChart = AsyncHandler(async (req, res) => {
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  let { year } = req.query;
+
+  year = parseInt(year) || new Date().getFullYear();
+
+  const matchFilter = {
+    ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
+    SLA: { $exists: true, $in: ['MET', 'NOT MET'] },
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
+
+  const data = await DataModel.aggregate([
+    { $match: matchFilter },
+    {
+      $group: {
+        _id: '$SLA',
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  const result = {
+    MET: 0,
+    NOT_MET: 0
+  };
+
+  data.forEach(item => {
+    if (item._id === 'MET') result.MET = item.count;
+    else if (item._id === 'NOT MET') result.NOT_MET = item.count;
+  });
+
+  return res.status(StatusCodes.OK).json(result);
+});
+
+const TVMeighteenthChart = AsyncHandler(async (req, res) => {
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  let { year } = req.query;
+
+  year = parseInt(year) || new Date().getFullYear();
+
+  const matchFilter = {
+    ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
+    SLA: 'NOT MET',
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
+
+  const data = await getExploitableSeverityData(matchFilter);
+
+  const topVulnerable = {};
+
+  data
+    .map((item) => {
+      return {
+        title: item.Title,
+        severity: item.Severity_name,
+        VRS: calculateVRS(item.EPSS, item.exploit_complexity, item.Exploit_Availale, item.threat_type),
+        assetHostname: item?.BusinessApplication?.asset_hostname || item?.InfraStructureAsset?.asset_hostname
+      };
+    })
+    .filter((item) => item.title) // Remove items without asset hostname
+    .sort((a, b) => b.VRS - a.VRS) // Sort by VRS descending
+    .forEach((item) => {
+      const key = item.title;
+
+      // Only keep the highest VRS per asset
+      if (!topVulnerable[key]) {
+        topVulnerable[key] = {
+          name: item.title,
+          severity: item.severity,
+          VRS: item.VRS
+        };
+      } else if (topVulnerable[key]) {
+        topVulnerable[key].VRS += item.VRS;
+      }
+    });
+
+  const topFiveVulnerable = Object.values(topVulnerable)
+    .sort((a, b) => b.VRS - a.VRS)
+    .slice(0, 5);
+
+  res.status(StatusCodes.OK).json({
+    data: topFiveVulnerable
+  });
+});
+
+
 
 
 export {
@@ -1352,5 +1445,7 @@ export {
   TVMfourteenthChart,
   TVMfifthteenthChart,
   TVMSixteenthChart,
-  TVMninteenthChart
+  TVMninteenthChart,
+  TVMSeventeenChart,
+  TVMeighteenthChart
 };
