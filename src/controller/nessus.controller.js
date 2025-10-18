@@ -38,7 +38,7 @@ export const GetNessusData = AsyncHandler(async (req, res) => {
 
     if (remainingLimit > 0) {
       // Get extra from DataModel
-      dataModelData = await DataModel.find({})
+      dataModelData = await DataModel.find({}).populate([{path:"Severity"},{path:"InfraStructureAsset"},{path:"BusinessApplication"}])
         .limit(remainingLimit)
         .exec();
     }
@@ -46,7 +46,7 @@ export const GetNessusData = AsyncHandler(async (req, res) => {
     // If we’ve already passed all vulnerability data, skip into DataModel
     const dataSkip = skip - vulnCount;
 
-    dataModelData = await DataModel.find({})
+    dataModelData = await DataModel.find({}).populate([{path:"Severity"},{path:"InfraStructureAsset"},{path:"BusinessApplication"}])
       .skip(dataSkip)
       .limit(limitNum)
       .exec();
