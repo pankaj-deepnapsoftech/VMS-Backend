@@ -22,6 +22,7 @@ import TagRouter from "./Tags.routes.js";
 import VROCRouter from "./vroc.routes.js";
 import SevertyRoutes from "./Severity.routes.js";
 import NessusRoutes from "./nessus.route.js";
+import { TVMFiveChart } from '../controller/Data.controller.js';
 
 const routes = Router();
 
@@ -46,7 +47,7 @@ routes.use("/tags", Authentication, TagRouter);
 routes.use("/vroc", Authentication, VROCRouter);
 routes.use("/severity", Authentication, SevertyRoutes);
 routes.use("/nessus", NessusRoutes);
-// routes.get("/test",  TVMeighteenthChart);
+routes.get("/test",  TVMFiveChart);
 
 
 export default routes;

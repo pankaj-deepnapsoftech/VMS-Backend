@@ -802,6 +802,92 @@ const TVMThirdChart = AsyncHandler(async (req, res) => {
   });
 });
 
+const TVMFiveChart = AsyncHandler(async (req, res) => {
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  let { year } = req.query;
+
+  year = parseInt(year) || new Date().getFullYear();
+
+  const matchFilter = {
+    ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
+    status: "Open",
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`),
+    },
+  };
+
+  const data = await DataModel.aggregate([
+    {
+      $match: matchFilter,
+    },
+    {
+      $lookup: {
+        from: "severities",
+        foreignField: "_id",
+        localField: "Severity",
+        as: "Severity",
+      },
+    },
+    {
+      $unwind: {
+        path: "$Severity",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        createdAt: 1,
+        Severity: { name: "$Severity.name" },
+      },
+    },
+  ]);
+
+  // Categorize the results based on the number of days
+  const now = new Date();
+  const result = {
+    "first": {},
+    "second": {},
+    "third": {},
+  };
+
+  // Loop through the data and categorize
+  data.forEach((item) => {
+    const createdDate = new Date(item.createdAt);
+    const diffInTime = now - createdDate;
+    const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24)); // Calculate difference in days
+
+    let category;
+    if (diffInDays <= 30) {
+      category = "first";
+    } else if (diffInDays <= 90) {
+      category = "second";
+    } else {
+      category = "third";
+    }
+
+    // Initialize the severity object if it doesn't exist
+    if (!result[category][item.Severity.name]) {
+      result[category][item.Severity.name] = {
+        count: 0,
+        severity: item.Severity.name,
+      };
+    }
+
+    // Increment the count for the severity
+    result[category][item.Severity.name].count += 1;
+  });
+
+  // Convert the severity objects into an array for each category
+  for (let category in result) {
+    result[category] = Object.values(result[category]);
+  }
+
+  res.status(StatusCodes.OK).json({
+    data: result,
+  });
+});
+
 const TVMNinthChart = AsyncHandler(async (req, res) => {
 
   const creator = req?.currentUser?.tenant || req.query?.tenant;
@@ -939,7 +1025,6 @@ const TVMthenthChart = AsyncHandler(async (req, res) => {
 
 
 });
-
 
 const TVMElaventhChart = AsyncHandler(async (req, res) => {
 
@@ -1501,5 +1586,6 @@ export {
   TVMninteenthChart,
   TVMSeventeenChart,
   TVMeighteenthChart,
-  TVMtwntyChart
+  TVMtwntyChart,
+  TVMFiveChart
 };
