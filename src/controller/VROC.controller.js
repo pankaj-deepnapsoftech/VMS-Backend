@@ -3,6 +3,8 @@ import { DataModel } from "../models/Data.model.js";
 import { AsyncHandler } from "../utils/AsyncHandler.js";
 import { StatusCodes } from "http-status-codes";
 import { calculateALE, calculateARS } from "../utils/calculation.js";
+import { InfraStructureAssetModel } from "../models/InsfrastructureAsset.model.js";
+import { ApplicationModel } from "../models/BusinessApplications.model.js";
 
 
 export const GetRiskScoreData = AsyncHandler(async (req, res) => {
@@ -156,6 +158,71 @@ export const GetRiskScoreData = AsyncHandler(async (req, res) => {
     risk_score: (((riskScore / data.length) * 1000) / 100).toFixed(2),
     financial,
     data
+  });
+});
+
+
+export const AssertInventory = AsyncHandler(async (req, res) => {
+  let { year } = req.query;
+  year = new Date().getFullYear();
+
+  const matchFilter = !req?.currentUser?.role && {
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
+
+
+  const assertInventory = await InfraStructureAssetModel.aggregate([
+    {
+      $match: matchFilter
+    },
+    {
+      $facet: {
+        totelCount: [
+          { $count: 'count' }
+        ],
+        cretical: [
+          { $match: { modify_criticality: "Critical" } },
+          { $count: 'count' }
+        ]
+      }
+    },
+    {
+      $project: {
+        totalCount: { $arrayElemAt: ["$totelCount", 0] },
+        critical: { $arrayElemAt: ["$cretical", 0] }
+      }
+    }
+  ]);
+
+  const infrastructor = await ApplicationModel.aggregate([
+    {
+      $match: matchFilter
+    },
+    {
+      $facet: {
+        totelCount: [
+          { $count: 'count' }
+        ],
+        cretical: [
+          { $match: { modifyCriticality: "Critical" } },
+          { $count: 'count' }
+        ]
+      }
+    },
+    {
+      $project: {
+        totalCount: { $arrayElemAt: ["$totelCount", 0] },
+        critical: { $arrayElemAt: ["$cretical", 0] }
+      }
+    }
+  ]);
+
+  res.status(StatusCodes.OK).json({
+    assertInventory:assertInventory[0],
+    infrastructor:infrastructor[0]
   });
 });
 
