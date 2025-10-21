@@ -50,7 +50,7 @@ export const AssertInventory = AsyncHandler(async (req, res) => {
   };
 
 
-  const assertInventory = await InfraStructureAssetModel.aggregate([
+  const infrastructor = await InfraStructureAssetModel.aggregate([
     {
       $match: matchFilter
     },
@@ -97,7 +97,7 @@ export const AssertInventory = AsyncHandler(async (req, res) => {
   ]);
 
   res.status(StatusCodes.OK).json({
-    assertInventory: assertInventory[0],
+    infrastructor: infrastructor[0],
     businessApplication: businessApplication[0]
   });
 });
