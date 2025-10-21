@@ -105,7 +105,6 @@ export const AssertInventory = AsyncHandler(async (req, res) => {
 export const FinancialExposure = AsyncHandler(async (req, res) => {
   const creator = req?.currentUser?.tenant || req.query?.tenant;
   let year = req.query.year || new Date().getFullYear();
-  console.log(creator);
   const matchFilter = {
     creator: new mongoose.Types.ObjectId(creator), createdAt: {
       $gte: new Date(`${year}-01-01T00:00:00Z`),
@@ -114,8 +113,19 @@ export const FinancialExposure = AsyncHandler(async (req, res) => {
   };
 
   const data = await VrocAggraction(matchFilter);
+
+  const obj = {};
+
+  data.map((item)=>{
+    if(!obj[item?.InfraStructureAsset?.tag_name || item?.BusinessApplication?.tag_name]){
+      obj[item?.InfraStructureAsset?.tag_name || item?.BusinessApplication?.tag_name] = parseInt(calculateARS(item)) || 0;
+    }else{
+      obj[item?.InfraStructureAsset?.tag_name || item?.BusinessApplication?.tag_name] += parseInt(calculateARS(item)) || 0;
+    }
+  });
+
   res.status(StatusCodes.OK).json({
-    data
+    data:obj
   });
 });
 
