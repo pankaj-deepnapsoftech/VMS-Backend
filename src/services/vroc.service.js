@@ -7,6 +7,14 @@ export const VrocAggraction = async (matchfilter) => {
       $match: matchfilter
     },
     {
+      $lookup:{
+        from:"severities",
+        localField:"Severity",
+        foreignField:"_id",
+        as:"Severity"
+      }
+    },
+    {
       $lookup: {
         from: "businessapplications",
         localField: "BusinessApplication",
@@ -127,6 +135,7 @@ export const VrocAggraction = async (matchfilter) => {
       $addFields: {
         BusinessApplication: { $arrayElemAt: ["$BusinessApplication", 0] },
         InfraStructureAsset: { $arrayElemAt: ["$InfraStructureAsset", 0] },
+        Severity: { $arrayElemAt: ["$Severity.name", 0] },
       }
     },
     {
@@ -137,7 +146,8 @@ export const VrocAggraction = async (matchfilter) => {
         Exploit_Availale: 1,
         threat_type: 1,
         InfraStructureAsset: 1,
-        BusinessApplication: 1
+        BusinessApplication: 1,
+        Severity:1
       }
     }
   ]);

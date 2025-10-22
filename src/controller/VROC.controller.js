@@ -5,6 +5,7 @@ import { calculateALE, calculateARS } from "../utils/calculation.js";
 import { InfraStructureAssetModel } from "../models/InsfrastructureAsset.model.js";
 import { ApplicationModel } from "../models/BusinessApplications.model.js";
 import { VrocAggraction } from "../services/vroc.service.js";
+import { getRiskQuntificationData } from "../services/data.service.js";
 
 
 export const GetRiskScoreData = AsyncHandler(async (req, res) => {
@@ -129,6 +130,27 @@ export const FinancialExposure = AsyncHandler(async (req, res) => {
   });
 });
 
+
+export const TopFiveRiskIndicator = AsyncHandler(async (req,res) => {
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  let { year } = req.query;
+
+  year = parseInt(year) || new Date().getFullYear();
+
+  const matchFilter = {
+    ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
+
+
+  const data = await VrocAggraction(matchFilter);
+  return res.status(StatusCodes.OK).json({
+    data
+  });
+});
 
 
 
