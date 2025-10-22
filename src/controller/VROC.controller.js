@@ -138,7 +138,7 @@ export const TopFiveRiskIndicator = AsyncHandler(async (req,res) => {
   year = parseInt(year) || new Date().getFullYear();
 
   const matchFilter = {
-    ...(creator ? { creator: new mongoose.Types.ObjectId(creator) } : {}),
+    creator: new mongoose.Types.ObjectId(creator),
     createdAt: {
       $gte: new Date(`${year}-01-01T00:00:00Z`),
       $lte: new Date(`${year}-12-31T23:59:59Z`)
@@ -147,8 +147,13 @@ export const TopFiveRiskIndicator = AsyncHandler(async (req,res) => {
 
 
   const data = await VrocAggraction(matchFilter);
+
+  const newData = data
+    .map(item => ({ title: item?.Title,severity:item.Severity, RAS: parseInt(calculateARS(item)),exposure:(parseInt(calculateARS(item)) / 1000000 ).toFixed(5) || 0 }))         // Add RAS field
+    .sort((a, b) => b.RAS - a.RAS)                                // Sort descending by RAS
+    .slice(0, 5); 
   return res.status(StatusCodes.OK).json({
-    data
+    data:newData
   });
 });
 
