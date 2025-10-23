@@ -18,6 +18,7 @@ import moment from 'moment';
 import { config } from '../config/env.config.js';
 import { calculateACS, calculateARS, calculateVRS } from '../utils/calculation.js';
 import { getExploitableSeverityData, getRiskQuntificationData } from '../services/data.service.js';
+import { VulnerabilityReport } from '../models/nessus.model.js';
 
 
 export const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -558,7 +559,8 @@ const GetTVMCardData = AsyncHandler(async (req, res) => {
     vulnerableData,
     expections,
     infrastructure,
-    businessApplication
+    businessApplication,
+    nessusCount
   ] = await Promise.all([
     DataModel.find(finalFilter), // get all vulnerable data for the current year
     ExpectionModel.aggregate([
@@ -576,20 +578,22 @@ const GetTVMCardData = AsyncHandler(async (req, res) => {
       }
     ]),
     InfraStructureAssetModel.countDocuments(finalFilter), // Filter infrastructure by createdAt
-    ApplicationModel.countDocuments(finalFilter) // Filter business applications by createdAt
+    ApplicationModel.countDocuments(finalFilter), // Filter business applications by createdAt
+    VulnerabilityReport.find(finalFilter)
   ]);
 
   const remediatedCount = vulnerableData.filter(item => item.status === 'Closed').length;
+  const remediatedCount1 = nessusCount.filter(item => item.status === 'Closed').length;
   const expectionsCount = creator
     ? expections.filter(item => item.vulnerable_data.creator == creator).length
     : expections.length;
 
   return res.status(StatusCodes.OK).json({
-    vulnerableData: vulnerableData.length,
+    vulnerableData: vulnerableData.length + nessusCount.length,
     expections: expectionsCount,
     infrastructure,
     businessApplication,
-    Remediated: remediatedCount,
+    Remediated: remediatedCount + remediatedCount1,
   });
 });
 
@@ -601,6 +605,7 @@ const TVMFirstChart = AsyncHandler(async (req, res) => {
   const endOfYear = new Date(currentYear + 1, 0, 1); // January 1st of the next year (exclusive)
   const creator = req?.currentUser?.tenant || req.query?.tenant;
   const data = await DataModel.find(creator ? { creator, createdAt: { $gte: startOfYear, $lt: endOfYear } } : { createdAt: { $gte: startOfYear, $lt: endOfYear } });
+  const data1 = await VulnerabilityReport.find(creator ? { creator, createdAt: { $gte: startOfYear, $lt: endOfYear } } : { createdAt: { $gte: startOfYear, $lt: endOfYear } });
 
 
   let Open = 0, Closed = 0, exception = 0, False_Positive = 0;
@@ -609,7 +614,12 @@ const TVMFirstChart = AsyncHandler(async (req, res) => {
     if (item.status === "Closed") Closed++;
     if (item.status === "False Positive") False_Positive++;
     if (item.status === "Exception") exception++;
-
+  });
+  data1.map((item) => {
+    if (item.status === "Open" || item.status === "Re-Open") Open++;
+    if (item.status === "Closed") Closed++;
+    if (item.status === "False Positive") False_Positive++;
+    if (item.status === "Exception") exception++;
   });
 
   return res.status(StatusCodes.OK).json({
@@ -617,7 +627,7 @@ const TVMFirstChart = AsyncHandler(async (req, res) => {
     Closed,
     exception,
     False_Positive,
-    total: data.length
+    total: data.length + data1.length
   });
 });
 
