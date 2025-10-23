@@ -290,8 +290,6 @@ export const RiskTrend = AsyncHandler(async (req, res) => {
   });
 });
 
-
-
 export const FinancialExposureTrand = AsyncHandler(async (req, res) => {
   const creator = req?.currentUser?.tenant || req.query?.tenant;
   let { year } = req.query;
@@ -383,6 +381,40 @@ export const RemediationWorkflow = AsyncHandler(async (req, res) => {
   });
 });
 
+export const AttackExposure = AsyncHandler(async (req, res) => {
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  let year = req.query.year || new Date().getFullYear();
+
+  const matchFilter = {
+    creator: new mongoose.Types.ObjectId(creator),
+    InfraStructureAsset: { $exists: true },
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
+
+  // Fetch main risk data
+  const data = await VrocAggraction(matchFilter);
+
+  const obj = {};
+
+  data.map((item) => {
+    if (item.InfraStructureAsset.exposure == 6) {
+      if (!obj[item.InfraStructureAsset.asset_hostname]) {
+        obj[item.InfraStructureAsset.asset_hostname] = parseInt(calculateARS(item)) || 0;
+      } else if (obj[item.InfraStructureAsset.asset_hostname] < (parseInt(calculateARS(item)) || 0)) {
+        obj[item.InfraStructureAsset.asset_hostname] = parseInt(calculateARS(item)) || 0;
+      }
+    }
+  });
+
+  
+
+  return res.status(StatusCodes.OK).json({
+    data: obj
+  });
+});
 
 
 
