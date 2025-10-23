@@ -47,7 +47,7 @@ routes.use("/tags", Authentication, TagRouter);
 routes.use("/vroc", Authentication, VROCRouter);
 routes.use("/severity", Authentication, SevertyRoutes);
 routes.use("/nessus", NessusRoutes);
-// routes.get("/test",  RemediationWorkflow);
+routes.get("/test",  GetRiskScoreData);
 
 
 export default routes;

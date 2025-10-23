@@ -16,7 +16,6 @@ export const GetRiskScoreData = AsyncHandler(async (req, res) => {
   const creator = req?.currentUser?.tenant || req.query?.tenant;
   let year = req.query.year || new Date().getFullYear();
 
-
   const matchFilter = {
     creator: new mongoose.Types.ObjectId(creator),
     createdAt: {
@@ -25,50 +24,116 @@ export const GetRiskScoreData = AsyncHandler(async (req, res) => {
     }
   };
 
+  // Fetch main risk data
   const data = await VrocAggraction(matchFilter);
 
-  const Mttr = await DataModel.aggregate([
-    {
-      $match: { ...matchFilter, status: "Closed" }
-    },
-    {
-      // Calculate difference in days between createdAt and updatedAt
-      $addFields: {
-        diffDays: {
-          $divide: [
-            { $subtract: ["$updatedAt", "$createdAt"] },
-            1000 * 60 * 60 * 24 // convert milliseconds to days
-          ]
+  // ===== Common aggregation function for both models =====
+  const getMTTRData = async (Model) => {
+    return await Model.aggregate([
+      {
+        $match: {
+          ...matchFilter,
+          status: { $in: ["Open", "Closed"] }
+        }
+      },
+      {
+        // Calculate days based on status
+        $addFields: {
+          diffDays: {
+            $divide: [
+              {
+                $subtract: [
+                  {
+                    $cond: [
+                      { $eq: ["$status", "Closed"] },
+                      "$updatedAt", // if Closed → use updatedAt
+                      new Date()    // if Open → use current date
+                    ]
+                  },
+                  "$createdAt"
+                ]
+              },
+              1000 * 60 * 60 * 24 // convert ms → days
+            ]
+          }
+        }
+      },
+      {
+        // Group by status to get totals and average
+        $group: {
+          _id: "$status",
+          totalDays: { $sum: "$diffDays" },
+          count: { $sum: 1 },
+          averageDays: { $avg: "$diffDays" }
+        }
+      },
+      {
+        // Format output
+        $project: {
+          _id: 0,
+          status: "$_id",
+          totalDays: 1,
+          count: 1,
+          averageDays: { $round: ["$averageDays", 2] }
         }
       }
-    },
-    {
-      // Group to calculate totals
-      $group: {
-        _id: null,
-        totalDays: { $sum: "$diffDays" },
-        count: { $sum: 1 },
-        averageDays: { $avg: "$diffDays" } // optional: mean time to resolve
-      }
-    }
-  ]);
+    ]);
+  };
 
+  // ===== Run for both DataModel and VulnerabilityReport =====
+  const vuln = await getMTTRData(DataModel);
+  const nessus = await getMTTRData(VulnerabilityReport);
 
+  // ===== Combine MTTR results (weighted average) =====
+  const combinedMap = new Map();
 
+  const addToMap = (data) => {
+    data.forEach(({ status, averageDays, count }) => {
+      const existing = combinedMap.get(status) || { totalDays: 0, totalCount: 0 };
+      combinedMap.set(status, {
+        totalDays: existing.totalDays + averageDays * count,
+        totalCount: existing.totalCount + count
+      });
+    });
+  };
+
+  addToMap(vuln);
+  addToMap(nessus);
+
+  const combinedAverages = Array.from(
+    combinedMap,
+    ([status, { totalDays, totalCount }]) => ({
+      status,
+      averageDays: totalCount > 0
+        ? Math.round((totalDays / totalCount) * 100) / 100
+        : 0
+    })
+  );
+
+  // ===== Calculate overall MTTR =====
+  const totalMttr = combinedAverages.reduce((sum, item) => sum + item.averageDays, 0);
+  const overallMttr =
+    combinedAverages.length > 0
+      ? Math.round((totalMttr / combinedAverages.length) * 100) / 100
+      : 0;
+
+  // ===== Risk and Financial calculations =====
   let riskScore = 0;
   let financial = 0;
-  data.map((item) => {
+
+  data.forEach((item) => {
     riskScore += parseInt(calculateARS(item)) || 0;
     financial += parseInt(calculateALE(item)) || 0;
   });
 
-
+  // ===== Final Response =====
   return res.status(StatusCodes.OK).json({
     risk_score: ((riskScore / data.length) * 10).toFixed(2),
     financial,
-    mttr: Mttr[0]
+    mttr: overallMttr,
   });
 });
+
 
 export const AssertInventory = AsyncHandler(async (req, res) => {
   let year = req.query.year || new Date().getFullYear();
