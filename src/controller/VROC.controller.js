@@ -5,6 +5,8 @@ import { calculateALE, calculateARS } from "../utils/calculation.js";
 import { InfraStructureAssetModel } from "../models/InsfrastructureAsset.model.js";
 import { ApplicationModel } from "../models/BusinessApplications.model.js";
 import { monthsAggregation, VrocAggraction } from "../services/vroc.service.js";
+import { DataModel } from "../models/Data.model.js";
+import { VulnerabilityReport } from "../models/nessus.model.js";
 
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -25,6 +27,32 @@ export const GetRiskScoreData = AsyncHandler(async (req, res) => {
 
   const data = await VrocAggraction(matchFilter);
 
+  const Mttr = await DataModel.aggregate([
+    {
+      $match: { ...matchFilter, status: "Closed" }
+    },
+    {
+      // Calculate difference in days between createdAt and updatedAt
+      $addFields: {
+        diffDays: {
+          $divide: [
+            { $subtract: ["$updatedAt", "$createdAt"] },
+            1000 * 60 * 60 * 24 // convert milliseconds to days
+          ]
+        }
+      }
+    },
+    {
+      // Group to calculate totals
+      $group: {
+        _id: null,
+        totalDays: { $sum: "$diffDays" },
+        count: { $sum: 1 },
+        averageDays: { $avg: "$diffDays" } // optional: mean time to resolve
+      }
+    }
+  ]);
+
 
 
   let riskScore = 0;
@@ -38,7 +66,7 @@ export const GetRiskScoreData = AsyncHandler(async (req, res) => {
   return res.status(StatusCodes.OK).json({
     risk_score: ((riskScore / data.length) * 10).toFixed(2),
     financial,
-    data
+    mttr: Mttr[0]
   });
 });
 
@@ -217,7 +245,7 @@ export const FinancialExposureTrand = AsyncHandler(async (req, res) => {
 
   // initialize default months data
   const obj = {};
-  
+
   monthNames.forEach(month => {
     obj[month] = 0;
   });
@@ -234,6 +262,62 @@ export const FinancialExposureTrand = AsyncHandler(async (req, res) => {
     data: obj
   });
 });
+
+export const RemediationWorkflow = AsyncHandler(async (req, res) => {
+  const creator = req?.currentUser?.tenant || req.query?.tenant;
+  let { year } = req.query;
+
+  year = parseInt(year) || new Date().getFullYear();
+
+  const matchFilter = {
+    creator: new mongoose.Types.ObjectId(creator),
+    status: { $in: ["Open", "Closed", "Exception"] },
+    createdAt: {
+      $gte: new Date(`${year}-01-01T00:00:00Z`),
+      $lte: new Date(`${year}-12-31T23:59:59Z`)
+    }
+  };
+
+  // Get grouped data
+  const nessus = await VulnerabilityReport.aggregate([
+    { $match: matchFilter },
+    { $group: { _id: "$status", count: { $sum: 1 } } }
+  ]);
+
+  const vuln = await DataModel.aggregate([
+    { $match: matchFilter },
+    { $group: { _id: "$status", count: { $sum: 1 } } }
+  ]);
+
+  // ✅ Merge both arrays by status
+  const combinedMap = new Map();
+
+  // Add from nessus
+  nessus.forEach(item => {
+    combinedMap.set(item._id, (combinedMap.get(item._id) || 0) + item.count);
+  });
+
+  // Add from vuln
+  vuln.forEach(item => {
+    combinedMap.set(item._id, (combinedMap.get(item._id) || 0) + item.count);
+  });
+
+  let total = 0;
+  // Convert map → array
+  const newData = Array.from(combinedMap, ([status, count]) => {
+    total += count;
+    return {
+      name: status,
+      count
+    };
+  });
+
+  return res.status(StatusCodes.OK).json({
+    data: newData,
+    total
+  });
+});
+
 
 
 
