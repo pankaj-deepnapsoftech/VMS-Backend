@@ -1,13 +1,14 @@
 import { Schema, model } from 'mongoose';
+import { ImageSchem } from './ImageSchema.model.js';
 
 const ReportSchema = new Schema(
   {
-    Organization: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    file: { type: String, required: true },
-    creator: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    Type_Of_Assesment: { type: 'String', required: true },
+    file: ImageSchem,
+    creator: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
+    Type_Of_Assesment: { type: Schema.Types.ObjectId, ref: "Assessment" },
+    report_name: { type: String, required: true }
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export const ReportModel = model('Report', ReportSchema);

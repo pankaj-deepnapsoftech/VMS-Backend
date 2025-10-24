@@ -22,8 +22,7 @@ import TagRouter from "./Tags.routes.js";
 import VROCRouter from "./vroc.routes.js";
 import SevertyRoutes from "./Severity.routes.js";
 import NessusRoutes from "./nessus.route.js";
-import { GetTVMCardData } from '../controller/Data.controller.js';
-import { AttackExposure } from '../controller/VROC.controller.js';
+import { GetAllInProgressAssessment } from '../controller/Assessment.controller.js';
 
 const routes = Router();
 
@@ -48,7 +47,7 @@ routes.use("/tags", Authentication, TagRouter);
 routes.use("/vroc", Authentication, VROCRouter);
 routes.use("/severity", Authentication, SevertyRoutes);
 routes.use("/nessus", NessusRoutes);
-routes.get("/test",  AttackExposure);
+routes.get("/test",  GetAllInProgressAssessment);
 
 
 export default routes;

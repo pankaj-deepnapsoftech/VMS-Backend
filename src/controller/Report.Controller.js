@@ -3,38 +3,28 @@ import { config } from '../config/env.config.js';
 import { ReportModel } from '../models/Report.model.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { NotFoundError } from '../utils/customError.js';
-import fs from 'fs';
 
-const CreateReport = AsyncHandler(async (req, res) => {
-  if (!req?.file) {
-    throw new NotFoundError('File is Required Field', 'Create Report method');
-  }
-  let file = req.file;
-  const { Organization,Type_Of_Assesment } = req.body;
+export const CreateReport = AsyncHandler(async (req, res) => {
+  const data = req.body;
 
-  if (!Organization?.trim() || !Type_Of_Assesment?.trim()) {
-    fs.unlinkSync(file.path);
-    throw new NotFoundError('data not be empty', 'Create Report method');
-  }
-
-  file = config.NODE_ENV !== 'development' ? `${config.FILE_URL}/file/${file.filename}` : `${config.FILE_URL_LOCAL}/file/${file.filename}`;
-  await ReportModel.create({ file, creator: req.currentUser?._id, Organization,Type_Of_Assesment });
-  return res.status(StatusCodes.CREATED).json({
-    message: 'Report Upload Successful',
+  const result = await ReportModel.create(data);
+  res.status(StatusCodes.OK).json({
+    data:result
   });
 });
 
 const GetReport = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
+  const creator = req.query.tenant || req.currentUser?.tenant;
 
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 10;
   const skip = (pages - 1) * limits;
 
-  const data = await ReportModel.find({})
+  const data = await ReportModel.find(creator ? {creator} : {})
     .populate([
-      { path: 'creator', select: 'full_name role' },
-      { path: 'Organization', select: 'Organization' },
+      { path: 'creator', },
+      { path: 'Type_Of_Assesment' },
     ])
     .sort({ _id: -1 })
     .skip(skip)
@@ -119,4 +109,4 @@ const AssessorReport = AsyncHandler(async (req, res) => {
   });
 });
 
-export { CreateReport, GetReport, DeleteReport, UpdateReport, OrganizationReport, AssessorReport };
+export { GetReport, DeleteReport, UpdateReport, OrganizationReport, AssessorReport };
