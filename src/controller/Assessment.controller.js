@@ -257,7 +257,7 @@ const AdminGetAssessment = AsyncHandler(async (_req, res) => {
 
 export const GetAllInProgressAssessment = AsyncHandler(async (req,res) => {
   const Tenant_id = req.query.tenant || req.currentUser?.tenant;
-  const data = await AssessmentModel.find({Tenant_id,status:"In-Progress"}).select("Data_Classification");
+  const data = await AssessmentModel.find({Tenant_id,status:"In-Progress"}).select("Type_Of_Assesment");
   res.status(StatusCodes.OK).json({
     data
   });
