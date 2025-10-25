@@ -11,16 +11,15 @@ import { CustomError, NotFoundError } from './utils/customError.js';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import { DataJob } from './job/data.job.js';
+import { handleNodeEnv } from './index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 
-
-
-
-
 DataJob();
+
+
 
 app.use(json({ limit: '20mb' }));
 app.use(urlencoded({ limit: '20mb', extended: true }));
@@ -28,7 +27,7 @@ app.use(hpp());
 app.use(helmet({crossOriginResourcePolicy: { policy: 'cross-origin' },}));
 app.use(
   cors({
-    origin: config.NODE_ENV !== 'development' ? config.CLIENT_URL : config.CLIENT_URL_LOCAL,
+    origin:handleNodeEnv(config.NODE_ENV).client,
     methods: ['POST', 'PUT', 'PATCH', 'DELETE', 'GET', 'OPTIONS'],
     credentials: true,
   }),

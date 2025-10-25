@@ -3,17 +3,19 @@ dotenv.config()
 
 class Config {
     NODE_ENV;
-    CLIENT_URL;
+    VAPT_CLIENT_URL;
     CLIENT_URL_LOCAL;
-    MONGODB_URI;
+    DEMO_CLIENT_URL;
+    SECUREND_CLIENT_URL;
+    VAPT_MONGODB_URI;
+    SECUREND_MONGODB_URI;
+    DEMO_MONGODB_URI;
     EMAIL_ID;
     EMAIL_PASSWORD;
     JWT_SECRET;
     DOMAIN;
     JIRA_USERNAME;
     JIRA_API_KEY;
-    FILE_URL;
-    FILE_URL_LOCAL;
     OPENAPI_API_KEY;
     RECAPTCHA_SECRET;
     ENCRYPTION_KEY;
@@ -21,9 +23,13 @@ class Config {
     
     constructor(){
         this.NODE_ENV = process.env.NODE_ENV;
-        this.CLIENT_URL = process.env.CLIENT_URL;
+        this.VAPT_CLIENT_URL = process.env.VAPT_CLIENT_URL;
+        this.DEMO_CLIENT_URL = process.env.DEMO_CLIENT_URL;
+        this.SECUREND_CLIENT_URL = process.env.SECUREND_CLIENT_URL;
         this.CLIENT_URL_LOCAL = process.env.CLIENT_URL_LOCAL;
-        this.MONGODB_URI = process.env.MONGODB_URI;
+        this.VAPT_MONGODB_URI = process.env.VAPT_MONGODB_URI;
+        this.SECUREND_MONGODB_URI = process.env.SECUREND_MONGODB_URI;
+        this.DEMO_MONGODB_URI = process.env.DEMO_MONGODB_URI;
         this.EMAIL_ID = process.env.EMAIL_ID;
         this.EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
         this.JWT_SECRET = process.env.JWT_SECRET;

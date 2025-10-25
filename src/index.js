@@ -4,21 +4,27 @@ import { config } from './config/env.config.js';
 import { DbConnection } from './connections/MongoDb.js';
 import { app } from './server.js';
 
-// securend port
-// const SERVER_PORT = 8092; 
 
-//  vapt.deepmart.shop port
-const SERVER_PORT = 8078;
-
-// demo.securend.ai
-// const SERVER_PORT = 8095;
+export function handleNodeEnv(type) {
+  switch (type) {
+  case "vapt":
+    return { SERVER_PORT: 8078, MONGODB_URI: config.VAPT_MONGODB_URI,client:config.VAPT_CLIENT_URL };
+  case 'demo':
+    return { SERVER_PORT: 8095, MONGODB_URI: config.DEMO_MONGODB_URI,client:config.DEMO_CLIENT_URL };
+  case 'securend':
+    return { SERVER_PORT: 8092, MONGODB_URI: config.SECUREND_MONGODB_URI,client:config.SECUREND_CLIENT_URL };
+  default:
+    return { SERVER_PORT: 5000, MONGODB_URI: config.VAPT_MONGODB_URI,client:config.CLIENT_URL_LOCAL };
+  }
+}
 
 
 
 const startServer = async () => {
-  app.listen(SERVER_PORT);
-  console.log('Server is up and running on port : %d ', SERVER_PORT);
-  await DbConnection(config.MONGODB_URI);
+  const handler = handleNodeEnv(config.NODE_ENV);
+  app.listen(handler.SERVER_PORT);
+  console.log('Server is up and running on port : %d ', handler.SERVER_PORT);
+  await DbConnection(handler.MONGODB_URI);
 };
 
 startServer();
