@@ -8,7 +8,7 @@ const routes = Router();
 routes.route('/detailed-report').post(Authentication, CreateReport);
 routes.route('/get-report').get(Authentication, GetReport);
 routes.route('/delete-report/:id').delete(Authentication, DeleteReport);
-routes.route('/update-report/:id').put(EmployeeAuthentication, upload.single('report'), UpdateReport);
+routes.route('/update-report/:id').put(Authentication, upload.single('report'), UpdateReport);
 routes.route('/get-report-org').get(Authentication, OrganizationReport);
 routes.route('/get-report-assesor').get(EmployeeAuthentication, AssessorReport);
 

@@ -51,25 +51,13 @@ const DeleteReport = AsyncHandler(async (req, res) => {
 
 const UpdateReport = AsyncHandler(async (req, res) => {
   const { id } = req.params;
-  const file = req.file;
-  const { Organization } = req.body;
+  const { data } = req.body;
 
   const find = await ReportModel.findById(id);
   if (!find) {
     throw new NotFoundError('Data Not Found', 'UpdateReport Method');
   }
-  let data = null;
-  if (file) {
-    data = {
-      file: config.NODE_ENV !== 'development' ? `${config.FILE_URL}/file/${file.filename}` : `${config.FILE_URL_LOCAL}/file/${file.filename}`,
-      Organization,
-    };
-  } else {
-    data = {
-      Organization,
-    };
-  }
-
+  
   await ReportModel.findByIdAndUpdate(id, data);
   return res.status(StatusCodes.OK).json({
     message: 'Report Updated Successful',
