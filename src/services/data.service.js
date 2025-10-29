@@ -1,4 +1,5 @@
 import { DataModel } from "../models/Data.model.js";
+import { VulnerabilityReport } from "../models/nessus.model.js";
 
 
 export const getRiskQuntificationData = async (matchFilter) => {
@@ -302,6 +303,12 @@ export const getExploitableSeverityData = async (matchFilter) => {
   return data;
 };
 
+
+export const GetAllVulnerabilityData = async (finalFilter) => {
+  const nessus = await VulnerabilityReport.find(finalFilter);
+  const data = await DataModel.find(finalFilter);
+  return [...nessus,data];
+};
 
 
 

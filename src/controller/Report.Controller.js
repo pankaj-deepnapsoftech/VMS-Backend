@@ -5,6 +5,7 @@ import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { NotFoundError } from '../utils/customError.js';
 import { VulnerabilityReport } from '../models/nessus.model.js';
 import { DataModel } from '../models/Data.model.js';
+import { GetAllVulnerabilityData } from '../services/data.service.js';
 
 export const CreateReport = AsyncHandler(async (req, res) => {
   const data = req.body;
@@ -87,11 +88,10 @@ export const AllVulnerablity = AsyncHandler(async (req, res) => {
     createdAt: { $gte: startOfYear, $lt: endOfYear } // Filter by createdAt between start and end of the year
   };
 
-  const nessus = await VulnerabilityReport.find(finalFilter);
-  const data = await DataModel.find(finalFilter);
+  const data = GetAllVulnerabilityData(finalFilter);
 
   res.status(StatusCodes.OK).json({
-    data: [...nessus, ...data]
+    data
   });
 });
 
