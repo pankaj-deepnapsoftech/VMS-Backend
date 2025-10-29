@@ -22,7 +22,8 @@ import TagRouter from "./Tags.routes.js";
 import VROCRouter from "./vroc.routes.js";
 import SevertyRoutes from "./Severity.routes.js";
 import NessusRoutes from "./nessus.route.js";
-import { AllVulnerablity } from '../controller/Report.Controller.js';
+import MailingRoutes from "./Mailing.routes.js";
+// import { AllVulnerablity } from '../controller/Report.Controller.js';
 
 const routes = Router();
 
@@ -47,6 +48,7 @@ routes.use("/tags", Authentication, TagRouter);
 routes.use("/vroc", Authentication, VROCRouter);
 routes.use("/severity", Authentication, SevertyRoutes);
 routes.use("/nessus", NessusRoutes);
+routes.use("/mailing", AuthRoutes,MailingRoutes);
 // routes.get("/test",  AllVulnerablity);
 
 
