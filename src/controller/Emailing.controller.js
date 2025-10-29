@@ -6,6 +6,7 @@ import { NotFoundError } from "../utils/customError.js";
 
 export const CreateMailing = AsyncHandler(async (req, res) => {
   const data = req.body;
+  
   const result = await EmaliingModal.create(data);
   return res.status(StatusCodes.OK).json({
     message: "Mailing sheduled",

@@ -8,7 +8,7 @@ const EmailingSchema = new Schema({
   time:{type:String},
   date:{type:String},
   day:{type:String},
-  tenant:{type:Schema.Types.ObjectId,ref:"Tenant",unique:true},
+  tenant:{type:Schema.Types.ObjectId,ref:"Tenant"},
   users:{type:[Schema.Types.ObjectId],ref:"User",required:true}
 });
 
