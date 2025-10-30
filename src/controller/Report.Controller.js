@@ -88,7 +88,7 @@ export const AllVulnerablity = AsyncHandler(async (req, res) => {
     createdAt: { $gte: startOfYear, $lt: endOfYear } // Filter by createdAt between start and end of the year
   };
 
-  const data = GetAllVulnerabilityData(finalFilter);
+  const data = await GetAllVulnerabilityData(finalFilter);
 
   res.status(StatusCodes.OK).json({
     data

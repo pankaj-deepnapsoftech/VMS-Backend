@@ -307,7 +307,7 @@ export const getExploitableSeverityData = async (matchFilter) => {
 export const GetAllVulnerabilityData = async (finalFilter) => {
   const nessus = await VulnerabilityReport.find(finalFilter);
   const data = await DataModel.find(finalFilter);
-  return [...nessus,data];
+  return [...nessus,...data];
 };
 
 

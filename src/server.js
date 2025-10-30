@@ -10,14 +10,17 @@ import MainRoutes from './routes/index.js';
 import { CustomError, NotFoundError } from './utils/customError.js';
 import helmet from 'helmet';
 import hpp from 'hpp';
-import { DataJob } from './job/data.job.js';
+import { DailyJob, DataJob } from './job/data.job.js';
 import { handleNodeEnv } from './index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 
+
+// jobs run here
 DataJob();
+DailyJob();
 
 
 
