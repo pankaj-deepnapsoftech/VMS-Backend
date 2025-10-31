@@ -53,11 +53,10 @@ export async function DataJob() {
 
 // ================== Email Jobs ==================
 export async function DailyJob() {
-  cron.schedule("05 16 * * *", async () => {
+  cron.schedule("0 0 * * *", async () => {
     const data = await EmaliingModal.find({ scheduled: { $exists: true } })
       .populate({ path: "users", select: "email" });
     await handleScheduleJobs(data);
-    console.log("DailyJob executed");
   });
 }
 

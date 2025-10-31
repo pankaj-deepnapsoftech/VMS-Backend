@@ -7,12 +7,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/**
- * Save JSON array to Excel with only actual dataset fields
- * @param {Array<Object>} jsonData
- * @param {string} fileName
- * @returns {Promise<string>} file path
- */
+
 export async function saveJsonToExcel(jsonData, fileName = "data.xlsx") {
   try {
     if (!Array.isArray(jsonData) || jsonData.length === 0) {
