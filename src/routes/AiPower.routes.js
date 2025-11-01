@@ -6,7 +6,7 @@ const routes = Router();
 routes.route("/create").post(CreateAiPower);
 routes.route("/get").get(GetAiPower);
 routes.route("/update/:id").put(UpdateAiPower);
-routes.route("/delete/:id").patch(DeleteAiPower);
+routes.route("/delete/:id").delete(DeleteAiPower);
 
 
 export default routes;
