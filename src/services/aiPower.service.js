@@ -9,7 +9,7 @@ export const createAiPowerData = async (data) => {
 };
 
 export const getAiPowerData = async (match,skip,limit) => {
-  const result = await AiPoweredModel.find(match).sort({_id:-1}).skip(skip).limit(limit);
+  const result = await AiPoweredModel.find(match).sort({_id:-1}).populate([{path:"tenant",select:"company_name"},{path:"user",select:"fname lname email"}]).skip(skip).limit(limit);
   return result;
 };
 
