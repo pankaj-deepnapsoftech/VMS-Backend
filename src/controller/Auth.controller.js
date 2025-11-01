@@ -79,6 +79,7 @@ const LoginUser = AsyncHandler(async (req, res) => {
   const token = SignToken({ email: user.email, id: user._id });
   const newToken = JWTSecretencrypt({ token });
 
+
   res.status(StatusCodes.OK).json({
     message: 'Login Successful',
     user,

@@ -23,6 +23,7 @@ import VROCRouter from "./vroc.routes.js";
 import SevertyRoutes from "./Severity.routes.js";
 import NessusRoutes from "./nessus.route.js";
 import MailingRoutes from "./Mailing.routes.js";
+import AiPowerRoutes from "./AiPower.routes.js";
 // import { AllVulnerablity } from '../controller/Report.Controller.js';
 
 const routes = Router();
@@ -49,6 +50,7 @@ routes.use("/vroc", Authentication, VROCRouter);
 routes.use("/severity", Authentication, SevertyRoutes);
 routes.use("/nessus", NessusRoutes);
 routes.use("/mailing", Authentication,MailingRoutes);
+routes.use("/ai-power-scan", Authentication,AiPowerRoutes);
 // routes.get("/test",  AllVulnerablity);
 
 
